@@ -1,0 +1,36 @@
+{
+  "//": "Example OpenCanary config. Copy to ~/.opencanary.conf and edit.",
+  "//security": "NEVER commit your real config. Scrub hostnames/IPs before sharing.",
+
+  "device.node_id": "honeypi",
+  "ip.ignorelist": [ ],
+  "logtype.ignorelist": [ ],
+
+  "ftp.enabled": true,
+  "ftp.port": 21,
+  "ftp.banner": "FTP server ready",
+
+  "http.enabled": true,
+  "http.port": 80,
+  "http.banner": "Apache/2.4.41 (Ubuntu)",
+  "http.skin": "basicLogin",
+
+  "ssh.enabled": true,
+  "ssh.port": 22,
+  "ssh.version": "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.1",
+
+  "telnet.enabled": false,
+  "telnet.port": 23,
+
+  "logger": {
+    "class": "PyLogger",
+    "kwargs": {
+      "handlers": {
+        "file": {
+          "class": "logging.FileHandler",
+          "filename": "/var/tmp/opencanary.log"
+        }
+      }
+    }
+  }
+}

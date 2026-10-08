@@ -1,0 +1,33 @@
+# NEVER commit secrets or real environment details
+# --------------------------------------------------
+# Real configs (keep only *.example in the repo)
+config/opencanary/opencanary.conf
+*.conf
+!*.conf.example
+
+# Secrets, keys, credentials
+*.key
+*.pem
+*.env
+.env
+secrets*
+*password*
+*credentials*
+
+# SSH
+id_rsa*
+known_hosts
+
+# Logs captured from the real lab (may contain real IPs/MACs)
+*.log
+logs/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Screenshots: keep the folder, scrub sensitive info before committing images
+# (this does NOT ignore images — review each one by hand)

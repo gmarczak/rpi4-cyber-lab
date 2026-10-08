@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="14">
+  <rect x="0" y="0" width="900" height="560" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#475569"/>
+    </marker>
+    <marker id="arrowGood" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#15803d"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="40" font-size="20" font-weight="700" fill="#0f172a">Home Cyber Lab — Network Topology</text>
+  <text x="30" y="64" font-size="13" fill="#64748b">Attacker (PC) and defender (Raspberry Pi) on the home LAN; targets isolated in VirtualBox</text>
+
+  <!-- Home LAN box -->
+  <rect x="30" y="90" width="840" height="300" rx="12" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="48" y="114" font-size="13" font-weight="600" fill="#64748b">Home LAN (router)</text>
+
+  <!-- Router -->
+  <rect x="390" y="130" width="120" height="54" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="1.25"/>
+  <text x="450" y="162" text-anchor="middle" font-weight="600" fill="#0f172a">Router</text>
+
+  <!-- PC (attacker) -->
+  <rect x="60" y="230" width="360" height="140" rx="10" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="80" y="256" font-size="15" font-weight="700" fill="#0f172a">PC — Attacker (red team)</text>
+
+  <!-- Internal network inside PC -->
+  <rect x="80" y="270" width="200" height="86" rx="8" fill="#fff7ed" stroke="#b45309" stroke-width="1.25" stroke-dasharray="5 4"/>
+  <text x="92" y="289" font-size="12" font-weight="600" fill="#b45309">VirtualBox — Internal Network</text>
+  <text x="92" y="311" fill="#0f172a">• Kali Linux</text>
+  <text x="92" y="331" fill="#0f172a">• DVWA / Juice Shop (targets)</text>
+  <text x="92" y="349" font-size="11" fill="#64748b">isolated — no internet</text>
+
+  <!-- Kali bridged note -->
+  <text x="296" y="312" font-size="11" fill="#64748b">Kali also has a</text>
+  <text x="296" y="327" font-size="11" fill="#64748b">2nd NIC (Bridged)</text>
+  <text x="296" y="342" font-size="11" fill="#64748b">→ sees the Pi</text>
+
+  <!-- Raspberry Pi (defender) -->
+  <rect x="560" y="230" width="280" height="140" rx="10" fill="#f0fdf4" stroke="#15803d" stroke-width="2"/>
+  <text x="580" y="256" font-size="15" font-weight="700" fill="#0f172a">Raspberry Pi — Defender (blue team)</text>
+  <text x="580" y="284" fill="#0f172a">• Honeypot (OpenCanary)</text>
+  <text x="580" y="306" fill="#0f172a">• Monitoring (Suricata, ntopng)</text>
+  <text x="580" y="328" fill="#0f172a">• Logs + alerts</text>
+  <text x="580" y="352" font-size="11" fill="#64748b">runs 24/7, wired to router</text>
+
+  <!-- Connections PC <-> router, Pi <-> router -->
+  <path d="M240 230 L240 200 L390 165" fill="none" stroke="#475569" stroke-width="1.25"/>
+  <path d="M700 230 L700 200 L510 165" fill="none" stroke="#475569" stroke-width="1.25"/>
+
+  <!-- Attack arrow (Kali -> Pi over bridged) -->
+  <path d="M420 290 L560 290" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#arrowGood)"/>
+  <text x="490" y="282" text-anchor="middle" font-size="11" fill="#15803d">scan nmap</text>
+  <text x="490" y="305" text-anchor="middle" font-size="11" fill="#15803d">(Bridged)</text>
+
+  <!-- Learning loop -->
+  <rect x="30" y="420" width="840" height="110" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.25"/>
+  <text x="48" y="446" font-size="14" font-weight="700" fill="#0f172a">Learning loop</text>
+  <text x="48" y="472" fill="#0f172a">1. Attack the Pi from Kali (over Bridged)  →  2. Check OpenCanary &amp; Suricata logs  →  3. Did the defender catch it? Tune rules.</text>
+  <text x="48" y="500" font-size="12" fill="#64748b">Web-app attacks (DVWA / Juice Shop) happen inside the Internal Network and never cross the Pi — that's a separate exercise.</text>
+  <text x="48" y="520" font-size="12" fill="#64748b">⚠ Own hardware / own network only. Targets never exposed to the internet.</text>
+</svg>
