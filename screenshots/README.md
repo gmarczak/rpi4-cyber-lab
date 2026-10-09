@@ -15,6 +15,7 @@ Drop build screenshots and photos here, e.g.:
   - `01`–`07`: kroki Raspberry Pi Imager / Raspberry Pi Imager steps
   - `10`–`14`: zdjęcia z montażu / assembly photos
   - `20`: pierwsze logowanie SSH (adres IPv6 i odcisk klucza zamazane) / first SSH login (IPv6 address and key fingerprint blurred)
+  - `21`: restart po aktualizacji i `lsblk` (adres IPv6 zamazany) / reboot after the update and `lsblk` (IPv6 address blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 
