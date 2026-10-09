@@ -9,6 +9,13 @@ Drop build screenshots and photos here, e.g.:
 - `04-opencanary-alert.png` — pierwszy alert honeypota / first honeypot alert
 - `05-suricata-detect.png` — wykryty skan / detected scan
 
+## Galerie / Galleries
+
+- [`2026-10-09-assembly/`](2026-10-09-assembly/): nagrywanie systemu w Imagerze, radiatory, obudowa, pierwsze logowanie SSH / OS flashing in Imager, heatsinks, case, first SSH login
+  - `01`–`07`: kroki Raspberry Pi Imager / Raspberry Pi Imager steps
+  - `10`–`14`: zdjęcia z montażu / assembly photos
+  - `20`: pierwsze logowanie SSH (adres IPv6 i odcisk klucza zamazane) / first SSH login (IPv6 address and key fingerprint blurred)
+
 ## ⚠️ Zanim wrzucisz / Before committing
 
 To repo jest **publiczne**. Przed wrzuceniem obrazka zamaż / usuń:

@@ -45,7 +45,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 ## Status
 
-🚧 Build in progress — parts arrived 2026-10-08. Follow the [build log](build-log/build-log.md).
+🚧 Build in progress — Pi assembled and reachable over SSH (2026-10-09). Follow the [build log](build-log/build-log.md).
 
 ## License
 
