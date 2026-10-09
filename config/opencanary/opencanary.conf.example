@@ -1,10 +1,9 @@
 {
-  "//": "Example OpenCanary config. Copy to ~/.opencanary.conf and edit.",
-  "//security": "NEVER commit your real config. Scrub hostnames/IPs before sharing.",
+  "//": "Najważniejsze ustawienia honeypota na honeypi. Pełny plik tworzy: sudo env PATH=/opt/opencanary/bin:$PATH opencanaryd --copyconfig",
+  "//2": "Plik na Raspberry: /etc/opencanaryd/opencanary.conf (właściciel root). Zmiany wprowadzam skryptem z docs/03, krok 10.",
+  "//security": "Nie wrzucaj do repo prawdziwego configu z adresami ani kluczami.",
 
   "device.node_id": "honeypi",
-  "ip.ignorelist": [ ],
-  "logtype.ignorelist": [ ],
 
   "ftp.enabled": true,
   "ftp.port": 21,
@@ -12,15 +11,12 @@
 
   "http.enabled": true,
   "http.port": 80,
-  "http.banner": "Apache/2.4.41 (Ubuntu)",
-  "http.skin": "basicLogin",
+  "http.banner": "Apache/2.4.62 (Debian)",
+  "http.skin": "nasLogin",
 
   "ssh.enabled": true,
   "ssh.port": 22,
-  "ssh.version": "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.1",
-
-  "telnet.enabled": false,
-  "telnet.port": 23,
+  "ssh.version": "SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u3",
 
   "logger": {
     "class": "PyLogger",
@@ -28,7 +24,7 @@
       "handlers": {
         "file": {
           "class": "logging.FileHandler",
-          "filename": "/var/tmp/opencanary.log"
+          "filename": "/var/log/opencanary/opencanary.log"
         }
       }
     }

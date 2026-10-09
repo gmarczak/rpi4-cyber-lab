@@ -26,6 +26,7 @@ Drop build screenshots and photos here, e.g.:
   - `36`–`38`: firewall `ufw`: instalacja, reguły i test SSH (adres IPv6 zamazany) / `ufw` firewall: install, rules and SSH test (IPv6 blurred)
   - `39`: wyłączenie Wi-Fi i Bluetooth (adres MAC i IPv6 zamazane) / Wi-Fi and Bluetooth disabled (MAC and IPv6 blurred)
   - `40`–`46`: stały adres IP w FunBoxie (nazwy innych urządzeń, ich adresy i wszystkie adresy MAC zamazane) / static IP in the FunBox (other devices' names and addresses, and all MACs hidden)
+  - `47`–`61`: honeypot OpenCanary: instalacja, konfiguracja, firewall, pierwsze alerty, usługa systemd (adres PC i IPv6 zamazane) / OpenCanary honeypot: install, config, firewall, first alerts, systemd service (PC address and IPv6 blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

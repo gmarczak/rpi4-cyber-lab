@@ -1,0 +1,17 @@
+# /etc/systemd/system/opencanary.service
+# Usługa honeypota OpenCanary — opis w docs/03-defender-raspberry.md, krok 4.
+[Unit]
+Description=OpenCanary honeypot
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/var/log/opencanary
+
+[Service]
+Type=simple
+Environment=PATH=/opt/opencanary/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/opt/opencanary/bin/opencanaryd --dev --uid=opencanary --gid=opencanary
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

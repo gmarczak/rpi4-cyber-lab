@@ -7,6 +7,20 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Honeypot OpenCanary / OpenCanary honeypot
+
+🇵🇱 Etap 2 ruszył. OpenCanary 0.9.10 zainstalowany w `/opt/opencanary` (venv), udaje SSH (22), stronę logowania „DiskStation” (80) i FTP (21), działa jako osobny użytkownik `opencanary`, logi idą na pendrive. Test z PC: otwarcie strony, logowanie `admin`/`admin132` i `ssh test@…` z hasłem `haslo123` — wszystko zapisane w logu z adresem, programem, loginem i hasłem. Na koniec usługa systemd; po restarcie honeypot wstaje sam.
+
+🇬🇧 Stage 2 started. OpenCanary 0.9.10 in a venv under `/opt/opencanary`, faking SSH (22), a "DiskStation" login page (80) and FTP (21), running as a dedicated `opencanary` user, logging to the USB stick. Tests from the PC (web login and SSH login) were logged with source, client, username and password. Runs as a systemd service and comes back after reboot.
+
+**Wpadki / Gotchas:** `opencanaryd --copyconfig` pod `sudo` użył systemowego Pythona i wypisał „ready”, choć nic nie skopiował — naprawione przez `sudo env PATH=/opt/opencanary/bin:$PATH`. Cztery komendy `ufw` wklejone naraz — wykonała się tylko pierwsza. `ssh honeypi.local` na porcie 22 zablokowany przez `REMOTE HOST IDENTIFICATION HAS CHANGED` — tak ma być, to ochrona przed podszyciem.
+
+**Lekcja / Lesson:** komunikat „gotowe” to nie dowód — sprawdzaj wynik. / A "done" message is not proof — check the result.
+
+Opis / Walkthrough: [docs/03, część 1](../docs/03-defender-raspberry.md)
+
+---
+
 ## 2026-10-09 — Montaż i pierwsze logowanie / Assembly and first login
 
 🇵🇱 Nagrałem Raspberry Pi OS Lite (64-bit) w Raspberry Pi Imager: nazwa hosta `honeypi`, strefa Europe/Warsaw, własny użytkownik, SSH z logowaniem hasłem. Wi-Fi i Raspberry Pi Connect zostawiłem wyłączone, bo obrońca ma chodzić po kablu i mieć jak najmniej furtek z zewnątrz. Potem radiatory: procesor, RAM, kontroler USB (VIA) i kontroler Ethernet. Czwarty radiator miał iść na układ zasilania przy USB-C, ale stał na otaczających go cewkach, a nie na chipie, więc przeniosłem go na Ethernet. Płytka w dwuczęściowej obudowie, gumowe nóżki, karta, pendrive, LAN, zasilanie. Pierwsze `ssh` z Windowsa po `honeypi.local` zadziałało od razu.

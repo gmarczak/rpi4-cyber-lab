@@ -7,23 +7,25 @@
 #   chmod +x setup-defender.sh && ./setup-defender.sh
 #
 # UWAGA / NOTE: skrypt NIE zawiera haseł ani adresów. OpenCanary skonfiguruj
-# ręcznie wg config/opencanary/opencanary.conf.example.
+# ręcznie wg docs/03-defender-raspberry.md (krok 10).
 
 set -euo pipefail
 
 echo "[*] System update..."
 sudo apt update && sudo apt full-upgrade -y
 
-echo "[*] OpenCanary (honeypot) in a venv..."
-sudo apt install -y python3-pip python3-venv python3-dev
-python3 -m venv "$HOME/canary"
-# shellcheck disable=SC1091
-source "$HOME/canary/bin/activate"
-pip install --upgrade pip
-pip install opencanary scapy
-opencanaryd --copyconfig || true
-echo "    -> edytuj ~/.opencanary.conf (patrz config/opencanary/opencanary.conf.example)"
-echo "    -> start:  sudo $HOME/canary/bin/opencanaryd --start   (root: porty 21/80)"
+echo "[*] OpenCanary (honeypot) w /opt/opencanary (szczegoly: docs/03, czesc 1)..."
+sudo apt install -y python3-dev python3-pip python3-venv libssl-dev libpcap-dev
+sudo python3 -m venv /opt/opencanary
+sudo /opt/opencanary/bin/pip install --upgrade pip
+sudo /opt/opencanary/bin/pip install opencanary
+# opencanaryd woła python3 z PATH, a sudo podmienia PATH — stąd env PATH=...
+sudo env PATH=/opt/opencanary/bin:$PATH opencanaryd --copyconfig
+id opencanary >/dev/null 2>&1 || sudo useradd --system --no-create-home --shell /usr/sbin/nologin opencanary
+sudo install -d -o opencanary -g opencanary -m 750 /var/log/opencanary
+echo "    -> ustaw pulapki w /etc/opencanaryd/opencanary.conf (docs/03, krok 10)"
+echo "    -> otworz porty: sudo ufw allow 21/tcp; 22/tcp; 80/tcp (po jednej komendzie)"
+echo "    -> usluga: sudo cp config/systemd/opencanary.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now opencanary"
 
 echo "[*] Suricata (IDS)..."
 sudo apt install -y suricata
