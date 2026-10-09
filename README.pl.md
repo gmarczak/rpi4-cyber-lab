@@ -39,6 +39,8 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 5. [Pierwsze ćwiczenie — pętla atak-wykrycie](docs/05-first-exercise.md)
 6. [Topologia sieci — wyjaśnienie](docs/network-topology.md)
 
+🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — lista zadań z odhaczaniem, co zrobione i co dalej.
+
 📓 **Dziennik budowy:** [`build-log/build-log.md`](build-log/build-log.md) — datowane notatki, co zrobione i na co się natknąłem.
 
 ⚙️ **Configi i skrypty:** [`config/`](config/) — przykładowy config OpenCanary, notatki do Suricaty, skrypty pomocnicze (bez haseł i prawdziwych IP).
