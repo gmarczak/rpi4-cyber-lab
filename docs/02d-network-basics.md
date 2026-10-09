@@ -118,12 +118,13 @@ W zakładce **Lista** po kliknięciu `honeypi` widać jego adres IP i MAC. Ten s
 
 ![Ustawienia zaawansowane](../screenshots/2026-10-09-assembly/42-funbox-advanced.png)
 
-Zakładka **DHCP** (2), sekcja **Statyczne adresy IP**:
+Zakładka **DHCP** (2), sekcja **Statyczne adresy IP**. (3) Z listy wybierz `honeypi`. FunBox sam uzupełni jego obecny adres i MAC. Kliknij **Dodaj**:
 
-![Rezerwacja DHCP](../screenshots/2026-10-09-assembly/45-funbox-dhcp-static.png)
+![Wybór honeypi przed dodaniem](../screenshots/2026-10-09-assembly/45-funbox-dhcp-select.png)
 
-- (3) z listy wybierz `honeypi`. FunBox sam uzupełni jego obecny adres i MAC. Kliknij **Dodaj**.
-- (4) `honeypi` pojawia się w tabeli statycznych adresów: `192.168.1.134` na stałe przypisany do jego MAC ✅
+(4) `honeypi` pojawia się w tabeli statycznych adresów: `192.168.1.134` na stałe przypisany do jego MAC ✅
+
+![Rezerwacja DHCP](../screenshots/2026-10-09-assembly/46-funbox-dhcp-static.png)
 
 Adres `.134` leży w puli DHCP (`.10`–`.150`), ale to nie przeszkadza: zarezerwowanego adresu router nie da nikomu innemu.
 
