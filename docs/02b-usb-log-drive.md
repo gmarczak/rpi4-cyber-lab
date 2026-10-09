@@ -134,6 +134,10 @@ cat /etc/fstab
 
 Wpis `LABEL=logs ...` powinien być **dokładnie jeden**. Gdyby był podwójny, usuń zbędny w edytorze: `sudo nano /etc/fstab`.
 
+![Sprawdzenie /etc/fstab](../screenshots/2026-10-09-assembly/25-fstab-check.png)
+
+U mnie jest dobrze: dwie pierwsze linijki z `PARTUUID` to partycje karty SD (dodane przez Imagera), ostatnia to pendrive. Wpis `logs` występuje raz.
+
 ## Test po restarcie (opcjonalnie)
 
 ```bash
