@@ -29,6 +29,10 @@ Najnowsze na górze / Newest first.
 
 ![Restart i lsblk / Reboot and lsblk](../screenshots/2026-10-09-assembly/21-reboot-lsblk.png)
 
+Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w normie. / CPU temperature in the closed case at idle: **51.1°C**, within normal range.
+
+![Temperatura / CPU temperature](../screenshots/2026-10-09-assembly/22-cpu-temp.png)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered
