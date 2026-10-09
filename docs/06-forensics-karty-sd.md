@@ -756,25 +756,27 @@ Karta microSD ma kontroler, który rozkłada zapisy po komórkach (*wear levelin
 
 Tanie, nieoznaczone karty często mają napisane 16 GB, a naprawdę mają np. 2 GB. Kontroler „przyjmuje” zapisy ponad prawdziwą pojemność i je gubi. Test **F3** zapisuje na kartę znane dane aż do końca, a potem odczytuje i sprawdza, czy wszystko wróciło.
 
+Dlaczego nie wystarczy zerowanie z części 4? Fałszywa karta zwykle „zawija” adresy: zapis pod adresem 14 GB trafia fizycznie pod 2 GB. Gdy wszędzie zapisujemy zera, nadpisanie jednych zer innymi niczego nie zmienia, więc `cmp` i tak pokaże same zera. F3 zapisuje w każdym kawałku **inne** dane (zależne od jego położenia), więc każda pomyłka adresu wyjdzie przy odczycie.
+
 Na macOS działają tylko `f3write` i `f3read`. Szybszy `f3probe` jest wyłącznie na Linuksa, więc robimy dłuższą, ale równie wiarygodną metodę.
 
 ## Komendy w skrócie
 
 ```bash
 diskutil eraseDisk FAT32 TEST MBRFormat /dev/diskN   # 24
-f3write /Volumes/TEST                                # 25
-f3read /Volumes/TEST                                 # 26
+caffeinate -i f3write /Volumes/TEST                  # 25
+caffeinate -i f3read /Volumes/TEST                   # 26
 ```
 
 ## Co robi każda komenda
 
 ### 24 · format
 
-Jak w kroku 10. Kasuje kartę, więc rób to po wykonaniu części 1–2 i na karcie **bez marki** (wymień `diskN`).
+Jak w kroku 10. Po części 4 karta nie ma ani tablicy partycji, ani systemu plików, a F3 zapisuje zwykłe pliki, więc potrzebuje świeżego FAT32 zamontowanego w `/Volumes/TEST`.
 
 ### 25 · `f3write /Volumes/TEST`: zapisz dane testowe
 
-Wypełnia wolne miejsce plikami po 1 GB o znanej zawartości. Dla 16 GB to kilkanaście plików, a zapis na karcie klasy 4 trwa długo.
+Wypełnia wolne miejsce plikami `1.h2w`, `2.h2w`, … po 1 GB o znanej zawartości i na bieżąco pokazuje postęp oraz prędkość. Dla 15,5 GB to 15 plików, a przy 8,4 MB/s zapis trwa ok. 30 minut. `caffeinate -i` pilnuje, żeby Mac nie zasnął.
 
 ### 26 · `f3read /Volumes/TEST`: sprawdź
 
