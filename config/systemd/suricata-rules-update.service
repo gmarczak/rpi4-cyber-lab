@@ -1,0 +1,10 @@
+# /etc/systemd/system/suricata-rules-update.service — docs/03, część 2, krok 3
+[Unit]
+Description=Pobranie nowych regul Suricaty
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/suricata-update -q
+ExecStartPost=/usr/bin/suricatasc -c reload-rules

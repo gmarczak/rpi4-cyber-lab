@@ -7,10 +7,13 @@ Raspberry pełni rolę obrońcy: **udaje podatne urządzenie** (honeypot) i **mo
    - konfiguracja pułapek i firewall ✅
    - pierwszy test i pierwsze alerty ✅
    - usługa startująca sama po restarcie ✅
-2. Monitoring ruchu: Suricata
+2. **Monitoring ruchu: Suricata** ✅
    - instalacja, reguły i test konfiguracji ✅
    - uruchomienie i pierwszy alert ✅
-3. Podgląd ruchu: ntopng (opcjonalnie)
+   - codzienna aktualizacja reguł ✅
+3. **Podgląd alertów: `check-logs.sh`** ✅
+
+ntopng (panel z wykresami ruchu) przeniesiony do Etapu 5, razem z panelem alertów w Grafanie.
 
 ---
 
@@ -574,9 +577,138 @@ Dwie reguły złapały to samo zdarzenie, bo różnią się szczegółami wzorca
 
 **Ograniczenie tego testu:** Suricata rozpoznała **podpis** skanera w zapytaniu WWW, a nie prawdziwy skan portów. Pełny skan `nmap` z Kali to Etap 4.
 
-# Część 3: podgląd ruchu — ntopng (opcjonalnie)
+## Krok 3: codzienna aktualizacja reguł
 
-*Do zrobienia.* Panel WWW pokazujący, które urządzenie z czym się łączy. Domyślnie `admin`/`admin`, więc hasło trzeba zmienić od razu, a port panelu otworzyć w `ufw`.
+Nowe zagrożenia pojawiają się codziennie, a reguły pobraliśmy raz. Ustawiamy usługę, która pobiera świeże reguły, i **harmonogram** (*systemd timer*), który uruchamia ją codziennie.
+
+### Komendy w skrócie
+
+```bash
+getent hosts deb.debian.org testmynids.org                                           # 1
+sudo tee /etc/systemd/system/suricata-rules-update.service > /dev/null <<'EOF'      # 2
+[Unit]
+Description=Pobranie nowych regul Suricaty
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/suricata-update -q
+ExecStartPost=/usr/bin/suricatasc -c reload-rules
+EOF
+sudo tee /etc/systemd/system/suricata-rules-update.timer > /dev/null <<'EOF'        # 3
+[Unit]
+Description=Codzienna aktualizacja regul Suricaty
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+sudo systemctl daemon-reload                                                         # 4
+sudo systemctl enable --now suricata-rules-update.timer                              # 5
+systemctl list-timers suricata-rules-update.timer --no-pager                         # 6
+sudo systemctl start suricata-rules-update.service                                   # 7
+systemctl status suricata-rules-update.service --no-pager                            # 8
+```
+
+Oba pliki są też w repo: [`config/systemd/`](../config/systemd/).
+
+![harmonogram reguł](../screenshots/2026-10-09-assembly/68-suricata-rules-timer.png)
+
+### 1 · `getent hosts deb.debian.org testmynids.org`: domknięcie diagnozy z kroku 2
+
+`getent hosts` zamienia nazwy na adresy tak samo jak każdy program w systemie. `deb.debian.org` dostał adres (`2a04:4e42:41::644`, serwer CDN Debiana), a `testmynids.org` nic. DNS działa, a strona testowa po prostu nie istnieje ✅
+
+### 2 · Usługa `suricata-rules-update.service`
+
+| Linijka | Znaczenie |
+|---|---|
+| `After=` / `Wants=network-online.target` | uruchamiaj, gdy jest sieć (reguły pobiera się z internetu) |
+| `Type=oneshot` | usługa wykonuje zadanie i kończy się, nie działa w tle |
+| `ExecStart=/usr/bin/suricata-update -q` | pobierz reguły (`-q` = cicho, tylko błędy) |
+| `ExecStartPost=/usr/bin/suricatasc -c reload-rules` | po pobraniu każ działającej Suricacie wczytać nowe reguły **bez restartu**. `suricatasc` rozmawia z nią przez gniazdo sterujące `/var/run/suricata-command.socket` (widać je w `suricata.log`) |
+
+Brak sekcji `[Install]` jest celowy: tej usługi nie włączamy przy starcie, uruchamia ją harmonogram.
+
+### 3 · Harmonogram `suricata-rules-update.timer`
+
+| Linijka | Znaczenie |
+|---|---|
+| `OnCalendar=*-*-* 04:30:00` | codziennie (`*-*-*` = każdy rok, miesiąc, dzień) o 4:30 |
+| `RandomizedDelaySec=30min` | plus losowe 0–30 minut, żeby tysiące serwerów nie pobierały reguł w tej samej sekundzie |
+| `Persistent=true` | jeśli o tej porze Raspberry było wyłączone, nadrób zaraz po włączeniu |
+| `WantedBy=timers.target` | harmonogram startuje razem z systemem |
+
+Timer o tej samej nazwie co usługa (`suricata-rules-update`) uruchamia ją automatycznie.
+
+Pomieszane fragmenty (`xecSta>`, `-*-* >`, `nt=true`) na zrzucie to znowu artefakty wyświetlania przy wklejaniu długiego bloku, a nie błędy w plikach. Potwierdza to krok 8.
+
+### 4–5 · `daemon-reload`, `enable --now …timer`
+
+Jak przy honeypocie: systemd czyta nowe pliki, harmonogram startuje teraz i przy każdym uruchomieniu (`Created symlink … timers.target.wants …`).
+
+### 6 · `systemctl list-timers …`: kiedy następne uruchomienie
+
+`NEXT: Sat 2026-10-10 04:51:11`, czyli jutro o 4:30 plus 21 minut losowego opóźnienia. `LAST: -`, bo jeszcze ani razu nie działał.
+
+### 7–8 · Test na żądanie: `systemctl start …service`, potem `status`
+
+Nie trzeba czekać do rana:
+
+- `Process: … ExecStart=/usr/bin/suricata-update -q (code=exited, status=0/SUCCESS)`: reguły pobrane ✅
+- `Process: … ExecStartPost=/usr/bin/suricatasc -c reload-rules (… status=0/SUCCESS)` i `{"message": "done", "return": "OK"}`: Suricata wczytała je bez restartu ✅
+- `Active: inactive (dead)`: dla usługi `oneshot` to **poprawny** stan po wykonaniu zadania,
+- `TriggeredBy: suricata-rules-update.timer`: usługa jest podpięta pod harmonogram.
+
+---
+
+# Część 3: podgląd alertów — `check-logs.sh`
+
+Dwa źródła alertów w dwóch różnych formatach to dużo przełączania. Skrypt [`config/scripts/check-logs.sh`](../config/scripts/check-logs.sh) pokazuje oba naraz.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gmarczak/rpi4-cyber-lab/master/config/scripts/check-logs.sh -o ~/check-logs.sh   # 9
+bash ~/check-logs.sh                                                                 # 10
+```
+
+- (9) `curl -fsSL … -o ~/check-logs.sh`: pobierz skrypt prosto z repo na GitHubie. `-f` = przy błędzie HTTP zakończ z błędem zamiast zapisać stronę błędu, `-sS` = cicho, ale błędy pokaż, `-L` = idź za przekierowaniami, `-o` = zapisz do pliku.
+- (10) `bash ~/check-logs.sh`: uruchom.
+
+![pierwsza wersja check-logs.sh](../screenshots/2026-10-09-assembly/69-check-logs-v1.png)
+
+### Wersja 1 → wersja 2
+
+Pierwsza wersja (zrzut powyżej) działała, ale wypisywała surowy JSON, w tym masę komunikatów startowych honeypota (`logtype 1001`) po każdym restarcie. Prawdziwe zdarzenia ginęły w szumie.
+
+Wersja 2 (w repo):
+
+- pomija komunikaty startowe (`logtype 1001`), chyba że podasz `--all`,
+- **jedno zdarzenie = jedna linijka**: czas, adres źródłowy, port, rodzaj zdarzenia po polsku, a przy logowaniu login i hasło,
+- alerty Suricaty skrócone: bez `[**]` i nazwy klasyfikacji, priorytet jako `P1`/`P2`/`P3`,
+- liczba zdarzeń do pokazania jako parametr.
+
+```bash
+bash ~/check-logs.sh            # ostatnie 15 zdarzeń z każdego źródła
+bash ~/check-logs.sh 50         # ostatnie 50
+bash ~/check-logs.sh 50 --all   # razem z komunikatami startowymi honeypota
+```
+
+Przykładowy wynik:
+
+```
+=== OpenCanary (honeypot) — ostatnie 15 zdarzen / last 15 events ===
+2026-10-09 13:12:32  <PC>            -> :80    HTTP logowanie         login: root  haslo: qwerty123PL
+2026-10-09 13:07:11  <PC>            -> :22    SSH logowanie          login: test  haslo: haslo123
+
+=== Suricata (IDS) — ostatnie 15 alertow / last 15 alerts ===
+10/09/2026-13:52:27.062625  | [1:2009358:8] ET SCAN Nmap Scripting Engine User-Agent Detected (Nmap Scripting Engine) | P1 {TCP} <PC>:43982 -> 192.168.1.134:80
+```
+
+Skrypt czyta logi przez `sudo` (należą do roota i użytkownika `opencanary`), więc może zapytać o hasło. Aktualizacja do nowej wersji: ponownie komenda 9.
 
 ---
 

@@ -7,6 +7,16 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Koniec Etapu 2 / Stage 2 done
+
+🇵🇱 Codzienna aktualizacja reguł Suricaty (systemd timer, 4:30 + losowo do 30 min, przeładowanie bez restartu) — test na żądanie przeszedł. `check-logs.sh` przepisany: jedno zdarzenie w linijce, bez komunikatów startowych honeypota. ntopng przeniesiony do Etapu 5 (razem z Grafaną). **Etap 2 zamknięty.**
+
+🇬🇧 Daily Suricata rule updates via a systemd timer (reload without restart), tested on demand. `check-logs.sh` rewritten to one event per line. ntopng moved to stage 5 alongside Grafana. **Stage 2 done.**
+
+📋 Podsumowanie etapu / Stage summary: [docs/etap-2-podsumowanie.md](../docs/etap-2-podsumowanie.md)
+
+---
+
 ## 2026-10-09 — Suricata: pierwsze alerty / first alerts
 
 🇵🇱 `EXTERNAL_NET` zmienione z `"!$HOME_NET"` na `"any"`, bo atakujący w labie jest w sieci domowej. Suricata uruchomiona jako usługa, 53 113 reguł, `Engine started`. Zapytanie z PC z nagłówkiem skanera Nmap dało dwa alerty `ET SCAN … Nmap … User-Agent` z priorytetem 1.
