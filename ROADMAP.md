@@ -22,7 +22,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Prawdziwy SSH na innym porcie (np. 2222), żeby port 22 zwolnić dla honeypota / Real SSH on another port so port 22 is free for the honeypot
 - [ ] Firewall (`ufw`): tylko potrzebne porty / only the ports we need
 - [x] Pendrive sformatowany i zamontowany na stałe (`/mnt/logs`) / USB stick formatted and auto-mounted — [docs/02b](docs/02b-usb-log-drive.md)
-- [ ] Logi kierowane na pendrive zamiast karty / Logs written to the USB stick, not the SD card
+- [x] Logi kierowane na pendrive zamiast karty / Logs written to the USB stick, not the SD card — [docs/02b, część 2](docs/02b-usb-log-drive.md#część-2-logi-z-varlog-na-pendrive)
 - [ ] Wyłączone Wi-Fi i Bluetooth (Pi chodzi po kablu) / Wi-Fi and Bluetooth off (wired only)
 
 ## Etap 2: Obrońca / Defender — [docs/03](docs/03-defender-raspberry.md)
