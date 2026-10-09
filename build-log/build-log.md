@@ -7,6 +7,20 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Suricata: pierwsze alerty / first alerts
+
+🇵🇱 `EXTERNAL_NET` zmienione z `"!$HOME_NET"` na `"any"`, bo atakujący w labie jest w sieci domowej. Suricata uruchomiona jako usługa, 53 113 reguł, `Engine started`. Zapytanie z PC z nagłówkiem skanera Nmap dało dwa alerty `ET SCAN … Nmap … User-Agent` z priorytetem 1.
+
+🇬🇧 Changed `EXTERNAL_NET` to `"any"` because the lab attacker is on the home network. Suricata running as a service with 53,113 rules. A request from the PC with an Nmap user agent raised two `ET SCAN` priority-1 alerts.
+
+**Wpadka / Gotcha:** test `testmynids.org` nic nie dał — `curl -s` ukrył błąd `Could not resolve host`, strona przestała istnieć. / The testmynids.org test silently failed: the site no longer resolves and `-s` hid the error.
+
+**Lekcja / Lesson:** najpierw sprawdź, czy ruch w ogóle był, potem czy IDS go wykrył. / First confirm the traffic happened, then whether the IDS caught it.
+
+Opis / Walkthrough: [docs/03, część 2, krok 2](../docs/03-defender-raspberry.md#krok-2-atakujący-z-domu-uruchomienie-i-pierwszy-alert)
+
+---
+
 ## 2026-10-09 — Suricata: instalacja i reguły / install and rules
 
 🇵🇱 Suricata 7.0.10 z repozytorium Debiana. Konfiguracja domyślna pasuje: słucha na `eth0`, `HOME_NET` obejmuje sieć domową, ścieżka reguł zgadza się z `suricata-update`. Pobrane reguły ET Open: 69 064, włączone 53 108. Test `suricata -T` przeszedł, wolnej pamięci 3,4 GB.

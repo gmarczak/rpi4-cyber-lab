@@ -9,7 +9,7 @@ Raspberry pełni rolę obrońcy: **udaje podatne urządzenie** (honeypot) i **mo
    - usługa startująca sama po restarcie ✅
 2. Monitoring ruchu: Suricata
    - instalacja, reguły i test konfiguracji ✅
-   - uruchomienie i pierwszy alert
+   - uruchomienie i pierwszy alert ✅
 3. Podgląd ruchu: ntopng (opcjonalnie)
 
 ---
@@ -443,6 +443,136 @@ Suricata jest w repozytorium Debiana, razem z nią instaluje się m.in. `suricat
 ### 6 · `free -h`: pamięć
 
 Suricata z pełnym zestawem reguł potrafi zająć kilkaset MB RAM. Raspberry ma 3,7 GB, z czego wolne 3,4 GB, zapasu jest dużo.
+
+## Krok 2: „atakujący z domu”, uruchomienie i pierwszy alert
+
+### Dlaczego trzeba zmienić `EXTERNAL_NET`
+
+Większość reguł wykrywających skany i ataki ma postać: ruch **z zewnątrz** (`$EXTERNAL_NET`) **do naszej sieci** (`$HOME_NET`). Domyślnie:
+
+```yaml
+EXTERNAL_NET: "!$HOME_NET"     # „wszystko, co NIE jest siecią domową”
+```
+
+W prawdziwej firmie to ma sens: atak przychodzi z internetu. W moim labie **atakujący siedzi w sieci domowej**: dziś to mój PC, w Etapie 3 będzie to Kali. Jego adres należy do `HOME_NET`, więc z punktu widzenia reguł nie jest „z zewnątrz” i Suricata **zignorowałaby** jego skany. Dlatego:
+
+```yaml
+EXTERNAL_NET: "any"            # „dowolny adres, także z domu”
+```
+
+### Komendy w skrócie
+
+```bash
+sudo grep -n 'EXTERNAL_NET:' /etc/suricata/suricata.yaml                                  # 1
+sudo sed -i 's/^\(\s*\)EXTERNAL_NET: "!\$HOME_NET"/\1EXTERNAL_NET: "any"/' /etc/suricata/suricata.yaml   # 2
+sudo grep -n 'EXTERNAL_NET:' /etc/suricata/suricata.yaml                                  # 3
+sudo suricata -T -c /etc/suricata/suricata.yaml                                           # 4
+sudo systemctl enable suricata                                                            # 5
+sudo systemctl restart suricata                                                           # 6
+systemctl status suricata --no-pager                                                      # 7
+sudo tail -n 5 /var/log/suricata/suricata.log                                             # 8
+curl -i http://testmynids.org/uid/index.html                                              # 9 (!)
+sudo ls -l /var/log/suricata/                                                             # 9
+# na PC:
+curl -A "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)" http://192.168.1.134/   # 10
+# na Raspberry:
+sudo tail -n 5 /var/log/suricata/fast.log                                                 # 11
+```
+
+![EXTERNAL_NET, uruchomienie i dziennik Suricaty](../screenshots/2026-10-09-assembly/65-suricata-start.png)
+
+### 1–3 · `grep` i `sed`: zmiana `EXTERNAL_NET`
+
+- (1) Linia 24 to aktywne ustawienie `EXTERNAL_NET: "!$HOME_NET"` (`!` = „nie”), linia 25 to wyłączony przykład z `#`.
+- (2) `sed -i` (*stream editor*, `-i` = zmień plik na miejscu) podmienia tekst według wzorca `s/szukaj/zamień/`:
+  - `^\(\s*\)`: początek linii i wcięcie, zapamiętane jako `\1`,
+  - `EXTERNAL_NET: "!\$HOME_NET"`: dokładnie ta aktywna linijka (`\$`, bo `$` ma w wzorcach specjalne znaczenie),
+  - `\1EXTERNAL_NET: "any"`: to samo wcięcie i nowa wartość. W YAML-u wcięcia są częścią składni, więc muszą zostać.
+  - Linijka z `#` nie pasuje do wzorca (zaczyna się od `#`, nie od spacji), więc zostaje nietknięta.
+- (3) Kontrola: linia 24 to teraz `EXTERNAL_NET: "any"` ✅
+
+### 4 · `sudo suricata -T …`: test po zmianie
+
+Każda zmiana w `suricata.yaml` = test przed restartem. `successfully loaded` ✅
+
+### 5 · `sudo systemctl enable suricata`: start przy uruchomieniu
+
+Komunikat `Synchronizing state of suricata.service with SysV service script` znaczy, że Debian ma dla Suricaty i plik usługi systemd, i stary skrypt startowy (SysV). `enable` ustawia oba. Debian uruchomił Suricatę już przy instalacji, ale bez reguł i ze starą konfiguracją.
+
+### 6 · `sudo systemctl restart suricata`: uruchomienie od nowa
+
+Teraz z regułami z kroku 1 i nowym `EXTERNAL_NET`.
+
+### 7 · `systemctl status suricata --no-pager`: stan
+
+- `Active: active (running)` ✅
+- `Process: … ExecStart=/usr/bin/suricata -D --af-packet -c … (code=exited, status=0/SUCCESS)`: to **nie błąd**. `-D` (*daemon*) każe Suricacie przejść w tło: proces startowy kończy się sukcesem, a dalej działa `Main PID: 1957 (Suricata-Main)`.
+- `--af-packet`: tryb przechwytywania pakietów przez mechanizm jądra Linuksa (AF_PACKET), na karcie z `suricata.yaml` (`eth0`).
+
+### 8 · `sudo tail -n 5 /var/log/suricata/suricata.log`: dziennik samej Suricaty
+
+| Linijka | Znaczenie |
+|---|---|
+| `53113 signatures processed` | wczytane reguły (53 108 z ET Open + reguły protokołów) |
+| `Warning: af-packet: eth0: AF_PACKET tpacket-v3 is recommended for non-inline operation` | sugestia wydajnościowa dla dużego ruchu; przy ruchu domowym bez znaczenia |
+| `runmodes: eth0: creating 4 threads` | 4 wątki, po jednym na rdzeń procesora Raspberry |
+| `Engine started.` | **silnik działa i analizuje ruch** ✅ |
+
+Wczytanie reguł trwa ok. 20 sekund (od `13:49:54` do `13:50:16`). Alerty zaczynają działać dopiero po `Engine started`.
+
+### ❗ Wpadka: strona testowa nie istnieje
+
+![diagnoza i alerty](../screenshots/2026-10-09-assembly/66-suricata-diagnose-alerts.png)
+
+Popularny test IDS to `curl http://testmynids.org/uid/index.html`: strona odsyła tekst wyglądający jak wynik komendy `id` na przejętym serwerze (`uid=0(root)`), a reguła rozpoznaje go jako „odpowiedź z uprawnieniami roota”.
+
+- **Co było widać (żółta ramka na zrzucie 65):** `curl -s …` nic nie wypisał, a `fast.log` był pusty.
+- **Diagnoza (czerwona ramka):** bez `-s` (*silent*, które ukrywa też błędy) od razu widać przyczynę: `curl: (6) Could not resolve host: testmynids.org`. Nazwy tej strony **nie da się zamienić na adres IP**.
+- **Przyczyna:** to nie problem z siecią Raspberry, bo chwilę wcześniej działały `apt` i `suricata-update`. Strona testowa najpewniej przestała istnieć. Nie było ruchu, więc nie było czego wykryć.
+- **Lekcja:** `-s` przy diagnozowaniu tylko przeszkadza. Najpierw sprawdź, **czy ruch w ogóle był**, a dopiero potem, czy IDS go wykrył.
+
+### 9 · `sudo ls -l /var/log/suricata/`: pliki Suricaty
+
+| Plik | Co w nim jest |
+|---|---|
+| `fast.log` | **alerty**, jedna linijka na alert. Najwygodniejszy do czytania |
+| `eve.json` | **wszystko** w formacie JSON: alerty, ale też każde połączenie, zapytanie DNS, żądanie HTTP. Rośnie najszybciej |
+| `stats.log` | statystyki co kilka sekund: ile pakietów, ile odrzuconych, ile alertów |
+| `suricata.log` | dziennik samej Suricaty (krok 8) |
+
+Wszystkie są w `/var/log`, czyli na pendrivie (Etap 1).
+
+### 10 · Test z PC: „skaner Nmap” w nagłówku
+
+![zapytanie z PC](../screenshots/2026-10-09-assembly/67-pc-nmap-user-agent.png)
+
+Test niezależny od internetu: zwykłe zapytanie do strony honeypota, ale z nagłówkiem `User-Agent` takim, jak wysyłają skrypty skanera **Nmap** (NSE, *Nmap Scripting Engine*), gdy badają strony WWW.
+
+- `curl -A "…"`: `-A` ustawia `User-Agent`, czyli to, jak klient się przedstawia,
+- odpowiedź to strona przekierowania honeypota (`<title>Redirect</title>`, link do `/index`).
+
+### 11 · `sudo tail -n 5 /var/log/suricata/fast.log`: alerty ✅
+
+```
+[1:2009358:8] ET SCAN Nmap Scripting Engine User-Agent Detected (Nmap Scripting Engine) [Classification: Web Application Attack] [Priority: 1] {TCP} <PC>:43982 -> 192.168.1.134:80
+[1:2024364:5] ET SCAN Possible Nmap User-Agent Observed                                  [Classification: Web Application Attack] [Priority: 1] {TCP} <PC>:43982 -> 192.168.1.134:80
+```
+
+Jak czytać linijkę alertu:
+
+| Fragment | Znaczenie |
+|---|---|
+| `10/09/2026-13:52:27.062625` | kiedy |
+| `[1:2009358:8]` | identyfikator reguły: `1` = źródło, `2009358` = numer reguły (*SID*), `8` = wersja reguły |
+| `ET SCAN Nmap Scripting Engine…` | opis: `ET` = Emerging Threats, `SCAN` = kategoria „skanowanie” |
+| `Classification: Web Application Attack` | rodzaj zagrożenia |
+| `Priority: 1` | ważność: **1 = najwyższa**, 3 = najniższa |
+| `{TCP}` | protokół |
+| `<PC>:43982 -> 192.168.1.134:80` | **skąd → dokąd**: adres i port atakującego → Raspberry, port 80 |
+
+Dwie reguły złapały to samo zdarzenie, bo różnią się szczegółami wzorca. To normalne. Bez zmiany `EXTERNAL_NET` na `any` nie byłoby żadnego alertu, bo mój PC jest w `HOME_NET`.
+
+**Ograniczenie tego testu:** Suricata rozpoznała **podpis** skanera w zapytaniu WWW, a nie prawdziwy skan portów. Pełny skan `nmap` z Kali to Etap 4.
 
 # Część 3: podgląd ruchu — ntopng (opcjonalnie)
 
