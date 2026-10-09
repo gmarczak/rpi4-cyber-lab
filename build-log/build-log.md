@@ -7,6 +7,16 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Suricata: instalacja i reguły / install and rules
+
+🇵🇱 Suricata 7.0.10 z repozytorium Debiana. Konfiguracja domyślna pasuje: słucha na `eth0`, `HOME_NET` obejmuje sieć domową, ścieżka reguł zgadza się z `suricata-update`. Pobrane reguły ET Open: 69 064, włączone 53 108. Test `suricata -T` przeszedł, wolnej pamięci 3,4 GB.
+
+🇬🇧 Suricata 7.0.10 from Debian. Default config fits: listens on `eth0`, `HOME_NET` covers the home network, rule path matches `suricata-update`. ET Open rules: 69,064 total, 53,108 enabled. `suricata -T` passed, 3.4 GB RAM free.
+
+Opis / Walkthrough: [docs/03, część 2](../docs/03-defender-raspberry.md#część-2-monitoring-ruchu--suricata)
+
+---
+
 ## 2026-10-09 — Honeypot OpenCanary / OpenCanary honeypot
 
 🇵🇱 Etap 2 ruszył. OpenCanary 0.9.10 zainstalowany w `/opt/opencanary` (venv), udaje SSH (22), stronę logowania „DiskStation” (80) i FTP (21), działa jako osobny użytkownik `opencanary`, logi idą na pendrive. Test z PC: otwarcie strony, logowanie `admin`/`admin132` i `ssh test@…` z hasłem `haslo123` — wszystko zapisane w logu z adresem, programem, loginem i hasłem. Na koniec usługa systemd; po restarcie honeypot wstaje sam.

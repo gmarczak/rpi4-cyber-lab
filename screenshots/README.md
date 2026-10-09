@@ -28,6 +28,7 @@ Drop build screenshots and photos here, e.g.:
   - `40`–`46`: stały adres IP w FunBoxie (nazwy innych urządzeń, ich adresy i wszystkie adresy MAC zamazane) / static IP in the FunBox (other devices' names and addresses, and all MACs hidden)
   - `47`–`61`: honeypot OpenCanary: instalacja, konfiguracja, firewall, pierwsze alerty, usługa systemd (adres PC i IPv6 zamazane) / OpenCanary honeypot: install, config, firewall, first alerts, systemd service (PC address and IPv6 blurred)
 
+  - `62`–`64`: Suricata: instalacja, konfiguracja, reguły i test / Suricata: install, config, rules and test
 ## ⚠️ Zanim wrzucisz / Before committing
 
 Zrzuty terminala przycinamy do samego okna, bez tła pulpitu. / Terminal screenshots are cropped to the window, without the desktop background.

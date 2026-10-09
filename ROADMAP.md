@@ -35,7 +35,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Usługi-pułapki włączone: SSH (22), HTTP (80), FTP (21), porty otwarte w `ufw` / Trap services enabled — [docs/03, krok 2](docs/03-defender-raspberry.md#krok-2-konfiguracja-pułapek-i-firewall)
 - [x] OpenCanary jako usługa systemd, startuje sam po restarcie / systemd service, starts on boot — [docs/03, krok 4](docs/03-defender-raspberry.md#krok-4-honeypot-jako-usługa)
 - [x] Pierwszy alert honeypota (test z własnego PC) / First honeypot alert (test from my PC) — [docs/03, krok 3](docs/03-defender-raspberry.md#krok-3-pierwszy-test-i-pierwsze-alerty)
-- [ ] Suricata zainstalowana, reguły pobrane (`suricata-update`) / installed, rules fetched
+- [x] Suricata zainstalowana, reguły pobrane (`suricata-update`) / installed, rules fetched — [docs/03, część 2](docs/03-defender-raspberry.md#część-2-monitoring-ruchu--suricata)
 - [ ] Suricata wykrywa skan / detects a scan
 - [ ] ntopng z nowym hasłem (opcjonalnie) / with a new password (optional)
 - [ ] `check-logs.sh` pokazuje alerty z obu źródeł / shows alerts from both sources
