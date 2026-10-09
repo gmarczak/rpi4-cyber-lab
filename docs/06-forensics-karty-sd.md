@@ -238,7 +238,13 @@ Początek karty (tablica partycji, spis FAT) czytał się powtarzalnie nawet na 
 
 Kopiowanie `caffeinate -i sudo dd bs=3m | tee ... | shasum`: **4920+0 records in/out, 15 476 981 760 bajtów w 735 s (12 minut), średnio 21 MB/s, bez żadnego błędu.** Karta bez marki czyta się trzy razy szybciej niż SanDisk (7 MB/s), mimo niższej klasy na opakowaniu.
 
-*(do uzupełnienia: pełne sumy SHA-256 z kroków 4, 5 i 6 oraz wynik porównania `ZGODNE`/`ROZNE`)*
+**Sumy SHA-256 (kroki 4, 5 i 6) są identyczne we wszystkich trzech miejscach:** odczyt z kopiowania, plik obrazu i drugi, niezależny odczyt karty (4920+0 bloków w 729 s, 21,2 MB/s). Komenda porównująca wypisała `ZGODNE`.
+
+```
+7a90d2cfbcf729be5b5299cb56a89443b6637c2dda164105fc55fdb54b777edf
+```
+
+To jest dowód, że `noname.img` jest wierną kopią karty i że karta zwraca za każdym razem te same dane. Od tej chwili pracujemy na obrazie.
 
 **SanDisk (klasa 10)**: `/dev/disk4`, 16,0 GB (16 021 192 704 bajtów = 31 291 392 sektorów), MBR, FAT32 `NO NAME`, na karcie pliki `.mp3`. Kopiowanie `dd bs=4m`: 3819 bloków w 2273 s (38 minut, 7,0 MB/s), ogon 3 MiB doczytany osobno. Obrazu z tej karty **nie uznaję za wiarygodny** (patrz wpadka wyżej), więc nie wykorzystuję go do dalszych części.
 
@@ -258,6 +264,7 @@ Karta mogła być wcześniej w telefonie, aparacie albo czytniku. „Usunięcie�
 ## Komendy w skrócie
 
 ```bash
+chmod 444 $HOME/forensics/obrazy/noname.img                                      # 6a
 testdisk $HOME/forensics/obrazy/noname.img                                       # 7
 photorec /log /d $HOME/forensics/odzysk/noname/ $HOME/forensics/obrazy/noname.img   # 8
 find $HOME/forensics/odzysk/noname -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn   # 9
@@ -266,6 +273,10 @@ find $HOME/forensics/odzysk/noname -path '*/recup_dir.*' -type f | sed 's/.*\.//
 Obie komendy działają na **obrazie**, więc nie potrzebują `sudo` i nie mogą uszkodzić karty.
 
 ## Co robi każda komenda
+
+### 6a · `chmod 444 obraz.img`: obraz tylko do odczytu
+
+`chmod` zmienia uprawnienia pliku. `444` oznacza „każdy może tylko czytać” (cyfra 4 to prawo odczytu dla właściciela, grupy i reszty, bez prawa zapisu). Dzięki temu żaden program, w tym nasze narzędzia odzyskiwania i nasza własna pomyłka, nie zmieni obrazu, a jego suma SHA-256 zostaje ważna. To odpowiednik programowego *write blockera* dla pliku. Kontrola: `ls -l` pokaże `-r--r--r--`.
 
 ### 7 · `testdisk obraz.img`: usunięte pliki ze spisu
 
