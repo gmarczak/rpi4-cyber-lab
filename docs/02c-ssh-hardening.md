@@ -396,4 +396,4 @@ Pliki konfiguracji na Raspberry:
 /etc/ssh/sshd_config.d/02-port.conf        # port 2222
 ```
 
-➡️ Następnie: [03 — Obrońca](03-defender-raspberry.md)
+➡️ Następnie: [02d — Sieć: tylko kabel i stały adres IP](02d-network-basics.md)
