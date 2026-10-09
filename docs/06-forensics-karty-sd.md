@@ -63,6 +63,7 @@ diskutil list                                                        # 1
 diskutil info /dev/diskN                                             # 2
 diskutil unmountDisk /dev/diskN                                      # 3
 sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16.img bs=4m # 4
+ls -l $HOME/forensics/obrazy/sandisk16.img                           # 4a  (rozmiar = Disk Size z kroku 2?)
 shasum -a 256 $HOME/forensics/obrazy/sandisk16.img                   # 5
 sudo shasum -a 256 /dev/rdiskN                                       # 6
 ```
@@ -107,7 +108,17 @@ Odłącza system plików karty od Findera, a samo urządzenie zostaje dostępne.
 
 `dd` nic nie pokazuje, dopóki nie skończy. Żeby sprawdzić postęp, naciśnij w oknie terminala **Ctrl+T**: macOS wypisze, ile bajtów już przekopiował. Parametr `status=progress` z Linuksa na macOS nie działa. 16 GB kopiuje się od kilku do kilkunastu minut, na karcie klasy 4 dłużej.
 
-Na końcu `dd` wypisuje liczbę skopiowanych bajtów. Powinna być równa rozmiarowi karty.
+Na końcu `dd` wypisuje liczbę skopiowanych bajtów. Powinna być równa rozmiarowi karty. **Sprawdź to** (krok 4a niżej), bo `dd` potrafi skończyć z błędem i zostawić plik za krótki.
+
+### 4a · `ls -l plik.img`: czy obraz ma pełny rozmiar
+
+`ls -l` pokazuje rozmiar pliku w bajtach (piąta kolumna). Musi być **identyczny** z `Disk Size` z kroku 2 (u mnie 16021192704). Jeśli jest mniejszy, `dd` nie doczytał końca karty, patrz wpadka niżej. Dokończenie ogona małym blokiem:
+
+```bash
+sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16.img bs=512 skip=LICZBA seek=LICZBA conv=notrunc
+```
+
+`LICZBA` to rozmiar dotychczasowego pliku podzielony przez 512 (liczba sektorów, które już mamy). `skip` pomija tyle sektorów na wejściu, `seek` zaczyna zapis w pliku od tego samego miejsca, a `conv=notrunc` oznacza „nie obcinaj pliku, tylko dopisz”.
 
 ### 5 · `shasum -a 256 plik.img`: odcisk obrazu
 
@@ -130,9 +141,22 @@ Po wszystkim: `diskutil eject /dev/diskN` i wyjmij kartę.
 
 ## Wyniki
 
-Karta SanDisk: `/dev/disk4`, 16,0 GB, tablica partycji MBR (`FDisk_partition_scheme`), jedna partycja FAT32 `NO NAME` (`disk4s1`, 16,0 GB). Na karcie są pliki `.mp3`.
+## ❗ Wpadka: `dd` przerwał na ostatnim bloku (`Operation timed out`)
 
-*(do uzupełnienia po ćwiczeniu: czas kopiowania, oba odciski i informacja, czy się zgadzają)*
+| | |
+|---|---|
+| **Co było widać** | `dd: /dev/rdisk4: Operation timed out`, a potem `16018046976 bytes transferred` zamiast 16021192704. Obraz był krótszy o **3 145 728 bajtów (3 MiB)** |
+| **Przyczyna** | karta ma 3819,75 bloków po 4 MiB. `dd` przeczytał 3819 pełnych, a na ostatnim, niepełnym czytnik wbudowanego slotu się zawiesił. Odczyt małym blokiem w tym samym miejscu **przeszedł bez błędu**, więc to nie uszkodzone sektory, tylko odczyt „przez koniec urządzenia” dużym blokiem |
+| **Rozwiązanie** | doczytanie samego ogona: `sudo dd if=/dev/rdisk4 of=...sandisk16.img bs=512 skip=31285248 seek=31285248 conv=notrunc` (6144 sektory, 3 MiB, 5,5 s). Potem `ls -l` pokazał dokładnie **16021192704** bajtów |
+| **Lekcja** | zakończenie komendy bez błędu w terminalu to nie dowód. Zawsze porównaj rozmiar obrazu z rozmiarem karty (krok 4a) i dopiero potem licz sumy kontrolne. Tym razem rozmiar karty dzieli się dokładnie przez 3 MiB (5093 bloki), więc przy `bs=3m` ostatni blok byłby pełny |
+
+## Wyniki
+
+Karta SanDisk: `/dev/disk4`, 16,0 GB (16 021 192 704 bajtów = 31 291 392 sektorów po 512 B), tablica partycji MBR (`FDisk_partition_scheme`), jedna partycja FAT32 `NO NAME` (`disk4s1`, 16,0 GB). Na karcie są pliki `.mp3`. Blokada zapisu działała: `Media Read-Only: Yes`.
+
+Kopiowanie `dd bs=4m`: 3819 bloków w 2273 s (ok. 38 minut), średnio 7,0 MB/s (na początku ok. 10,7 MB/s, potem wolniej). Ogon 3 MiB doczytany osobno (patrz wpadka). Rozmiar końcowego obrazu: 16 021 192 704 bajtów, zgodny z kartą.
+
+*(do uzupełnienia: obie sumy SHA-256 i informacja, czy się zgadzają)*
 
 ---
 
