@@ -39,6 +39,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
    - [Sieć — tylko kabel i stały adres IP](docs/02d-network-basics.md)
 3. [Obrońca — honeypot i monitoring na Pi](docs/03-defender-raspberry.md)
 4. [Atakujący — Kali i cele na PC](docs/04-attacker-kali.md)
+   - [Sieci w VirtualBoxie — wirtualne karty, tryby sieci i ryzyko domyślnego hasła Kali](docs/04b-sieci-virtualbox.md)
 5. [Pierwsze ćwiczenie — pętla atak-wykrycie](docs/05-first-exercise.md)
 6. [Topologia sieci — wyjaśnienie](docs/network-topology.md)
 7. [Ćwiczenie dodatkowe — forensics na starych kartach microSD](docs/06-forensics-karty-sd.md)

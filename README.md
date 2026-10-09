@@ -39,6 +39,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
    - [Network — wired only and a static IP (PL)](docs/02d-network-basics.md)
 3. [The defender — honeypot & monitoring on the Pi](docs/03-defender-raspberry.md)
 4. [The attacker — Kali & targets on the PC](docs/04-attacker-kali.md)
+   - [VirtualBox networking — virtual NICs, network modes and the default Kali password risk (PL)](docs/04b-sieci-virtualbox.md)
 5. [First exercise — attack & detection loop](docs/05-first-exercise.md)
 6. [Network topology explained](docs/network-topology.md)
 7. [Side exercise — forensics on old microSD cards (PL)](docs/06-forensics-karty-sd.md)
