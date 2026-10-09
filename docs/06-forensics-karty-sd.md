@@ -500,12 +500,14 @@ Używamy karty **bez marki (15,5 GB)**, tej samej, z której zrobiłem wiarygodn
 
 ```bash
 diskutil eraseDisk FAT32 TEST MBRFormat /dev/diskN                         # 10
-cp ~/Pictures/zdjecie1.jpg ~/Pictures/zdjecie2.jpg ~/Documents/plik.pdf /Volumes/TEST/   # 11
+cp screenshots/2026-10-09-assembly/10-board-unboxed.jpg screenshots/2026-10-09-assembly/14-case-parts.jpg /Volumes/TEST/   # 11
+cupsfilter README.md > /Volumes/TEST/readme.pdf                            # 11
 head -c 2m /dev/urandom > /Volumes/TEST/losowy.bin                         # 12
+ls -l /Volumes/TEST/                                                       # 12a
 shasum -a 256 /Volumes/TEST/* | tee $HOME/forensics/oryginaly.sha256       # 13
 rm /Volumes/TEST/*                                                         # 14
 diskutil unmountDisk /dev/diskN                                            # 15
-sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/noname-po-usunieciu.img bs=4m   # 16
+caffeinate -i sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/noname-po-usunieciu.img bs=4m   # 16
 ```
 
 Potem powtórz kroki 7–9 na nowym obrazie, a na końcu porównaj odciski (krok 17).
@@ -518,8 +520,15 @@ Formatuje kartę jako **FAT32** (system plików typowy dla kart w aparatach) z t
 
 ### 11–12 · pliki testowe
 
-- Skopiuj **dwa zdjęcia i jeden PDF**, które nie są prywatne (np. z internetu albo zrzut ekranu). Te typy PhotoRec zna po sygnaturach. Na karcie FAT32 macOS może dopisać własne pliki `._*` i ukryte foldery systemowe. To normalne ślady systemu, nie błąd.
-- `head -c 2m /dev/urandom > ...` tworzy plik z **2 MB losowych bajtów**. Losowe dane nie mają żadnej sygnatury, więc PhotoRec go nie rozpozna. To celowy „test kontrolny”.
+Komendy z kroku 11 uruchamiamy **z folderu repo**, bo pliki testowe bierzemy z niego.
+
+- `cp`: kopiuje **dwa zdjęcia z montażu Raspberry** (`screenshots/2026-10-09-assembly/`). Są już publiczne, więc na karcie nie ląduje nic prywatnego, a każdy może powtórzyć test na tych samych plikach.
+- `cupsfilter README.md > /Volumes/TEST/readme.pdf`: `cupsfilter` to wbudowany w macOS konwerter z systemu druku (CUPS). Zamienia plik tekstowy w PDF i wypisuje go na standardowe wyjście, a `>` zapisuje to do pliku na karcie.
+- JPEG i PDF to typy, które PhotoRec zna po sygnaturach (`FF D8 FF` i `%PDF`).
+- Na karcie FAT32 macOS może dopisać własne pliki `._*` i ukryte foldery systemowe (`.Spotlight-V100`, `.fseventsd`). To normalne ślady systemu, nie błąd. `*` w kolejnych komendach ich nie obejmuje, bo nie dopasowuje nazw zaczynających się od kropki.
+- `head -c 2m /dev/urandom > ...` tworzy plik z **2 MiB losowych bajtów** (`/dev/urandom` to systemowe źródło losowych danych, a `head -c 2m` bierze z niego pierwsze 2 MiB). Losowe dane nie mają żadnej sygnatury, więc PhotoRec go nie rozpozna. To celowy „test kontrolny”.
+
+`ls -l` (krok 12a) to kontrola: na karcie mają być 4 pliki, a `losowy.bin` ma mieć dokładnie 2097152 B.
 
 ### 13 · `shasum -a 256 ... | tee plik`: odciski oryginałów
 
