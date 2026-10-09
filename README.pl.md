@@ -10,7 +10,7 @@ Domowy lab cyberbezpieczeństwa zbudowany na Raspberry Pi 4. Dokumentuję cały 
 
 Dwie role na dwóch maszynach:
 
-- **Raspberry Pi 4 = obrońca (blue team).** Działa 24/7, pełni rolę honeypota (OpenCanary) i monitoruje ruch sieciowy (Suricata, ntopng). Zapisuje każdego, kto go sonduje.
+- **Raspberry Pi 4 = obrońca (blue team).** Działa 24/7, pełni rolę honeypota (OpenCanary) i monitoruje ruch sieciowy (Suricata, ntopng). Zapisuje każdego, kto go sonduje. Pi celowo nie monitoruje ruchu innych urządzeń w domu, widzi tylko połączenia skierowane do siebie.
 - **Laptop/PC = atakujący (red team).** Kali Linux w VirtualBoxie plus celowo podatne cele (DVWA, OWASP Juice Shop) w odizolowanej sieci.
 
 Pętla nauki: **przeprowadź atak → sprawdź w logach, czy obrońca go złapał → dostrój reguły.**

@@ -10,7 +10,7 @@ A home cybersecurity lab built on a Raspberry Pi 4, documenting the full build f
 
 Two roles across two machines:
 
-- **Raspberry Pi 4 = the defender (blue team).** Runs 24/7, acts as a honeypot (OpenCanary) and monitors network traffic (Suricata, ntopng). It logs anyone probing it.
+- **Raspberry Pi 4 = the defender (blue team).** Runs 24/7, acts as a honeypot (OpenCanary) and monitors network traffic (Suricata, ntopng). It logs anyone probing it. The Pi deliberately does not monitor other devices on the home network; it only sees connections aimed at itself.
 - **A laptop/PC = the attacker (red team).** Runs Kali Linux in VirtualBox plus deliberately vulnerable targets (DVWA, OWASP Juice Shop) in an isolated network.
 
 The learning loop: **run an attack → check whether the defender caught it in the logs → tune the rules.**
