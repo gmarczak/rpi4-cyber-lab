@@ -19,7 +19,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Aktualizacja systemu (`sudo apt update && sudo apt full-upgrade -y`) / System update
 - [ ] Stały adres IP: rezerwacja DHCP w routerze / Static IP via DHCP reservation
 - [x] Logowanie kluczem SSH / SSH key login — [docs/02c](docs/02c-ssh-hardening.md)
-- [ ] Wyłączone logowanie hasłem / Password login disabled
+- [x] Wyłączone logowanie hasłem i jako root / Password and root login disabled — [docs/02c, część 2](docs/02c-ssh-hardening.md#część-2-wyłączenie-logowania-hasłem)
 - [ ] Prawdziwy SSH na innym porcie (np. 2222), żeby port 22 zwolnić dla honeypota / Real SSH on another port so port 22 is free for the honeypot
 - [ ] Firewall (`ufw`): tylko potrzebne porty / only the ports we need
 - [x] Pendrive sformatowany i zamontowany na stałe (`/mnt/logs`) / USB stick formatted and auto-mounted — [docs/02b](docs/02b-usb-log-drive.md)

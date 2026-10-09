@@ -21,8 +21,12 @@ Drop build screenshots and photos here, e.g.:
   - `25`: sprawdzenie `/etc/fstab` / `/etc/fstab` check
   - `26`–`27`: przeniesienie `/var/log` na pendrive i sprawdzenie po restarcie (adres IPv6 zamazany) / moving `/var/log` to the USB stick and checking after reboot (IPv6 blurred)
   - `28`: klucz SSH z Windowsa (adres IP z sieci domowej zamazany) / SSH key from Windows (home LAN IP blurred)
+  - `29`–`31`: wyłączenie logowania hasłem i testy z kluczem i bez (adres IPv6 zamazany) / password login disabled, tests with and without the key (IPv6 blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
+
+Zrzuty terminala przycinamy do samego okna, bez tła pulpitu. / Terminal screenshots are cropped to the window, without the desktop background.
+
 
 To repo jest **publiczne**. Przed wrzuceniem obrazka zamaż / usuń:
 This repo is **public**. Before committing an image, blur or crop out:
