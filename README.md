@@ -35,6 +35,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 1. [Hardware & shopping list](docs/01-hardware.md)
 2. [OS setup — flashing & first boot](docs/02-os-setup.md)
    - [USB log drive — formatting and mounting, command by command (PL)](docs/02b-usb-log-drive.md)
+   - [SSH hardening — key, no passwords, port, firewall (PL)](docs/02c-ssh-hardening.md)
 3. [The defender — honeypot & monitoring on the Pi](docs/03-defender-raspberry.md)
 4. [The attacker — Kali & targets on the PC](docs/04-attacker-kali.md)
 5. [First exercise — attack & detection loop](docs/05-first-exercise.md)

@@ -37,6 +37,8 @@ Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w n
 
 **Logi na pendrive / Logs on the USB stick:** cały `/var/log` przeniesiony na pendrive przez *bind mount* (`/mnt/logs/var-log` → `/var/log`). Po restarcie `findmnt /var/log` pokazuje `/dev/sda1[/var-log]`, więc system i wszystkie przyszłe narzędzia piszą logi na pendrive, a nie na kartę. / The whole `/var/log` moved to the stick with a bind mount. After reboot `findmnt /var/log` shows `/dev/sda1[/var-log]`, so the OS and every future tool log to the stick, not the SD card. Opis / Walkthrough: [docs/02b, część 2](../docs/02b-usb-log-drive.md#część-2-logi-z-varlog-na-pendrive)
 
+**Klucz SSH / SSH key:** na PC był już klucz `id_ed25519`, więc go nie nadpisałem i wysłałem na Raspberry ten istniejący. Logowanie działa bez hasła. Klucz nie ma passphrase, do rozważenia. / An `id_ed25519` key already existed on the PC, so I kept it and copied it to the Pi. Login works without a password. The key has no passphrase, worth revisiting. Opis / Walkthrough: [docs/02c](../docs/02c-ssh-hardening.md)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered

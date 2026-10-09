@@ -250,4 +250,4 @@ Powinny być dokładnie dwa nowe wpisy, każdy raz:
 - Każdy przyszły program (OpenCanary, Suricata, ntopng), który pisze do `/var/log`, automatycznie trafi na pendrive. Nie trzeba niczego konfigurować osobno.
 - Jak pendrive się zużyje albo zepsuje, Raspberry dalej wystartuje dzięki `nofail`, a logi wrócą na kartę do czasu wymiany.
 
-➡️ Następnie: [03 — Obrońca](03-defender-raspberry.md)
+➡️ Następnie: [02c — Zabezpieczenie SSH](02c-ssh-hardening.md)
