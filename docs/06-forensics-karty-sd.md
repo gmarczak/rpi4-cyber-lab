@@ -2,7 +2,7 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
-> 🚧 **Status: w trakcie.** Części 1 (obraz karty) i 2 (odzyskiwanie) są wykonane, ich wyniki są niżej. Części 3–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
+> 🚧 **Status: w trakcie.** Części 1 (obraz karty), 2 (odzyskiwanie) i 3 (kontrolowany eksperyment) są wykonane, ich wyniki są niżej. Części 4–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.
 
@@ -524,7 +524,13 @@ testdisk $D/noname-po-usunieciu.img                                             
 
 ### 10 · `diskutil eraseDisk FAT32 TEST MBRFormat /dev/diskN`: czysta karta
 
-Formatuje kartę jako **FAT32** (system plików typowy dla kart w aparatach) z tablicą partycji MBR i nazwą `TEST`. **Kasuje wszystko**, dlatego numer dysku sprawdź jeszcze raz (kroki 1–2).
+Formatuje kartę jako **FAT32** (system plików typowy dla kart w aparatach) z tablicą partycji MBR i nazwą `TEST`. Dla nas karta wygląda potem na pustą, dlatego numer dysku sprawdź jeszcze raz (kroki 1–2): formatowanie złego dysku to utrata danych. Zapis musi być możliwy, więc suwak LOCK musi być odblokowany, a `diskutil info` pokazać `Media Read-Only: No`.
+
+**Uwaga: formatowanie nie kasuje danych.** Zapisuje tylko nową tablicę partycji i nowy, pusty spis plików (w wyniku widać `hid=8192`, czyli partycja zaczyna się teraz od 4. MiB, oraz `bspf=14742`, czyli rozmiar jednej tablicy FAT w sektorach). Stare dane w pozostałym miejscu zostają nietknięte. Wynik PhotoRec niżej to pokazuje.
+
+![Formatowanie karty](../screenshots/2026-10-09-forensics/23-test-format.png)
+
+**2** `Media Read-Only: No`: blokada zdjęta. **10** `eraseDisk`: odmontowanie, nowa tablica partycji, formatowanie `disk4s1` jako FAT32 o nazwie `TEST` z klastrami po 8192 B, ponowne zamontowanie i `Finished erase on disk4`.
 
 ### 11–12 · pliki testowe
 
@@ -548,6 +554,14 @@ Pliki testowe pochodzą z tego repo, które jest publiczne. Na karcie nie ląduj
 | **Rozwiązanie** | zdjęcia pobrane `curl` prosto z GitHuba, a w `head -c` liczba bajtów `2097152`. Potem `ls -l` i nowe `shasum` (`tee` nadpisuje stary plik z sumami) |
 | **Lekcja** | ta sama komenda może mieć inne opcje na macOS (BSD) i na Linuksie (GNU). Przekierowanie `>` tworzy plik **zanim** komenda zacznie działać, więc pusty plik po błędzie to normalny ślad. Dlatego po każdym przygotowaniu danych testowych warto sprawdzić rozmiary przez `ls -l` |
 
+![Pierwsza próba: cp i head z błędami](../screenshots/2026-10-09-forensics/24-test-pliki-blad.png)
+
+**11** pierwsza wersja komend. **!** `cp` nie znajduje zdjęć. Żółta ramka: `cupsfilter` kończy się bez błędów (dziesiątki linii `DEBUG:` nad nią wyciąłem). **!** `head` nie rozumie `2m`. **12a** `ls -l` pokazuje pusty `losowy.bin` (0 B, czerwona ramka). Jego SHA-256 `e3b0c442…b855` to odcisk **pustego** pliku, który warto rozpoznawać na pierwszy rzut oka.
+
+![Druga próba: curl, head, ls i odciski](../screenshots/2026-10-09-forensics/25-test-pliki.png)
+
+**11** pobranie zdjęć z GitHuba (`readme.pdf` został z pierwszej próby). **12** 2 MiB losowych danych. **12a** kontrola: 4 pliki o oczekiwanych rozmiarach. **13** odciski oryginałów, zapisane do `oryginaly.sha256`.
+
 ### 13 · `shasum -a 256 ... | tee plik`: odciski oryginałów
 
 Liczy SHA-256 każdego pliku testowego i zapisuje listę do `oryginaly.sha256`. Po odzyskaniu porównamy te odciski z odciskami plików, które wrócą. `tee` wypisuje wynik na ekran i jednocześnie zapisuje do pliku.
@@ -555,6 +569,10 @@ Liczy SHA-256 każdego pliku testowego i zapisuje listę do `oryginaly.sha256`. 
 ### 14 · `rm /Volumes/TEST/*`: usunięcie
 
 zsh przy `rm` z gwiazdką pyta `sure you want to delete all 4 files in /Volumes/TEST [yn]?`. To bezpiecznik powłoki (opcja `rmstar`), który chroni przed przypadkowym `rm *`. Odpowiedz `y`. Po usunięciu `ls -la /Volumes/TEST/` (`-a` pokazuje też pliki ukryte) wypisze już tylko ukryte foldery macOS, `.Spotlight-V100` i `.fseventsd`.
+
+![Usunięcie, odmontowanie i obraz po usunięciu](../screenshots/2026-10-09-forensics/26-test-usuniecie-obraz.png)
+
+Cztery komendy wklejone naraz, a wyniki pojawiają się kolejno pod nimi. **!** (żółte) pytanie zsh przed `rm *`. **14** po usunięciu na karcie zostały tylko ukryte foldery macOS. **15** odmontowanie. **16** obraz: `3690+0 records`, pełne 15476981760 B w 679 s.
 
 Usuwamy w terminalu, nie w Finderze. Finder tylko przenosi pliki do ukrytego folderu `.Trashes`, czyli nie jest to prawdziwe usunięcie. `rm` kasuje wpisy ze spisu plików, ale **nie rusza samych danych**. Dokładnie tak „usuwa” telefon czy aparat.
 
@@ -570,27 +588,82 @@ Uruchamiamy go z folderu docelowego (`cd` w kroku 6b), bo TestDisk proponuje kop
 - `C` (wielkie): skopiuj zaznaczone. TestDisk pokaże wybór folderu docelowego, a drugie `C` zatwierdza bieżący,
 - `q`: wyjście (kilka razy, po jednym poziomie menu).
 
+Bezpieczniej niż `a` jest zaznaczyć tylko potrzebne pliki dwukropkiem `:` (pojawia się przy nich `*`), bo `a` zaznacza też ukryte foldery macOS.
+
+![TestDisk: 4 usunięte pliki testowe](../screenshots/2026-10-09-forensics/28-test-testdisk-lista.png)
+
+**7** Lista plików na obrazie po usunięciu. Na czerwono 4 usunięte pliki z dokładnie tymi rozmiarami co oryginały. `readme.pdf` i `losowy.bin` mają krótkie nazwy 8.3 (`README.PDF`, `LOSOWY.BIN`), zapisane w jednym wpisie, a FAT przy usuwaniu nadpisuje jego pierwszy znak: stąd `_EADME.PDF` i `_OSOWY.BIN`. Nazwy dłuższe niż 8 znaków mają dodatkowe wpisy z pełną nazwą, z których TestDisk odtwarza `10-board-unboxed.jpg` w całości.
+
+![TestDisk: wybór folderu i kopiowanie](../screenshots/2026-10-09-forensics/29-test-testdisk-kopiowanie.png)
+
+**!** (żółte) nagłówek mówi o `/.fseventsd`, czyli wpisie pod kursorem, choć kopiowane są zaznaczone pliki. **✓** Folder docelowy to `po-usunieciu-testdisk` (TestDisk proponuje folder, z którego go uruchomiono). **✓** `Copy done! 4 ok, 0 failed`.
+
+## ❗ Wpadka: `chmod: Operation not permitted` i kopia, której „nie ma”
+
+| | |
+|---|---|
+| **Co było widać** | 1) `chmod 444` na nowym obrazie: `Operation not permitted`. 2) Po kopiowaniu w TestDisku (`a`, `C`): `Copy done! 100 ok`, a `ls -lR` w folderze docelowym pokazał `total 0`. `find` z `-newer` i `mdfind` też niczego nie znalazły |
+| **Przyczyna** | 1) obraz utworzyło `sudo dd ... of=plik`, więc jego właścicielem jest `root`, a zwykły użytkownik nie może zmieniać uprawnień cudzego pliku. W części 1 obraz zapisywał `tee` uruchomiony bez `sudo`, więc należał do mnie. 2) `a` zaznaczył także foldery `.Spotlight-V100` i `.fseventsd` z całą zawartością (stąd 100 plików). TestDisk zapisał je w folderze docelowym, a **`ls` bez `-a` nie pokazuje nazw zaczynających się od kropki**. Naszych 4 plików w folderze nie było; dlaczego TestDisk ich wtedy nie zapisał, nie ustaliłem. `find -newer` nie mógł pomóc, bo TestDisk przywraca plikom **oryginalne daty z karty**, starsze niż obraz |
+| **Rozwiązanie** | 1) `sudo chmod 444`. 2) Ponowne kopiowanie: tylko 4 pliki zaznaczone `:`, zrzut ekranu wyboru folderu przed zatwierdzeniem, a potem `ls -la` (z ukrytymi). Wynik: `4 ok`, pliki na miejscu |
+| **Lekcja** | `ls` bez `-a` kłamie przez przemilczenie. Gdy narzędzie mówi „skopiowano”, a folder wygląda na pusty, sprawdź `ls -la`. Narzędzia śledcze celowo zachowują oryginalne daty plików, więc szukanie „świeżych” plików po dacie zawodzi |
+
+![chmod i pierwsza kopia](../screenshots/2026-10-09-forensics/27-test-chmod-kopia.png)
+
+**!** (żółte) pierwsze kopiowanie: `100 ok`, bo zaznaczone były też foldery macOS. **!** `chmod` nie może zmienić uprawnień pliku należącego do `root`. **!** `ls -lR` nie widzi ukrytych folderów: `total 0`. Żółta ramka: `find -newer` nic nie znajduje. **✓** `sudo chmod 444`: obraz ma `-r--r--r--`.
+
 ### 17 · porównanie odcisków
 
-Po odzysku z obrazu `noname-po-usunieciu.img` (kroki 7–9, foldery `.../po-usunieciu-testdisk` i `.../po-usunieciu-photorec`):
+**TestDisk** zachowuje nazwy, więc wystarczy policzyć odciski odzyskanych plików i położyć je obok odcisków oryginałów:
 
 ```bash
-awk '{print $1}' $HOME/forensics/oryginaly.sha256 | sort > $HOME/forensics/odciski-oryginalow.txt
-find $HOME/forensics/odzysk/po-usunieciu-photorec -path '*/recup_dir.*' -type f -exec shasum -a 256 {} + | awk '{print $1}' | sort > $HOME/forensics/odciski-odzyskanych.txt
-comm -12 $HOME/forensics/odciski-oryginalow.txt $HOME/forensics/odciski-odzyskanych.txt | wc -l
+ls -la $HOME/forensics/odzysk/po-usunieciu-testdisk
+shasum -a 256 $HOME/forensics/odzysk/po-usunieciu-testdisk/*
+cat $HOME/forensics/oryginaly.sha256
 ```
 
-- Pierwsza komenda wyciąga z listy z kroku 13 same odciski (pierwsza kolumna) i sortuje je.
-- Druga liczy odciski wszystkich odzyskanych plików. Nazwy PhotoRec zmienia, więc porównujemy odciski, nie nazwy.
-- `comm -12` pokazuje odciski występujące w **obu** listach, a `wc -l` je liczy. Każda wspólna linijka to plik odzyskany **identycznie** co do bajta.
+**PhotoRec** nadaje plikom własne nazwy (`f0033036.jpg`), więc porównujemy same odciski:
 
-To samo zrób dla wyniku TestDisk (folder `po-usunieciu-testdisk`, bez filtra `recup_dir.*`, bo TestDisk zachowuje nazwy i foldery).
+```bash
+P=$HOME/forensics/odzysk/po-usunieciu-photorec
+find $P -path '*/recup_dir.*' -type f ! -name report.xml -exec shasum -a 256 {} + > $HOME/forensics/odciski-photorec.txt
+awk '{print $1}' $HOME/forensics/oryginaly.sha256 > $HOME/forensics/odciski-oryginalow.txt
+grep -F -f $HOME/forensics/odciski-oryginalow.txt $HOME/forensics/odciski-photorec.txt
+```
 
-**Czego się spodziewam (do potwierdzenia na karcie):** TestDisk odzyska wszystkie cztery pliki razem z nazwami, bo spis plików jeszcze pamięta wpisy. PhotoRec odzyska zdjęcia i PDF bez nazw, ale `losowy.bin` nie odzyska wcale, bo nie ma sygnatury. Pliki, które PhotoRec uzna za uszkodzone, mogą mieć inny odcisk, jeśli były pofragmentowane.
+- `find ... -exec shasum -a 256 {} +` liczy odcisk każdego odzyskanego pliku (`{}` to miejsce na nazwy znalezionych plików, `+` przekazuje je wszystkie do jednego wywołania `shasum`) i zapisuje listę do pliku.
+- `awk '{print $1}'` wyciąga z listy oryginałów samą pierwszą kolumnę, czyli odciski.
+- `grep -F -f wzorce plik` wypisuje linie z `plik`, w których występuje którykolwiek wzorzec z pliku `wzorce`. `-F` oznacza „dosłownie, bez wyrażeń regularnych”. Każda wypisana linia to plik odzyskany **co do bajta**, razem z nazwą nadaną przez PhotoRec.
+
+**Czego się spodziewałem:** TestDisk odzyska wszystkie cztery pliki razem z nazwami, bo spis plików jeszcze pamięta wpisy. PhotoRec odzyska zdjęcia i PDF bez nazw, ale `losowy.bin` nie odzyska wcale, bo nie ma sygnatury. Oba przewidywania się sprawdziły (niżej).
 
 ## Wyniki
 
-*(do uzupełnienia: tabela „plik → TestDisk → PhotoRec”, ile odcisków się zgodziło)*
+![TestDisk: odciski odzyskanych plików i oryginałów](../screenshots/2026-10-09-forensics/30-test-testdisk-odciski.png)
+
+**17** Folder z odzyskanymi plikami: żółta ramka to ukryty `.Spotlight-V100` z pierwszego kopiowania, fioletowa to 4 pliki testowe. **✓** Odciski odzyskanych plików. **13** Odciski oryginałów: identyczne, linia w linię.
+
+![PhotoRec: 111 plików](../screenshots/2026-10-09-forensics/31-test-photorec-111.png)
+
+**8** PhotoRec (tryb `Free`) na tym samym obrazie: **111 plików**.
+
+![PhotoRec: typy i porównanie odcisków](../screenshots/2026-10-09-forensics/32-test-photorec-odciski.png)
+
+**6b**, **8** PhotoRec uruchomiony z folderu `odzysk`. **9** Typy: 106 `mp3`, 2 `jpg`, 1 `txt`, 1 `plist`, 1 `pdf`. **17** Porównanie odcisków. **✓** Trzy odzyskane pliki mają odciski identyczne z oryginałami: oba zdjęcia i PDF.
+
+| Plik (oryginał) | Rozmiar | TestDisk | PhotoRec |
+|---|---:|---|---|
+| `10-board-unboxed.jpg` | 279120 B | ✅ identyczny, z nazwą | ✅ identyczny, jako `f0033036.jpg` |
+| `14-case-parts.jpg` | 350805 B | ✅ identyczny, z nazwą | ✅ identyczny, jako `f0033596.jpg` |
+| `readme.pdf` | 12195 B | ✅ identyczny, jako `_EADME.PDF` | ✅ identyczny, jako `f0032956.pdf` |
+| `losowy.bin` | 2097152 B | ✅ identyczny, jako `_OSOWY.BIN` | ❌ nie znaleziony |
+| **razem** | | **4 z 4** | **3 z 4** |
+
+**Wnioski:**
+
+- **Usunięcie pliku nie kasuje danych.** Oba narzędzia odzyskały pliki co do bajta, bo po `rm` na karcie nic ich nie nadpisało.
+- **TestDisk wygrywa, dopóki spis plików pamięta wpisy:** odzyskał wszystko, także plik bez żadnej sygnatury, i prawie całe nazwy. Gubi tylko pierwszy znak krótkich nazw 8.3.
+- **PhotoRec nie potrzebuje spisu, ale potrzebuje sygnatury.** Plik losowych bajtów jest dla niego niewidzialny: nie wie, gdzie się zaczyna ani gdzie kończy. Nazw nie odzyskuje wcale.
+- **Formatowanie to nie kasowanie.** Usunęliśmy 4 pliki, a PhotoRec znalazł 111. Ponad sto to pozostałości sprzed formatowania (`eraseDisk` z kroku 10): 106 z 280 plików `mp3` z telefonu (ok. 38%). Z 25 zdjęć z telefonu nie wróciło żadne. Część starych danych przepadła, prawdopodobnie nadpisana przez nową tablicę partycji, tablice FAT i nasze pliki (wszystkie leżą na początku partycji), ale reszta przeżyła. Pliki `txt` i `plist` to prawdopodobnie usunięte pliki tymczasowe macOS (Spotlight). Wniosek praktyczny: karty po samym sformatowaniu nie można bezpiecznie oddać. Część 4 pokazuje, co robić zamiast tego.
 
 ---
 

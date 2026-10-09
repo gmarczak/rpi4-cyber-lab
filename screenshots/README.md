@@ -38,6 +38,7 @@ Drop build screenshots and photos here, e.g.:
   - `11`–`12`: karta bez marki: `diskutil`, `stab`, obraz i trzy zgodne sumy SHA-256, `chmod 444` / no-name card: `diskutil`, `stab`, image and three matching SHA-256 hashes, `chmod 444`
   - `13`–`17`: TestDisk na obrazie; **nazwy usuniętych plików zamazane** (cudze dane) / TestDisk on the image; **deleted file names blurred** (someone else's data)
   - `18`–`22`: PhotoRec: menu, wpadki (`0 files saved`, log i pliki sesji w repo), 314 odzyskanych plików i liczenie typów / PhotoRec: menus, gotchas (`0 files saved`, log and session files in the repo), 314 recovered files and type counts
+  - `23`–`32`: kontrolowany eksperyment: formatowanie, pliki testowe (z wpadkami `cp`/`head`), usunięcie, obraz, TestDisk (4 z 4 identyczne), PhotoRec (111 plików, 3 z 4 identyczne) / controlled experiment: format, test files (with `cp`/`head` gotchas), delete, image, TestDisk (4 of 4 identical), PhotoRec (111 files, 3 of 4 identical)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 
