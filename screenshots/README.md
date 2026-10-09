@@ -25,6 +25,7 @@ Drop build screenshots and photos here, e.g.:
   - `32`–`35`: SSH na porcie 2222, test portów, pułapka Notatnika z `config.txt` i poprawka (adres IPv6 zamazany) / SSH on port 2222, port tests, the Notepad `config.txt` trap and the fix (IPv6 blurred)
   - `36`–`38`: firewall `ufw`: instalacja, reguły i test SSH (adres IPv6 zamazany) / `ufw` firewall: install, rules and SSH test (IPv6 blurred)
   - `39`: wyłączenie Wi-Fi i Bluetooth (adres MAC i IPv6 zamazane) / Wi-Fi and Bluetooth disabled (MAC and IPv6 blurred)
+  - `40`–`45`: stały adres IP w FunBoxie (nazwy innych urządzeń, ich adresy i wszystkie adresy MAC zamazane) / static IP in the FunBox (other devices' names and addresses, and all MACs hidden)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 
