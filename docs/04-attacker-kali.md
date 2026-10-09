@@ -2,6 +2,8 @@
 
 Kali i cele ataku stoją w maszynach wirtualnych na komputerze. Wszystko odseparowane od reszty systemu; maszyny można w każdej chwili skasować i postawić od nowa.
 
+> 🛠️ Jak to wyglądało u mnie krok po kroku, ze zrzutami i wpadkami: [04c — Instalacja Kali i maszyny z celami](04c-instalacja-kali-i-celow.md).
+
 ## 4a. VirtualBox + sieć
 
 1. Pobierz i zainstaluj [VirtualBox](https://www.virtualbox.org/) (darmowy).
