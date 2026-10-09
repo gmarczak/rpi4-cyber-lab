@@ -8,6 +8,8 @@ Raspberry pełni rolę obrońcy: **udaje podatne urządzenie** (honeypot) i **mo
    - pierwszy test i pierwsze alerty ✅
    - usługa startująca sama po restarcie ✅
 2. Monitoring ruchu: Suricata
+   - instalacja, reguły i test konfiguracji ✅
+   - uruchomienie i pierwszy alert
 3. Podgląd ruchu: ntopng (opcjonalnie)
 
 ---
@@ -376,9 +378,71 @@ journalctl -u opencanary -n 50        # ostatnie 50 komunikatów usługi
 
 # Część 2: monitoring ruchu — Suricata
 
-*Następny krok Etapu 2.* Suricata analizuje cały ruch sieciowy Raspberry i dopasowuje go do tysięcy reguł opisujących znane ataki i skany.
+Honeypot widzi tylko to, co ktoś zrobi z jego udawanymi usługami. **Suricata** to *IDS* (*Intrusion Detection System*, system wykrywania włamań): patrzy na **cały ruch sieciowy** Raspberry, pakiet po pakiecie, i porównuje go z dziesiątkami tysięcy **reguł** opisujących znane ataki, skany i złośliwe programy.
+
+```
+honeypot:  „ktoś próbował się zalogować na udawany SSH jako admin/admin”
+Suricata:  „ten ruch wygląda jak skan nmap / znany exploit / odpowiedź z uprawnieniami roota”
+```
 
 > ⚠️ **Zakres:** Suricata na Raspberry widzi tylko ruch **do i z samego Raspberry**. Ataki na cele w sieci wirtualnej komputera nie przechodzą przez Raspberry, patrz [network-topology.md](network-topology.md).
+
+## Krok 1: instalacja, reguły i test konfiguracji
+
+### Komendy w skrócie
+
+```bash
+sudo apt install -y suricata                                                         # 1
+suricata -V                                                                          # 2
+sudo grep -nE '^\s*- interface:|default-rule-path|HOME_NET:' /etc/suricata/suricata.yaml   # 3
+sudo suricata-update                                                                 # 4
+sudo suricata -T -c /etc/suricata/suricata.yaml                                      # 5
+free -h                                                                              # 6
+```
+
+![instalacja Suricaty](../screenshots/2026-10-09-assembly/62-suricata-apt.png)
+
+![wersja, konfiguracja i reguły](../screenshots/2026-10-09-assembly/63-suricata-config-update.png)
+
+![test konfiguracji i pamięć](../screenshots/2026-10-09-assembly/64-suricata-rules-test.png)
+
+### 1 · `sudo apt install -y suricata`: instalacja
+
+Suricata jest w repozytorium Debiana, razem z nią instaluje się m.in. `suricata-update` (narzędzie do pobierania reguł) i biblioteki do szybkiego przechwytywania pakietów (`librte-*`, `libnetfilter-*`, `libxdp`).
+
+### 2 · `suricata -V`: wersja
+
+`This is Suricata version 7.0.10 RELEASE`. Wersja ma znaczenie, bo reguły pobiera się pod konkretną wersję silnika (widać to w kroku 4: `…/open/suricata-7.0.10/…`).
+
+### 3 · `sudo grep -nE '…' /etc/suricata/suricata.yaml`: trzy ustawienia do sprawdzenia
+
+`/etc/suricata/suricata.yaml` to główny plik konfiguracji (ponad 2000 linijek). `grep -n` wypisuje pasujące linijki z ich numerami.
+
+| Ustawienie | U mnie | Znaczenie |
+|---|---|---|
+| `HOME_NET` (linia 18) | `[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]` | „nasza” sieć. Obejmuje wszystkie typowe sieci domowe, w tym moją `192.168.1.x`. Linijki z `#` to wyłączone przykłady |
+| `- interface: eth0` (linia 622) | `eth0` | na której karcie Suricata słucha. Pierwszy wpis to sekcja `af-packet`, czyli sposób przechwytywania pakietów, którego używa usługa. Pozostałe wpisy należą do innych trybów pracy i nie mają znaczenia |
+| `default-rule-path` (linia 2196) | `/var/lib/suricata/rules` | gdzie Suricata szuka reguł. **Dokładnie tam** zapisuje je `suricata-update` (krok 4), więc nic nie trzeba zmieniać |
+
+### 4 · `sudo suricata-update`: pobranie reguł
+
+- `No sources configured, will use Emerging Threats Open`: domyślnie pobiera darmowy zestaw **ET Open** (Emerging Threats), utrzymywany przez społeczność i firmę Proofpoint,
+- `Fetching …emerging.rules.tar.gz`: pobranie paczki (ok. 5,6 MB),
+- `Loading distribution rule file /etc/suricata/rules/…`: dokłada reguły dostarczone z samą Suricatą (błędy protokołów, dekodera itp.),
+- `Disabling rules for protocol pgsql/modbus/dnp3/enip`: wyłącza reguły dla protokołów, których obsługa jest w konfiguracji wyłączona,
+- `Writing rules to /var/lib/suricata/rules/suricata.rules: total: 69064; enabled: 53108`: **wszystko trafia do jednego pliku**: 69 064 reguły, z czego 53 108 włączone,
+- `Testing with suricata -T` → `Done`: na koniec sam sprawdza, czy Suricata te reguły przyjmie.
+
+### 5 · `sudo suricata -T -c /etc/suricata/suricata.yaml`: test przed uruchomieniem
+
+- `-T` (*test*): wczytaj konfigurację i wszystkie reguły, sprawdź je i zakończ, bez uruchamiania monitoringu,
+- `-c …`: którego pliku konfiguracji użyć.
+
+`Configuration provided was successfully loaded. Exiting.` ✅ Błąd w konfiguracji lepiej złapać tutaj niż w niedziałającej usłudze.
+
+### 6 · `free -h`: pamięć
+
+Suricata z pełnym zestawem reguł potrafi zająć kilkaset MB RAM. Raspberry ma 3,7 GB, z czego wolne 3,4 GB, zapasu jest dużo.
 
 # Część 3: podgląd ruchu — ntopng (opcjonalnie)
 
