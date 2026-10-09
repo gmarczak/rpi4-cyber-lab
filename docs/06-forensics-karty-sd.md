@@ -265,6 +265,7 @@ Karta mogła być wcześniej w telefonie, aparacie albo czytniku. „Usunięcie�
 
 ```bash
 chmod 444 $HOME/forensics/obrazy/noname.img                                      # 6a
+mkdir -p $HOME/forensics/odzysk/noname && cd $HOME/forensics/odzysk               # 6b
 testdisk $HOME/forensics/obrazy/noname.img                                       # 7
 photorec /log /d $HOME/forensics/odzysk/noname/ $HOME/forensics/obrazy/noname.img   # 8
 find $HOME/forensics/odzysk/noname -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn   # 9
@@ -277,6 +278,12 @@ Obie komendy działają na **obrazie**, więc nie potrzebują `sudo` i nie mogą
 ### 6a · `chmod 444 obraz.img`: obraz tylko do odczytu
 
 `chmod` zmienia uprawnienia pliku. `444` oznacza „każdy może tylko czytać” (cyfra 4 to prawo odczytu dla właściciela, grupy i reszty, bez prawa zapisu). Dzięki temu żaden program, w tym nasze narzędzia odzyskiwania i nasza własna pomyłka, nie zmieni obrazu, a jego suma SHA-256 zostaje ważna. To odpowiednik programowego *write blockera* dla pliku. Kontrola: `ls -l` pokaże `-r--r--r--`.
+
+### 6b · `mkdir -p ... && cd ...`: folder na wyniki i praca poza repo
+
+- `mkdir -p folder`: tworzy folder na odzyskane pliki. `-p` tworzy też brakujące foldery nadrzędne i nie zgłasza błędu, jeśli folder już jest. **PhotoRec sam go nie utworzy** (patrz wpadka niżej).
+- `&&`: wykonaj drugą komendę tylko, jeśli pierwsza się udała.
+- `cd $HOME/forensics/odzysk`: przejdź do folderu roboczego. TestDisk i PhotoRec zapisują swoje logi (`testdisk.log`, `photorec.log`) **w bieżącym folderze**, a te logi zawierają nazwy plików z karty. Uruchomione w folderze repo zostawiłyby je obok publicznej dokumentacji.
 
 ### 7 · `testdisk obraz.img`: usunięte pliki ze spisu
 
@@ -312,6 +319,26 @@ find folder -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | so
 ```
 
 `find` wypisuje wszystkie odzyskane pliki (tylko te z folderów `recup_dir.*`, bez `photorec.log`), `sed` zostawia z każdej nazwy samo rozszerzenie, a `sort | uniq -c | sort -rn` liczy je i układa od najliczniejszego. Wynik wygląda np. tak: `142 jpg`, `9 mp4`. Dzięki temu do dokumentacji trafiają **liczby i typy**, a nie same pliki. Jeśli na karcie są cudze lub prywatne zdjęcia, nie ma potrzeby ich oglądać, żeby ćwiczenie miało sens.
+
+## ❗ Wpadka: PhotoRec „0 files saved … Cannot create file in current directory”
+
+**Co było widać:** PhotoRec przeszedł przez wszystkie menu (FAT32, `Other`, `Free`), po czym od razu pokazał `0 files saved in /Users/.../forensics/odzysk/noname/recup_dir directory` i `Cannot create file in current directory`.
+
+**Przyczyna:** folder docelowy podany w `/d` nie istniał. W przygotowaniu powstał tylko `~/forensics/odzysk`, bez podfolderu `noname`, a PhotoRec nie tworzy brakujących folderów nadrzędnych. Nie mógł zapisać ani jednego pliku, więc zakończył pracę z wynikiem 0. To **nie** znaczy, że na obrazie nic nie ma.
+
+**Rozwiązanie:** `mkdir -p $HOME/forensics/odzysk/noname` (komenda `# 6b`) i ponowne uruchomienie PhotoRec.
+
+**Lekcja:** „0 znalezionych” i „0 zapisanych” to dwie różne rzeczy. Przy zerowym wyniku narzędzia najpierw sprawdź, czy w ogóle miało gdzie pisać.
+
+## ❗ Wpadka: logi narzędzi w folderze repo
+
+**Co było widać:** PhotoRec uruchomiony z folderu repo zostawił tam trzy pliki. `ls -l *.log` pokazał `photorec.log`, a `git status --short` dwa nieśledzone pliki: `?? photorec.ses` i `?? photorec.se2`. (TestDisk loga nie zostawił, bo przy starcie wybrałem „No log”.)
+
+**Przyczyna:** TestDisk i PhotoRec zapisują log (`*.log`) i plik sesji (`photorec.ses`, kopia `photorec.se2`, potrzebne do wznowienia przerwanego szukania) w **bieżącym folderze**, nie obok obrazu. Log może zawierać nazwy plików z karty, czyli cudze, prywatne dane. `*.log` był już w `.gitignore`, ale pliki sesji nie, więc `git add .` wrzuciłby je do publicznego repo.
+
+**Rozwiązanie:** `mv photorec.log photorec.ses photorec.se2 $HOME/forensics/`, dopisanie `*.ses` i `photorec.se2` do `.gitignore` i od tej pory uruchamianie narzędzi po `cd $HOME/forensics/odzysk` (`# 6b`). Przeniesienie pliku sesji ma też tę zaletę, że PhotoRec nie proponuje wznowienia poprzedniej, nieudanej sesji. `.gitignore` to druga linia obrony, nie pierwsza: chroni przed przypadkowym `git add .`, ale nie przed plikiem, o którym nie wiedzieliśmy.
+
+**Lekcja:** zanim uruchomisz narzędzie na cudzych danych, sprawdź, **gdzie** zapisuje swoje wyniki i logi.
 
 ## Wyniki
 
