@@ -33,6 +33,11 @@ Drop build screenshots and photos here, e.g.:
   - `68`–`69`: codzienna aktualizacja reguł Suricaty i pierwsza wersja `check-logs.sh` (adres PC zamazany) / daily Suricata rule updates and the first `check-logs.sh` (PC address blurred)
 - [`2026-10-09-forensics/`](2026-10-09-forensics/): zdjęcia i zrzuty z ćwiczenia [docs/06](../docs/06-forensics-karty-sd.md) / photos and screenshots from the forensics exercise
   - `01`: karta SanDisk microSD 16 GB (klasa 10) i adapter SD z zaznaczonym suwakiem LOCK; zdjęcie przycięte do kart, bez metadanych EXIF / SanDisk 16 GB microSD (class 10) and its SD adapter with the LOCK slider marked; cropped, EXIF removed
+  - `02`–`03`: instalacja Homebrew i narzędzi (`testdisk`, `f3`), kroki P1–P3 / Homebrew and tool install, steps P1–P3
+  - `04`–`10`: karta SanDisk: `diskutil`, `dd` z `Operation timed out`, trzy różne sumy, mapa różnic, test rozmiaru bloku i `stab` / SanDisk card: `diskutil`, `dd` timeout, three different hashes, diff map, block-size test and `stab`
+  - `11`–`12`: karta bez marki: `diskutil`, `stab`, obraz i trzy zgodne sumy SHA-256, `chmod 444` / no-name card: `diskutil`, `stab`, image and three matching SHA-256 hashes, `chmod 444`
+  - `13`–`17`: TestDisk na obrazie; **nazwy usuniętych plików zamazane** (cudze dane) / TestDisk on the image; **deleted file names blurred** (someone else's data)
+  - `18`–`22`: PhotoRec: menu, wpadki (`0 files saved`, log i pliki sesji w repo), 314 odzyskanych plików i liczenie typów / PhotoRec: menus, gotchas (`0 files saved`, log and session files in the repo), 314 recovered files and type counts
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

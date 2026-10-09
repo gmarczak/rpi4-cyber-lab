@@ -29,11 +29,16 @@ Co po drodze zrobimy:
 ## Przygotowanie
 
 ```bash
-brew install testdisk f3      # testdisk = TestDisk + PhotoRec, f3 = test pojemności
-mkdir -p ~/forensics/obrazy ~/forensics/odzysk
+brew install testdisk f3                  # P1  testdisk = TestDisk + PhotoRec, f3 = test pojemności
+mkdir -p ~/forensics/obrazy ~/forensics/odzysk   # P2
+which photorec testdisk f3write f3read    # P3  sprawdzenie: czy programy są zainstalowane
 ```
 
 Wszystko ląduje w `~/forensics`, **nie** w folderze repo.
+
+`which` pokazuje, gdzie leży program o danej nazwie. Jeśli wypisze cztery ścieżki w `/opt/homebrew/bin/`, instalacja się udała. Brak linii przy którejś nazwie znaczy, że tego programu nie ma.
+
+> **Jak czytać zrzuty:** ramki z numerem w kółku to komendy z „Komend w skrócie” (ten sam numer co w dokumencie). Czerwone „!” to wpadka, żółte „!” to ostrzeżenie, a zielone „✓” to poprawka albo dobry wynik. Cienkie żółte ramki bez numeru wskazują, na co patrzeć w wyniku. Małe litery (a, b, c…) to pomocnicze komendy z opisu wpadki. Linia przerywana oznacza wycięty fragment wyniku.
 
 `brew` to **Homebrew**, menedżer programów dla macOS. Jeśli Terminal odpowie `zsh: command not found: brew`, nie jest jeszcze zainstalowany (patrz wpadka poniżej).
 
@@ -45,6 +50,18 @@ Wszystko ląduje w `~/forensics`, **nie** w folderze repo.
 | **Przyczyna** | Homebrew nie jest domyślnie w macOS. Trzeba go zainstalować jednorazowo |
 | **Rozwiązanie** | instalator ze strony [brew.sh](https://brew.sh): `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`. Zapyta o hasło do Maca i może doinstalować narzędzia programistyczne Apple. Na końcu wypisze „Next steps”, czyli dwie linijki do wklejenia, które dodają `brew` do ścieżki. Bez nich `brew` dalej nie będzie znaleziony |
 | **Lekcja** | komenda „nie znaleziona” zwykle znaczy „nie zainstalowana albo nie w `PATH`”, a nie „zepsuta”. Po instalacji otwórz nowe okno Terminala i sprawdź `brew --version` |
+
+![brew: command not found i instalacja Homebrew](../screenshots/2026-10-09-forensics/02-brew-brak.png)
+
+**!** `brew install testdisk f3` (wklejone razem z `mkdir` z następnej linii) kończy się `zsh: command not found: brew`. **✓** Instalator Homebrew ze strony brew.sh. Pyta o hasło do Maca (`Password:`), a znaki hasła się nie wyświetlają.
+
+![Next steps, brew w PATH i instalacja narzędzi](../screenshots/2026-10-09-forensics/03-brew-instalacja.png)
+
+- Żółta ramka: „Next steps” na końcu instalatora, czyli trzy linie, które trzeba wkleić samemu.
+- **✓** Wklejone linie dopisują Homebrew do `~/.zprofile` (ustawienia powłoki czytane przy starcie) i od razu do bieżącego okna. `brew --version` odpowiada `Homebrew 7.0.9`, więc działa.
+- **P1** instalacja `testdisk` i `f3` (dalszy wynik wycięty, kończy się `Pouring f3…`).
+- **P2** foldery na obrazy i odzyskane pliki.
+- **P3** `which` znajduje wszystkie cztery programy.
 
 **Blokada zapisu.** Pełnowymiarowy adapter SD ma z boku mały suwak **LOCK**. Przesuń go w stronę oznaczenia LOCK, zanim włożysz kartę do MacBooka. To prosty, sprzętowy *write blocker*: system widzi kartę jako tylko do odczytu, więc nie może jej przypadkiem zmienić. Bez blokady macOS po włożeniu karty sam ją montuje i może dopisać ukryte pliki (`.Spotlight-V100`, `.fseventsd`), czyli zmienić „dowód”. Gdy adapter nie ma suwaka, od razu po włożeniu zrób krok 3 (`unmountDisk`).
 
@@ -99,6 +116,10 @@ Jeśli którekolwiek się nie zgadza, **stop**. Zobacz też `Read-Only Media`: p
 ### 3 · `diskutil unmountDisk /dev/diskN`: odmontuj, ale nie wyjmuj
 
 Odłącza system plików karty od Findera, a samo urządzenie zostaje dostępne. To ważne: do kopiowania cały dysk musi być **odmontowany**, inaczej system może w trakcie coś na nim zmieniać.
+
+![diskutil info i unmountDisk dla karty SanDisk](../screenshots/2026-10-09-forensics/05-diskutil-info-sandisk.png)
+
+**2** `diskutil info /dev/disk4` dla karty SanDisk. Żółte ramki to pola do sprawdzenia: `Built In SDXC Reader` (wbudowany czytnik), `Protocol: Secure Digital`, `Disk Size: 16.0 GB (16021192704 Bytes)`, `Media Read-Only: Yes` (suwak LOCK działa) i `Device Location: Internal`. **3** `unmountDisk` odpowiada `Unmount of all volumes on disk4 was successful`.
 
 ### 3a · `stab`: czy karta czyta się powtarzalnie
 
@@ -178,6 +199,10 @@ Po wszystkim: `diskutil eject /dev/diskN` i wyjmij kartę.
 | **Rozwiązanie** | pełne `diskutil list` i rozpoznanie karty po rozmiarze |
 | **Lekcja** | filtr w komendzie to założenie. Gdy wynik jest pusty, usuń filtr i zobacz całość, zanim uznasz, że karta „nie działa”. Przy wbudowanym czytniku słowo `internal` nie odróżnia karty od dysku MacBooka, odróżnia ją **rozmiar** |
 
+![diskutil list external physical nic nie wypisuje, pełne diskutil list pokazuje kartę](../screenshots/2026-10-09-forensics/04-diskutil-list.png)
+
+**!** Dwa razy `diskutil list external physical` i dwa razy pusto. **1** Pełne `diskutil list`: `disk0` (500 GB) i `disk3` to dysk MacBooka. Żółta ramka to karta: `/dev/disk4`, 16,0 GB, opisana jako `internal, physical`, czyli tak samo jak dysk systemowy.
+
 ## ❗ Wpadka: `dd` przerwał na ostatnim bloku (`Operation timed out`)
 
 Dotyczy karty **SanDisk**, pierwszej, na której zaczynałem.
@@ -188,6 +213,13 @@ Dotyczy karty **SanDisk**, pierwszej, na której zaczynałem.
 | **Przyczyna** | na pierwszy rzut oka: karta ma 3819,75 bloków po 4 MiB, `dd` przeczytał 3819 pełnych i zawiesił się na niepełnym. **To tłumaczenie okazało się niepełne**: ten sam punkt (bajt 16 018 046 976) zawiesił później także odczyt z `bs=3m`, który kończy się pełnym blokiem. Wiemy tylko tyle, że odczyt końcówki karty dużymi porcjami zawodzi, a małym (`bs=512`) przechodzi. Prawdziwy powód to prawdopodobnie ogólna niewiarygodność tej karty (patrz następna wpadka) |
 | **Rozwiązanie** | doczytanie samego ogona: `sudo dd if=/dev/rdisk4 of=...sandisk16.img bs=512 skip=31285248 seek=31285248 conv=notrunc` (6144 sektory, 3 MiB, 5,5 s). Potem `ls -l` pokazał dokładnie **16021192704** bajtów |
 | **Lekcja** | zakończenie komendy bez błędu w terminalu to nie dowód. Zawsze porównaj rozmiar obrazu z rozmiarem karty (krok 4a) i dopiero potem licz sumy kontrolne. A pierwsze, wygodne wytłumaczenie błędu traktuj jak hipotezę: ja uznałem ją za wyjaśnienie i myliłem się |
+
+![dd przerywa z Operation timed out, obraz za krótki, doczytanie ogona](../screenshots/2026-10-09-forensics/06-sandisk-dd-timeout.png)
+
+- **4** Pierwsza kopia SanDiska, jeszcze w starej wersji `dd ... of=plik bs=4m`. Linie `load: … cmd: dd` to podgląd postępu po **Ctrl+T**: po 13 s było 35 bloków, po 229 s 583. Czerwona ramka: po 2273 s (38 min) `dd` kończy z `Operation timed out`, po 3819 blokach.
+- **!** `ls -l` pokazuje 16018046976 B, czyli o 3 MiB mniej niż `Disk Size` z kroku 2.
+- **✓** Doczytanie ogona po 512 B (`skip`/`seek`/`conv=notrunc`): 6144 sektory w 5,5 s.
+- **4a** Teraz `ls -l` pokazuje dokładnie 16021192704 B. Pliki obrazu należą do `root`, bo zapisało je `dd` uruchomione przez `sudo`.
 
 ## ❗ Wpadka: trzy odczyty tej samej karty, trzy różne sumy (SanDisk)
 
@@ -209,6 +241,21 @@ Przebieg, z liczbami (sumy skrócone do pierwszych 8 i ostatnich 6 znaków):
 | karta, drugi raz (`bs=3m count=5092`) | te same 16 018 046 976 B | `c34d455d…ed6510` |
 | ostatnie 3 MiB (`bs=512`) | karta i obraz | `bbd05cf6…f621e5`, **zgodne** |
 
+![Trzy odczyty SanDiska, trzy różne sumy](../screenshots/2026-10-09-forensics/07-sandisk-sumy-rozne.png)
+
+- **5** Suma całego pliku obrazu (`c617…`).
+- **6** Ponowny odczyt karty z sumą w locie. Znów `Operation timed out` w tym samym miejscu (czerwona ramka), po 5092 blokach: suma `1a37…`. Linie `load: … caffeinate` to Ctrl+T, które w potoku pokazuje tylko `caffeinate`.
+- **a** Żeby porównać to samo, liczę sumę **pierwszych** 5092 bloków obrazu (`a83d…`). Odczyt z pliku trwa 56 s zamiast 40 minut.
+- **b** Ostatnie 3 MiB karty i obrazu po 512 B: obie sumy `bbd0…`, zgodne. (`Sorry, try again.` to literówka w haśle, bez znaczenia.)
+- **!** Porównanie: `ROZNE`, bo `1a37…` ≠ `a83d…`.
+- **c** Trzeci odczyt tych samych 5092 bloków, tym razem z zapisem do pliku: `c34d…`, znów inna suma.
+- **!** `cmp` porównuje bajt po bajcie: pierwsza różnica na bajcie 19777540, a `wc -l` liczy **48450246** różniących się bajtów.
+
+![Mapa różnic i powtarzany odczyt jednego obszaru](../screenshots/2026-10-09-forensics/08-sandisk-mapa-roznic.png)
+
+- **d** `cmp -l` wypisuje każdą różnicę, a `awk` grupuje je po megabajtach (`int((pozycja-1)/1048576)`). Wynik: numer MiB i liczba różnych bajtów w nim. Różnice zaczynają się od 18. MiB, a `wc -l` mówi, że dotyczą 5775 różnych MiB.
+- **e** Ten sam obszar karty czytany 3 razy na dwa sposoby. W powtórce 2 jeden odczyt daje inną sumę (`df32…`, czerwona ramka) niż pozostałe pięć.
+
 **Moja pierwsza hipoteza była błędna.** Zauważyłem, że różnice dotyczą odczytów dużymi blokami, i uznałem, że winne są duże bloki (a mały `bs=512` jest bezpieczny). Test zaprzeczył: ten sam obszar (12 MiB od 48. MiB) czytany po 6 razy każdym rozmiarem bloku dał **6 różnych sum przy każdym rozmiarze, także przy `bs=512`**:
 
 | `bs` | Czas 6 odczytów (12 MiB) | Różnych sum z 6 |
@@ -218,6 +265,10 @@ Przebieg, z liczbami (sumy skrócone do pierwszych 8 i ostatnich 6 znaków):
 | 64 KiB | 16 s | 6 |
 | 1 MiB | 13 s | 6 |
 | 3 MiB | 12 s | 6 |
+
+![Test rozmiaru bloku: 6 różnych sum przy każdym bs](../screenshots/2026-10-09-forensics/09-sandisk-rozmiar-bloku.png)
+
+**f** Funkcja `test_bs` czyta te same 12 MiB (od 48. MiB) 6 razy blokami podanego rozmiaru i zlicza różne sumy, a pętla `for bs in …` uruchamia ją dla pięciu rozmiarów. **!** Przy każdym rozmiarze sześć linii z `1`: sześć odczytów, sześć różnych sum.
 
 (Dla porównania w obszarze 18–24 MiB, gdzie różnic prawie nie było, 5 z 6 odczytów było identycznych, a odstawał jeden odczyt `bs=3m`.) Przy okazji widać, że `bs=512` jest ok. 25 razy wolniejsze od `bs=3m` i niczego nie naprawia.
 
@@ -230,11 +281,19 @@ Test stabilności (krok 3a) na obu kartach:
 | 1000 MiB | 3 różne sumy | stabilnie |
 | 8000 MiB | 3 różne sumy | stabilnie |
 
+![Test stabilności na karcie SanDisk](../screenshots/2026-10-09-forensics/10-sandisk-stab.png)
+
+**3a** Definicja funkcji `stab` i jej wywołanie na SanDisku. Zielona ramka: od 0 MiB `3` przy jednej sumie, czyli stabilnie. **!** Od 48, 1000 i 8000 MiB po trzy linie z `1`: każdy odczyt inny.
+
 Początek karty (tablica partycji, spis FAT) czytał się powtarzalnie nawet na SanDisku. Prawdopodobnie dlatego `diskutil` i Finder „widziały” kartę i pliki `.mp3` bez problemu, a kłopoty zaczęły się dopiero przy czytaniu całych danych.
 
 ## Wyniki
 
 **Karta bez marki (klasa 4)**, na której zrobiłem obraz: `/dev/disk4`, 15,5 GB (15 476 981 760 bajtów = 30 228 480 sektorów po 512 B = dokładnie 4920 bloków po 3 MiB), tablica partycji MBR, jedna partycja FAT32 `NO NAME`. Blokada zapisu działała: `Media Read-Only: Yes`. Test stabilności (krok 3a): we wszystkich czterech miejscach identyczne sumy.
+
+![Karta bez marki: diskutil list, unmountDisk, info, stab](../screenshots/2026-10-09-forensics/11-noname-lista-stab.png)
+
+**1** W `diskutil list` karta to `disk4` o rozmiarze 15,5 GB (fragment z dyskiem MacBooka wycięty). **3** odmontowanie. **2** Z `diskutil info` filtrem `grep -E` wybrane tylko dwa pola: rozmiar w bajtach i `Media Read-Only: Yes`. **3a** `stab`: w każdym z czterech miejsc `3` przy jednej sumie, czyli karta czyta się powtarzalnie.
 
 Kopiowanie `caffeinate -i sudo dd bs=3m | tee ... | shasum`: **4920+0 records in/out, 15 476 981 760 bajtów w 735 s (12 minut), średnio 21 MB/s, bez żadnego błędu.** Karta bez marki czyta się trzy razy szybciej niż SanDisk (7 MB/s), mimo niższej klasy na opakowaniu.
 
@@ -245,6 +304,14 @@ Kopiowanie `caffeinate -i sudo dd bs=3m | tee ... | shasum`: **4920+0 records in
 ```
 
 To jest dowód, że `noname.img` jest wierną kopią karty i że karta zwraca za każdym razem te same dane. Od tej chwili pracujemy na obrazie.
+
+![Obraz karty bez marki, trzy zgodne sumy i chmod 444](../screenshots/2026-10-09-forensics/12-noname-obraz-sumy.png)
+
+- **4** Kopiowanie z sumą w locie: `4920+0 records`, 735 s, suma `7a90d2cf…7edf`. Linia `load:` to jedno Ctrl+T.
+- **5** Suma pliku obrazu: ta sama. W tej samej linii po `&&` od razu rusza krok 6.
+- **6** Drugi, niezależny odczyt karty (729 s): znów ta sama suma.
+- **✓** Porównanie trzech sum: `ZGODNE`.
+- **6a** `chmod 444` i kontrola `ls -l`: `-r--r--r--`, obraz tylko do odczytu, rozmiar 15476981760 B.
 
 **SanDisk (klasa 10)**: `/dev/disk4`, 16,0 GB (16 021 192 704 bajtów = 31 291 392 sektorów), MBR, FAT32 `NO NAME`, na karcie pliki `.mp3`. Kopiowanie `dd bs=4m`: 3819 bloków w 2273 s (38 minut, 7,0 MB/s), ogon 3 MiB doczytany osobno. Obrazu z tej karty **nie uznaję za wiarygodny** (patrz wpadka wyżej), więc nie wykorzystuję go do dalszych części.
 
@@ -296,6 +363,26 @@ TestDisk ma menu tekstowe, obsługiwane strzałkami i Enterem:
 
 Jeśli TestDisk nie widzi żadnej partycji albo spis jest pusty, to też wynik: karta mogła być sformatowana, a wtedy zostaje PhotoRec.
 
+![TestDisk: wybór obrazu](../screenshots/2026-10-09-forensics/13-testdisk-start.png)
+
+**7** Uruchomienie na obrazie. Na pierwszym ekranie jest jeden nośnik, nasz obraz, z dopiskiem `(RO)` (*read-only*, tylko do odczytu). Wybór: `[Proceed]` (fragment środka ekranu wycięty).
+
+![TestDisk: brak prawa zapisu](../screenshots/2026-10-09-forensics/14-testdisk-tylko-odczyt.png)
+
+**!** (żółte) TestDisk ostrzega: `Write access for this media is not available`. To **dobra** wiadomość: tak działa `chmod 444` z kroku 6a, więc TestDisk nie może zmienić obrazu. Do odzyskiwania zapis nie jest potrzebny. **✓** `[ Continue ]`.
+
+![TestDisk: typ tablicy partycji](../screenshots/2026-10-09-forensics/15-testdisk-typ-tablicy.png)
+
+**!** Kursor stał na `[Mac]`, mimo że niżej TestDisk sam pisze `Hint: Intel partition table type has been detected` (żółta ramka). **✓** Strzałkami wybrane `[Intel]` (patrz wpadka niżej).
+
+![TestDisk: Advanced, partycja i Undelete](../screenshots/2026-10-09-forensics/16-testdisk-undelete.png)
+
+**7** Menu główne: `[ Advanced ]` (narzędzia systemu plików). Na liście jedna partycja `FAT32 LBA [NO NAME]` (żółta ramka), a w dolnym menu **7** `[Undelete]`.
+
+![TestDisk: lista plików, usunięte na czerwono, nazwy zamazane](../screenshots/2026-10-09-forensics/17-testdisk-usuniete-pliki.png)
+
+Zawartość katalogu głównego karty. Żółta ramka: foldery, które nadal istnieją. Daty i nazwy (`Android`, `DCIM`, `.android_secure`, `LOST.DIR`) pokazują, że karta była w telefonie z Androidem. **7** Na czerwono pliki usunięte: rozmiar 4–9 MB, daty z 2005 roku. **Nazwy usuniętych plików zamazałem**, bo to cudze dane. Wszystkie kończyły się na `.mp3`, a jeden zaczynał się od `_`, bo FAT przy usuwaniu nadpisuje pierwszy znak nazwy.
+
 ### 8 · `photorec /log /d folder/ obraz.img`: wyciąganie po sygnaturach
 
 - `/log`: zapisz przebieg do pliku `photorec.log` (przyda się do wniosków).
@@ -312,6 +399,15 @@ Dalej menu tekstowe:
 
 Zapisz wynik wyświetlany na końcu: ile plików odzyskano.
 
+![PhotoRec: komendy i menu](../screenshots/2026-10-09-forensics/18-photorec-start.png)
+
+- **6b** Folder na wyniki i przejście do folderu roboczego (ta wersja jest już po wpadce opisanej niżej).
+- **8** Uruchomienie PhotoRec i kolejne ekrany: wybór partycji **FAT32** (żółta ramka; wiersz `No partition … [Whole disk]` to cały obraz razem z obszarem przed partycją), potem `[ Search ]`, typ systemu plików **`Other`** i tryb **`Free`** (tylko wolne miejsce, czyli usunięte pliki).
+
+![PhotoRec: 314 plików](../screenshots/2026-10-09-forensics/21-photorec-314-plikow.png)
+
+**8** Wynik: `314 files saved in …/recup_dir directory. Recovery completed.` PhotoRec przeszukał całe wolne miejsce partycji.
+
 ### 9 · liczenie wyników bez oglądania zawartości
 
 ```bash
@@ -319,6 +415,12 @@ find folder -path '*/recup_dir.*' -type f ! -name report.xml | sed 's/.*\.//' | 
 ```
 
 `find` wypisuje wszystkie odzyskane pliki (tylko te z folderów `recup_dir.*`, bez `photorec.log`). `! -name report.xml` pomija raport, który PhotoRec sam zapisuje w `recup_dir.1` (to nie jest odzyskany plik; bez tego filtra suma wychodzi o 1 większa niż liczba podana przez PhotoRec). `sed` zostawia z każdej nazwy samo rozszerzenie, a `sort | uniq -c | sort -rn` liczy je i układa od najliczniejszego. Wynik wygląda np. tak: `142 jpg`, `9 mp4`. Dzięki temu do dokumentacji trafiają **liczby i typy**, a nie same pliki. Jeśli na karcie są cudze lub prywatne zdjęcia, nie ma potrzeby ich oglądać, żeby ćwiczenie miało sens.
+
+![Sprzątanie i liczenie typów odzyskanych plików](../screenshots/2026-10-09-forensics/22-photorec-typy-plikow.png)
+
+- Żółta ramka: `mv` z folderu `odzysk` przenosi log i sesję drugiego uruchomienia. `git status` odpowiada `fatal: not a git repository`, bo `odzysk` nie jest repozytorium. To nie błąd.
+- **✓** `cd -` wraca do poprzedniego folderu (repo, wypisuje jego ścieżkę), `rm` usuwa pliki sesji z pierwszego uruchomienia, a `git status --short` nic nie wypisuje, więc w repo jest czysto.
+- **9** Liczenie typów: 280 `mp3`, 25 `jpg`, 3 `txt`, 3 `ogg`, 2 `sqlite`, 1 `zip`, czyli razem 314. Linia `1 xml` to `report.xml` PhotoRec, a nie odzyskany plik (komenda w dokumencie ma już filtr, który go pomija).
 
 ## ❗ Wpadka: PhotoRec „0 files saved … Cannot create file in current directory”
 
@@ -330,6 +432,10 @@ find folder -path '*/recup_dir.*' -type f ! -name report.xml | sed 's/.*\.//' | 
 
 **Lekcja:** „0 znalezionych” i „0 zapisanych” to dwie różne rzeczy. Przy zerowym wyniku narzędzia najpierw sprawdź, czy w ogóle miało gdzie pisać.
 
+![PhotoRec: 0 files saved](../screenshots/2026-10-09-forensics/19-photorec-0-plikow.png)
+
+**8** Pierwsze uruchomienie, jeszcze z folderu repo i bez `mkdir`. **!** `0 files saved` i `Cannot create file in current directory`.
+
 ## ❗ Wpadka: logi narzędzi w folderze repo
 
 **Co było widać:** PhotoRec uruchomiony z folderu repo zostawił tam trzy pliki. `ls -l *.log` pokazał `photorec.log`, a `git status --short` dwa nieśledzone pliki: `?? photorec.ses` i `?? photorec.se2`. (TestDisk loga nie zostawił, bo przy starcie wybrałem „No log”.)
@@ -339,6 +445,10 @@ find folder -path '*/recup_dir.*' -type f ! -name report.xml | sed 's/.*\.//' | 
 **Rozwiązanie:** `mv photorec.log photorec.ses photorec.se2 $HOME/forensics/`, dopisanie `*.ses` i `photorec.se2` do `.gitignore` i od tej pory uruchamianie narzędzi po `cd $HOME/forensics/odzysk` (`# 6b`). Przeniesienie pliku sesji ma też tę zaletę, że PhotoRec nie proponuje wznowienia poprzedniej, nieudanej sesji. `.gitignore` to druga linia obrony, nie pierwsza: chroni przed przypadkowym `git add .`, ale nie przed plikiem, o którym nie wiedzieliśmy.
 
 **Lekcja:** zanim uruchomisz narzędzie na cudzych danych, sprawdź, **gdzie** zapisuje swoje wyniki i logi.
+
+![Log i pliki sesji PhotoRec w folderze repo](../screenshots/2026-10-09-forensics/20-photorec-pliki-w-repo.png)
+
+**!** `ls -l *.log` znajduje `photorec.log`, a `git status --short` dwa nieśledzone pliki (`??`): `photorec.se2` i `photorec.ses`. Żółta ramka: pierwsza próba sprzątania przeniosła tylko log. Pliki sesji usunąłem później (zrzut przy kroku 9).
 
 ## ❗ Wpadka: TestDisk podświetlił `Mac` zamiast `Intel`
 
