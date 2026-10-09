@@ -512,7 +512,13 @@ diskutil unmountDisk /dev/diskN                                            # 15
 caffeinate -i sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/noname-po-usunieciu.img bs=4m   # 16
 ```
 
-Potem powtórz kroki 7–9 na nowym obrazie, a na końcu porównaj odciski (krok 17).
+Potem powtórz kroki 6a–9 na nowym obrazie (tym razem TestDisk ma też **skopiować** odzyskane pliki), a na końcu porównaj odciski (krok 17):
+
+```bash
+chmod 444 $D/noname-po-usunieciu.img                                                                   # 6a
+mkdir -p $HOME/forensics/odzysk/po-usunieciu-testdisk && cd $HOME/forensics/odzysk/po-usunieciu-testdisk   # 6b
+testdisk $D/noname-po-usunieciu.img                                                                    # 7
+```
 
 ## Co robi każda komenda
 
@@ -548,11 +554,21 @@ Liczy SHA-256 każdego pliku testowego i zapisuje listę do `oryginaly.sha256`. 
 
 ### 14 · `rm /Volumes/TEST/*`: usunięcie
 
+zsh przy `rm` z gwiazdką pyta `sure you want to delete all 4 files in /Volumes/TEST [yn]?`. To bezpiecznik powłoki (opcja `rmstar`), który chroni przed przypadkowym `rm *`. Odpowiedz `y`. Po usunięciu `ls -la /Volumes/TEST/` (`-a` pokazuje też pliki ukryte) wypisze już tylko ukryte foldery macOS, `.Spotlight-V100` i `.fseventsd`.
+
 Usuwamy w terminalu, nie w Finderze. Finder tylko przenosi pliki do ukrytego folderu `.Trashes`, czyli nie jest to prawdziwe usunięcie. `rm` kasuje wpisy ze spisu plików, ale **nie rusza samych danych**. Dokładnie tak „usuwa” telefon czy aparat.
 
 ### 15–16 · odmontuj i zrób obraz
 
-Jak w części 1 (kroki 3–4), tylko z nową nazwą obrazu.
+Jak w części 1 (kroki 3–4), tylko z nową nazwą obrazu. Tu nie liczymy sum w locie, bo ten obraz nie musi być dowodem: wystarczy, że zawiera skasowane pliki. Przy `dd ... of=plik` działa Ctrl+T (podgląd postępu). Karta bez marki dzieli się bez reszty przez 4 MiB, więc `bs=4m` daje `3690+0 records`.
+
+### TestDisk: kopiowanie usuniętych plików
+
+Uruchamiamy go z folderu docelowego (`cd` w kroku 6b), bo TestDisk proponuje kopiowanie do folderu, w którym go uruchomiono. Menu jak w kroku 7 (`[Intel]` → `[Advanced]` → partycja → `[Undelete]`), a na liście plików:
+
+- `a`: zaznacz wszystkie pliki,
+- `C` (wielkie): skopiuj zaznaczone. TestDisk pokaże wybór folderu docelowego, a drugie `C` zatwierdza bieżący,
+- `q`: wyjście (kilka razy, po jednym poziomie menu).
 
 ### 17 · porównanie odcisków
 
