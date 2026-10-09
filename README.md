@@ -42,6 +42,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 5. [First exercise — attack & detection loop](docs/05-first-exercise.md)
 6. [Network topology explained](docs/network-topology.md)
 7. [Side exercise — forensics on old microSD cards (PL)](docs/06-forensics-karty-sd.md)
+8. [Side mission — attacking my own PC from the Pi (scan & Windows hardening) (PL)](docs/07-skan-wlasnego-pc.md)
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — task checklist: what is done and what is next.
 

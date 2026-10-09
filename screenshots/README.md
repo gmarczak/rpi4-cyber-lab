@@ -33,6 +33,12 @@ Drop build screenshots and photos here, e.g.:
   - `68`–`69`: codzienna aktualizacja reguł Suricaty i pierwsza wersja `check-logs.sh` (adres PC zamazany) / daily Suricata rule updates and the first `check-logs.sh` (PC address blurred)
 - [`2026-10-09-forensics/`](2026-10-09-forensics/): zdjęcia i zrzuty z ćwiczenia [docs/06](../docs/06-forensics-karty-sd.md) / photos and screenshots from the forensics exercise
   - `01`: karta SanDisk microSD 16 GB (klasa 10) i adapter SD z zaznaczonym suwakiem LOCK; zdjęcie przycięte do kart, bez metadanych EXIF / SanDisk 16 GB microSD (class 10) and its SD adapter with the LOCK slider marked; cropped, EXIF removed
+- [`2026-10-09-pc-self-scan/`](2026-10-09-pc-self-scan/): misja [docs/07](../docs/07-skan-wlasnego-pc.md), Raspberry skanuje mój PC / side mission, the Pi scans my PC
+  - `01`: ping do całej sieci (adresy innych urządzeń i PC zamazane) / ping sweep (other devices' and the PC's addresses blurred)
+  - `02`: profil sieci i nasłuchujące porty (nazwa sieci Wi-Fi/SSID zamazana) / network profile and listening ports (network name blurred)
+  - `03`: `nmap` z Raspberry przed zmianami, 4 otwarte porty (adres i nazwa PC zamazane) / `nmap` before, 4 open ports (PC address and name blurred)
+  - `04`: reguły firewalla otwierające porty / firewall rules opening the ports
+  - `05`: `nmap` po zmianach, wszystko `filtered` (adres i nazwa PC zamazane) / `nmap` after, everything filtered (PC address and name blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

@@ -42,6 +42,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 5. [Pierwsze ćwiczenie — pętla atak-wykrycie](docs/05-first-exercise.md)
 6. [Topologia sieci — wyjaśnienie](docs/network-topology.md)
 7. [Ćwiczenie dodatkowe — forensics na starych kartach microSD](docs/06-forensics-karty-sd.md)
+8. [Misja dodatkowa — z Raspberry atakuję własny PC (skan i hardening Windowsa)](docs/07-skan-wlasnego-pc.md)
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — lista zadań z odhaczaniem, co zrobione i co dalej.
 
