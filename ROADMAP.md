@@ -17,7 +17,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 ## Etap 1: Fundamenty / Foundations ⬅️ teraz / now
 
 - [x] Aktualizacja systemu (`sudo apt update && sudo apt full-upgrade -y`) / System update
-- [ ] Stały adres IP: rezerwacja DHCP w routerze / Static IP via DHCP reservation
+- [ ] Stały adres IP: rezerwacja DHCP w routerze (FunBox) / Static IP via DHCP reservation (FunBox) — [docs/02d, część 2](docs/02d-network-basics.md#część-2-stały-adres-ip)
 - [x] Logowanie kluczem SSH / SSH key login — [docs/02c](docs/02c-ssh-hardening.md)
 - [x] Wyłączone logowanie hasłem i jako root / Password and root login disabled — [docs/02c, część 2](docs/02c-ssh-hardening.md#część-2-wyłączenie-logowania-hasłem)
 - [x] Prawdziwy SSH na porcie 2222, port 22 wolny dla honeypota / Real SSH on port 2222, port 22 free for the honeypot — [docs/02c, część 3](docs/02c-ssh-hardening.md#część-3-prawdziwy-ssh-na-porcie-2222)
@@ -25,7 +25,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Firewall (`ufw`): tylko port 2222 otwarty / only port 2222 open — [docs/02c, część 5](docs/02c-ssh-hardening.md#część-5-firewall-ufw)
 - [x] Pendrive sformatowany i zamontowany na stałe (`/mnt/logs`) / USB stick formatted and auto-mounted — [docs/02b](docs/02b-usb-log-drive.md)
 - [x] Logi kierowane na pendrive zamiast karty / Logs written to the USB stick, not the SD card — [docs/02b, część 2](docs/02b-usb-log-drive.md#część-2-logi-z-varlog-na-pendrive)
-- [ ] Wyłączone Wi-Fi i Bluetooth (Pi chodzi po kablu) / Wi-Fi and Bluetooth off (wired only)
+- [x] Wyłączone Wi-Fi i Bluetooth (Pi chodzi po kablu) / Wi-Fi and Bluetooth off (wired only) — [docs/02d](docs/02d-network-basics.md)
 
 ## Etap 2: Obrońca / Defender — [docs/03](docs/03-defender-raspberry.md)
 

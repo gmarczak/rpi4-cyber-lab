@@ -45,6 +45,8 @@ Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w n
 
 **Firewall:** `ufw` z domyślną blokadą ruchu przychodzącego i jednym wyjątkiem: 2222/tcp (SSH), dla IPv4 i IPv6. Bez ograniczenia do `192.168.1.0/24`, bo Windows łączy się przez IPv6 (`fe80::`). Komendy wklejone w trakcie `apt install` wyświetliły się pomieszane, ale wykonały się poprawnie. / `ufw` denies all incoming traffic except 2222/tcp for IPv4 and IPv6. Not limited to the home subnet because Windows connects over IPv6 link-local. Commands pasted during `apt install` displayed garbled but ran fine. Opis / Walkthrough: [docs/02c, część 5](../docs/02c-ssh-hardening.md#część-5-firewall-ufw)
 
+**Tylko kabel / Wired only:** Wi-Fi i Bluetooth wyłączone sprzętowo w `/boot/firmware/config.txt` (`dtoverlay=disable-wifi`, `disable-bt`). Po restarcie `ip -br link` pokazuje tylko `lo` i `eth0`. / Wi-Fi and Bluetooth disabled at boot via device tree overlays; after reboot only `lo` and `eth0` remain. Opis / Walkthrough: [docs/02d](../docs/02d-network-basics.md)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered
