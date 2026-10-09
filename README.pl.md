@@ -44,6 +44,8 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — lista zadań z odhaczaniem, co zrobione i co dalej.
 
+📋 **Podsumowania etapów:** [Etap 1 — Fundamenty](docs/etap-1-podsumowanie.md) (każdy etap w jednym pliku: komendy, problemy, kontrola stanu)
+
 📓 **Dziennik budowy:** [`build-log/build-log.md`](build-log/build-log.md) — datowane notatki, co zrobione i na co się natknąłem.
 
 ⚙️ **Configi i skrypty:** [`config/`](config/) — przykładowy config OpenCanary, notatki do Suricaty, skrypty pomocnicze (bez haseł i prawdziwych IP).
