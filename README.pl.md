@@ -15,7 +15,7 @@ Dwie role na dwóch maszynach:
 
 Pętla nauki: **przeprowadź atak → sprawdź w logach, czy obrońca go złapał → dostrój reguły.**
 
-![Diagram sieci](diagrams/network-topology.svg)
+![Diagram sieci](diagrams/network-topology.pl.svg)
 
 ## Sprzęt
 
