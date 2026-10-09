@@ -86,8 +86,8 @@ Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co 
 
 Poza etapami, na MacBooku, na dwóch starych kartach 16 GB (SanDisk klasa 10 i karta bez marki klasa 4). Nie blokuje Etapu 3. / Outside the stages, on the MacBook, with two old 16 GB cards. Does not block stage 3.
 
-- [ ] Obraz karty (`dd`) i dowód wierności sumą SHA-256 / Disk image and SHA-256 proof — [docs/06, część 1](docs/06-forensics-karty-sd.md#część-1-obraz-karty)
-- [ ] Odzyskiwanie usuniętych plików: TestDisk i PhotoRec, porównanie metod / Undelete vs carving — [docs/06, część 2](docs/06-forensics-karty-sd.md#część-2-co-jest-na-karcie-dwie-metody-odzysku)
-- [ ] Kontrolowany eksperyment: znane pliki, usunięcie, odzysk, porównanie odcisków / Controlled experiment — [docs/06, część 3](docs/06-forensics-karty-sd.md#część-3-kontrolowany-eksperyment)
+- [x] Obraz karty (`dd`) i dowód wierności sumą SHA-256 / Disk image and SHA-256 proof — [docs/06, część 1](docs/06-forensics-karty-sd.md#część-1-obraz-karty)
+- [x] Odzyskiwanie usuniętych plików: TestDisk i PhotoRec, porównanie metod / Undelete vs carving — [docs/06, część 2](docs/06-forensics-karty-sd.md#część-2-co-jest-na-karcie-dwie-metody-odzysku)
+- [x] Kontrolowany eksperyment: znane pliki, usunięcie, odzysk, porównanie odcisków / Controlled experiment — [docs/06, część 3](docs/06-forensics-karty-sd.md#część-3-kontrolowany-eksperyment)
 - [ ] Bezpieczne kasowanie (nadpisanie zerami) i dowód, że nic nie wraca / Secure wipe and proof — [docs/06, część 4](docs/06-forensics-karty-sd.md#część-4-bezpieczne-kasowanie-i-dowód)
 - [ ] Test autentyczności karty bez marki (`f3write`/`f3read`) / Fake-capacity test on the no-name card — [docs/06, część 5](docs/06-forensics-karty-sd.md#część-5-test-autentyczności-karty-bez-marki-f3)

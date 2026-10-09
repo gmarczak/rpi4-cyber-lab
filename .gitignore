@@ -29,6 +29,10 @@ logs/
 *.E01
 forensics/
 recup_dir.*/
+# PhotoRec/TestDisk session files (written to the current folder; contain image paths and scan state)
+photorec.ses
+photorec.se2
+*.ses
 
 # OS / editor junk
 .DS_Store
