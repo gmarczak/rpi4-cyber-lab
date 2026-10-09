@@ -2,7 +2,7 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
-> 🚧 **Status: w trakcie.** Część 1 (obraz karty) jest wykonana, jej wyniki są niżej. Części 2–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie, razem ze zrzutami. Nic tu nie jest wymyślone na zapas.
+> 🚧 **Status: w trakcie.** Części 1 (obraz karty) i 2 (odzyskiwanie) są wykonane, ich wyniki są niżej. Części 3–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.
 
@@ -268,7 +268,7 @@ chmod 444 $HOME/forensics/obrazy/noname.img                                     
 mkdir -p $HOME/forensics/odzysk/noname && cd $HOME/forensics/odzysk               # 6b
 testdisk $HOME/forensics/obrazy/noname.img                                       # 7
 photorec /log /d $HOME/forensics/odzysk/noname/ $HOME/forensics/obrazy/noname.img   # 8
-find $HOME/forensics/odzysk/noname -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn   # 9
+find $HOME/forensics/odzysk/noname -path '*/recup_dir.*' -type f ! -name report.xml | sed 's/.*\.//' | sort | uniq -c | sort -rn   # 9
 ```
 
 Obie komendy działają na **obrazie**, więc nie potrzebują `sudo` i nie mogą uszkodzić karty.
@@ -315,10 +315,10 @@ Zapisz wynik wyświetlany na końcu: ile plików odzyskano.
 ### 9 · liczenie wyników bez oglądania zawartości
 
 ```bash
-find folder -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn
+find folder -path '*/recup_dir.*' -type f ! -name report.xml | sed 's/.*\.//' | sort | uniq -c | sort -rn
 ```
 
-`find` wypisuje wszystkie odzyskane pliki (tylko te z folderów `recup_dir.*`, bez `photorec.log`), `sed` zostawia z każdej nazwy samo rozszerzenie, a `sort | uniq -c | sort -rn` liczy je i układa od najliczniejszego. Wynik wygląda np. tak: `142 jpg`, `9 mp4`. Dzięki temu do dokumentacji trafiają **liczby i typy**, a nie same pliki. Jeśli na karcie są cudze lub prywatne zdjęcia, nie ma potrzeby ich oglądać, żeby ćwiczenie miało sens.
+`find` wypisuje wszystkie odzyskane pliki (tylko te z folderów `recup_dir.*`, bez `photorec.log`). `! -name report.xml` pomija raport, który PhotoRec sam zapisuje w `recup_dir.1` (to nie jest odzyskany plik; bez tego filtra suma wychodzi o 1 większa niż liczba podana przez PhotoRec). `sed` zostawia z każdej nazwy samo rozszerzenie, a `sort | uniq -c | sort -rn` liczy je i układa od najliczniejszego. Wynik wygląda np. tak: `142 jpg`, `9 mp4`. Dzięki temu do dokumentacji trafiają **liczby i typy**, a nie same pliki. Jeśli na karcie są cudze lub prywatne zdjęcia, nie ma potrzeby ich oglądać, żeby ćwiczenie miało sens.
 
 ## ❗ Wpadka: PhotoRec „0 files saved … Cannot create file in current directory”
 
@@ -340,9 +340,43 @@ find folder -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | so
 
 **Lekcja:** zanim uruchomisz narzędzie na cudzych danych, sprawdź, **gdzie** zapisuje swoje wyniki i logi.
 
+## ❗ Wpadka: TestDisk podświetlił `Mac` zamiast `Intel`
+
+**Co było widać:** na ekranie wyboru typu tablicy partycji kursor stał na `[Mac]`, a nie na `[Intel]`.
+
+**Przyczyna:** TestDisk zgaduje typ na podstawie tego, co widzi, i nie zawsze trafia. Ta karta ma tablicę MBR (`FDisk_partition_scheme` w `diskutil list`), a MBR to w TestDisku `Intel/PC`. Z `Mac` nie zobaczyłby partycji FAT32.
+
+**Rozwiązanie:** strzałkami wybrać `[Intel]`, Enter. Potem TestDisk pokazał partycję `FAT32 LBA [NO NAME]`.
+
+**Lekcja:** podpowiedź narzędzia to propozycja, nie wynik. Typ tablicy sprawdzisz wcześniej w `diskutil list`: `FDisk_partition_scheme` to MBR (`Intel`), `GUID_partition_scheme` to GPT (`EFI GPT`).
+
 ## Wyniki
 
-*(do uzupełnienia: czy karta była sformatowana, ile plików znalazł TestDisk, ile PhotoRec, jakie typy; które metody zadziałały na której karcie)*
+Obraz karty bez marki (`noname.img`, partycja FAT32 `NO NAME`, 30 226 432 sektory od sektora 2048).
+
+**TestDisk (*undelete*):** spis plików FAT był cały, karta nie była sformatowana. W katalogu głównym widać wiele usuniętych wpisów `.mp3` (na czerwono), a w strukturze folderów ślady telefonu z Androidem. Pierwsza litera nazw usuniętych plików jest zamieniona na `_`, bo FAT oznacza usunięcie, nadpisując właśnie ten znak. Dokładnej liczby usuniętych wpisów nie liczyłem; da się ją wyciągnąć np. `fls` z pakietu The Sleuth Kit.
+
+**PhotoRec (*carving*, tryb `Free`):** `314 files saved`, `Recovery completed`.
+
+| Typ | Liczba | Skąd prawdopodobnie |
+|---|---:|---|
+| `mp3` | 280 | usunięta muzyka, ta sama, którą pokazał TestDisk |
+| `jpg` | 25 | zdjęcia lub miniatury z telefonu |
+| `txt` | 3 | pliki tekstowe, np. logi aplikacji |
+| `ogg` | 3 | dźwięki (Android używa `ogg` m.in. do powiadomień i nagrań) |
+| `sqlite` | 2 | bazy danych aplikacji |
+| `zip` | 1 | archiwum |
+| **razem** | **314** | zgadza się z liczbą podaną przez PhotoRec |
+
+Plików nie otwierałem: to cudze dane, a do wniosków wystarczą liczby i typy.
+
+**Wnioski:**
+
+- Obie metody potwierdzają to samo: usunięte pliki leżą na karcie i da się je odzyskać, bo nikt ich nie nadpisał.
+- PhotoRec znalazł typy, których TestDisk w katalogu głównym nie pokazał (`jpg`, `sqlite`, `ogg`). Carving nie potrzebuje wpisu w spisie plików, więc wyciąga też dane, po których wpis zniknął albo został nadpisany.
+- PhotoRec gubi nazwy i foldery: wiemy, że jest 280 plików `mp3`, ale nie wiemy, jak się nazywały. TestDisk odwrotnie: zna nazwy, ale nie odzyska pliku, po którym nie ma wpisu.
+- Liczba z PhotoRec to górna granica, a nie gwarancja: część plików może być ucięta albo sklejona z kawałków, zwłaszcza duże, pofragmentowane `mp3`. Sprawdzenie, ile z nich naprawdę działa, to zadanie kontrolowanego eksperymentu w części 3, gdzie znamy oryginały.
+- **Dla właściciela karty:** zwykłe usunięcie plików z telefonu zostawia je do odzyskania przez każdego, kto dostanie kartę do ręki. Przed oddaniem lub sprzedażą kartę trzeba nadpisać (część 4), a nie tylko wyczyścić.
 
 ---
 

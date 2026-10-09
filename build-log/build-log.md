@@ -7,6 +7,17 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Forensics kart SD: obraz i odzysk / SD card forensics: image and recovery
+
+🇵🇱 Ćwiczenie dodatkowe na MacBooku. Karta SanDisk 16 GB czytała się niepowtarzalnie (trzy odczyty, trzy różne sumy SHA-256), więc jej obrazowi nie ufam i zostaje jako przypadek do opisu. Karta bez marki 15,5 GB: obraz `dd` z blokadą zapisu (suwak LOCK), trzy zgodne sumy (obraz, strumień, drugi odczyt). TestDisk pokazał usunięte `.mp3` w spisie FAT, PhotoRec (tryb `Free`) odzyskał 314 plików: 280 mp3, 25 jpg, 3 txt, 3 ogg, 2 sqlite, 1 zip. Wpadki: PhotoRec nie tworzy folderu docelowego („0 files saved”), a log i pliki sesji zapisuje w bieżącym folderze, czyli w repo.
+
+🇬🇧 Side exercise on the MacBook. The SanDisk 16 GB card returned different data on every read (three reads, three SHA-256 sums), so its image is not trusted. No-name 15.5 GB card: write-blocked `dd` image, three matching sums. TestDisk listed deleted `.mp3` entries; PhotoRec (`Free` mode) carved 314 files: 280 mp3, 25 jpg, 3 txt, 3 ogg, 2 sqlite, 1 zip. Gotchas: PhotoRec won't create the output folder, and drops its log and session files in the current folder (the repo).
+
+**Lekcja / Lesson:** `dd` bez błędu to jeszcze nie wierny odczyt — potrzebne dwa niezależne odczyty z tą samą sumą. Przed uruchomieniem narzędzia sprawdź, gdzie zapisuje wyniki. / An error-free `dd` is not proof of a faithful read; check where a tool writes its output before running it on someone else's data.
+Opis / Walkthrough: [docs/06](../docs/06-forensics-karty-sd.md)
+
+---
+
 ## 2026-10-09 — Koniec Etapu 2 / Stage 2 done
 
 🇵🇱 Codzienna aktualizacja reguł Suricaty (systemd timer, 4:30 + losowo do 30 min, przeładowanie bez restartu) — test na żądanie przeszedł. `check-logs.sh` przepisany: jedno zdarzenie w linijce, bez komunikatów startowych honeypota. ntopng przeniesiony do Etapu 5 (razem z Grafaną). **Etap 2 zamknięty.**
