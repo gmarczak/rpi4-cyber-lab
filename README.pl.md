@@ -34,6 +34,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 1. [Sprzęt i lista zakupów](docs/01-hardware.md)
 2. [Instalacja systemu — nagranie karty i pierwszy start](docs/02-os-setup.md)
+   - [Pendrive na logi — formatowanie i montowanie, komenda po komendzie](docs/02b-usb-log-drive.md)
 3. [Obrońca — honeypot i monitoring na Pi](docs/03-defender-raspberry.md)
 4. [Atakujący — Kali i cele na PC](docs/04-attacker-kali.md)
 5. [Pierwsze ćwiczenie — pętla atak-wykrycie](docs/05-first-exercise.md)
