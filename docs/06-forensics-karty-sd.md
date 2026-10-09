@@ -59,7 +59,7 @@ Obie karty wkładamy **po kolei**, nie jednocześnie. Dzięki temu numer dysku j
 ## Komendy w skrócie
 
 ```bash
-diskutil list external physical                                      # 1
+diskutil list                                                        # 1
 diskutil info /dev/diskN                                             # 2
 diskutil unmountDisk /dev/diskN                                      # 3
 sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16.img bs=4m # 4
@@ -71,9 +71,11 @@ sudo shasum -a 256 /dev/rdiskN                                       # 6
 
 ## Co robi każda komenda
 
-### 1 · `diskutil list external physical`: znajdź kartę
+### 1 · `diskutil list`: znajdź kartę
 
-Pokazuje tylko fizyczne dyski podłączone z zewnątrz, więc dysk wewnętrzny MacBooka się nie pojawi. Karta rozpoznasz po rozmiarze (~15,9 GB lub 16,0 GB) i po tym, że jest `external, physical`. Zapisz sobie jej nazwę, np. `/dev/disk4`.
+Pokazuje wszystkie dyski. Kartę rozpoznasz po **rozmiarze** (ok. 15,9 GB lub 16,0 GB) i po nazwie woluminu, jeśli ma ją nadaną. Dysk MacBooka ma setki GB, więc się nie pomylisz. Zapisz sobie nazwę dysku karty, np. `/dev/disk4`. Partycje (`disk4s1`) to część tego dysku, my pracujemy na **całym dysku** `disk4`.
+
+Wersja `diskutil list external physical` jest krótsza, ale u mnie **nic nie wypisała** (patrz wpadka niżej), więc używamy pełnej listy.
 
 Jeśli widzisz kilka dysków i nie jesteś pewien, **wyjmij kartę i uruchom komendę jeszcze raz**. Ten, który zniknął, to karta.
 
@@ -116,6 +118,15 @@ Na końcu `dd` wypisuje liczbę skopiowanych bajtów. Powinna być równa rozmia
 To samo, ale z całej karty. **Oba odciski muszą być identyczne.** To dowód, że obraz jest wierną kopią i że żaden bajt się nie zmienił po drodze. W prawdziwym śledztwie bez takiego dowodu kopia nie ma wartości. Ta komenda czyta całą kartę jeszcze raz, więc potrwa tyle co kopiowanie.
 
 Po wszystkim: `diskutil eject /dev/diskN` i wyjmij kartę.
+
+## ❗ Wpadka: `diskutil list external physical` nic nie pokazało
+
+| | |
+|---|---|
+| **Co było widać** | pusty wynik (dwa razy), mimo że w Finderze karta była widoczna z plikami `.mp3` |
+| **Przyczyna** | karta we wbudowanym czytniku SD nie jest dla macOS „zewnętrznym dyskiem” (do uzupełnienia po zobaczeniu `diskutil list`) |
+| **Rozwiązanie** | pełne `diskutil list` i rozpoznanie karty po rozmiarze |
+| **Lekcja** | filtr w komendzie to założenie. Gdy wynik jest pusty, usuń filtr i zobacz całość, zanim uznasz, że karta „nie działa” |
 
 ## Wyniki
 
