@@ -36,7 +36,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] OpenCanary jako usługa systemd, startuje sam po restarcie / systemd service, starts on boot — [docs/03, krok 4](docs/03-defender-raspberry.md#krok-4-honeypot-jako-usługa)
 - [x] Pierwszy alert honeypota (test z własnego PC) / First honeypot alert (test from my PC) — [docs/03, krok 3](docs/03-defender-raspberry.md#krok-3-pierwszy-test-i-pierwsze-alerty)
 - [x] Suricata zainstalowana, reguły pobrane (`suricata-update`) / installed, rules fetched — [docs/03, część 2](docs/03-defender-raspberry.md#część-2-monitoring-ruchu--suricata)
-- [ ] Suricata wykrywa skan / detects a scan
+- [x] Suricata wykrywa skaner (podpis Nmap w zapytaniu WWW z PC; pełny skan portów w Etapie 4) / detects a scanner (Nmap user agent from the PC; full port scan in stage 4) — [docs/03, krok 2](docs/03-defender-raspberry.md#krok-2-atakujący-z-domu-uruchomienie-i-pierwszy-alert)
 - [ ] ntopng z nowym hasłem (opcjonalnie) / with a new password (optional)
 - [ ] `check-logs.sh` pokazuje alerty z obu źródeł / shows alerts from both sources
 - [ ] Podsumowanie etapu w `docs/etap-2-podsumowanie.md` / Stage summary
