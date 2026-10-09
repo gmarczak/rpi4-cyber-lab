@@ -20,6 +20,7 @@ Drop build screenshots and photos here, e.g.:
   - `23`–`24`: formatowanie i montowanie pendrive'a, komendy ponumerowane jak w [docs/02b](../docs/02b-usb-log-drive.md) / USB stick formatting and mounting, numbered as in docs/02b
   - `25`: sprawdzenie `/etc/fstab` / `/etc/fstab` check
   - `26`–`27`: przeniesienie `/var/log` na pendrive i sprawdzenie po restarcie (adres IPv6 zamazany) / moving `/var/log` to the USB stick and checking after reboot (IPv6 blurred)
+  - `28`: klucz SSH z Windowsa (adres IP z sieci domowej zamazany) / SSH key from Windows (home LAN IP blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 
