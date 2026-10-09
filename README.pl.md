@@ -45,7 +45,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 ## Status
 
-🚧 Budowa w toku — części dotarły 2026-10-08. Śledź [dziennik budowy](build-log/build-log.md).
+🚧 Budowa w toku — Raspberry złożone i dostępne przez SSH (2026-10-09). Śledź [dziennik budowy](build-log/build-log.md).
 
 ## Licencja
 

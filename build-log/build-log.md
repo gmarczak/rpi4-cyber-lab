@@ -7,6 +7,26 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Montaż i pierwsze logowanie / Assembly and first login
+
+🇵🇱 Nagrałem Raspberry Pi OS Lite (64-bit) w Raspberry Pi Imager: nazwa hosta `honeypi`, strefa Europe/Warsaw, własny użytkownik, SSH z logowaniem hasłem. Wi-Fi i Raspberry Pi Connect zostawiłem wyłączone, bo obrońca ma chodzić po kablu i mieć jak najmniej furtek z zewnątrz. Potem radiatory: procesor, RAM, kontroler USB (VIA) i kontroler Ethernet. Czwarty radiator miał iść na układ zasilania przy USB-C, ale stał na otaczających go cewkach, a nie na chipie, więc przeniosłem go na Ethernet. Płytka w dwuczęściowej obudowie, gumowe nóżki, karta, pendrive, LAN, zasilanie. Pierwsze `ssh` z Windowsa po `honeypi.local` zadziałało od razu.
+
+🇬🇧 Flashed Raspberry Pi OS Lite (64-bit) with Raspberry Pi Imager: hostname `honeypi`, Europe/Warsaw, custom user, SSH with password auth. Left Wi-Fi and Raspberry Pi Connect off, since the defender runs wired and should expose as few ways in as possible. Heatsinks on the CPU, RAM, USB controller (VIA) and Ethernet controller. The fourth one was meant for the power IC next to USB-C, but it rested on the surrounding inductors instead of the chip, so it went on the Ethernet chip instead. Board into a two-part case, rubber feet, SD card, USB stick, LAN, power. First `ssh` from Windows via `honeypi.local` worked straight away.
+
+**Lekcja / Lesson:** radiator, który nie leży płasko na chipie, nic nie chłodzi. Lepiej go przenieść albo pominąć niż wciskać na siłę. / A heatsink that doesn't sit flat on the chip doesn't cool anything. Move it or skip it rather than forcing it.
+
+**Zrzuty / Screenshots:** [`../screenshots/2026-10-09-assembly/`](../screenshots/2026-10-09-assembly/)
+
+| | |
+|---|---|
+| ![Imager: wybór systemu / OS choice](../screenshots/2026-10-09-assembly/01-imager-os.png) | ![Imager: podsumowanie / summary](../screenshots/2026-10-09-assembly/07-imager-summary.png) |
+| ![Płytka po rozpakowaniu / Board unboxed](../screenshots/2026-10-09-assembly/10-board-unboxed.jpg) | ![Mapa radiatorów / Heatsink map](../screenshots/2026-10-09-assembly/11-heatsink-map.jpg) |
+| ![Radiatory przyklejone / Heatsinks mounted](../screenshots/2026-10-09-assembly/13-heatsinks-mounted.jpg) | ![Części obudowy / Case parts](../screenshots/2026-10-09-assembly/14-case-parts.jpg) |
+
+![Pierwsze logowanie SSH / First SSH login](../screenshots/2026-10-09-assembly/20-first-ssh-login.png)
+
+---
+
 ## 2026-10-08 — Części zamówione / Parts ordered
 
 🇵🇱 Zamówiłem cały zestaw w Botlandzie (darmowa wysyłka, InPost). Dostawa w czwartek. Wersja 4 GB zamiast 1 GB — z myślą o monitoringu i ewentualnym Home Assistant w przyszłości. Firmową kartę 32 GB za 148 zł odpuściłem na rzecz SanDisk Extreme 64 GB (szybsza, większa, podobna cena). Pendrive na logi, żeby nie zajeżdżać karty.
