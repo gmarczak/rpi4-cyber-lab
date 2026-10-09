@@ -39,6 +39,8 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 5. [First exercise — attack & detection loop](docs/05-first-exercise.md)
 6. [Network topology explained](docs/network-topology.md)
 
+🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — task checklist: what is done and what is next.
+
 📓 **Build journal:** [`build-log/build-log.md`](build-log/build-log.md) — dated notes on what was done and what went wrong.
 
 ⚙️ **Config & scripts:** [`config/`](config/) — example OpenCanary config, Suricata notes, helper scripts (no secrets, no real IPs).
