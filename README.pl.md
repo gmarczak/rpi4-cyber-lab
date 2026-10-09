@@ -40,6 +40,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 3. [Obrońca — honeypot i monitoring na Pi](docs/03-defender-raspberry.md)
 4. [Atakujący — Kali i cele na PC](docs/04-attacker-kali.md)
 5. [Pierwsze ćwiczenie — pętla atak-wykrycie](docs/05-first-exercise.md)
+6. [Ćwiczenie dodatkowe — forensics na starych kartach microSD](docs/06-forensics-karty-sd.md)
 6. [Topologia sieci — wyjaśnienie](docs/network-topology.md)
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — lista zadań z odhaczaniem, co zrobione i co dalej.

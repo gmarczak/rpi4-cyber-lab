@@ -22,6 +22,14 @@ known_hosts
 *.log
 logs/
 
+# Forensics exercise: disk images and recovered files stay OUT of the repo
+# (they may contain private data); work in ~/forensics, outside the repo
+*.img
+*.dd
+*.E01
+forensics/
+recup_dir.*/
+
 # OS / editor junk
 .DS_Store
 Thumbs.db
