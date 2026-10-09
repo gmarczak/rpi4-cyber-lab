@@ -2,13 +2,15 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
-> 🚧 **Status: komendy gotowe, wyniki do uzupełnienia.** Sekcje „Wyniki” i „Wpadki” wypełniam dopiero po przejściu ćwiczenia na prawdziwych kartach, razem ze zrzutami. Nic tu nie jest wymyślone na zapas.
+> 🚧 **Status: w trakcie.** Część 1 (obraz karty) jest wykonana, jej wyniki są niżej. Części 2–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie, razem ze zrzutami. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.
 
+Po drodze okazało się, że **tylko jedna z kart czyta się wiarygodnie**. SanDisk przy każdym odczycie zwracał trochę inne dane, więc stał się osobną lekcją (patrz wpadka w części 1), a ćwiczenie robię na karcie bez marki.
+
 Co po drodze zrobimy:
 
-1. zrobimy **obraz karty**, czyli bit-w-bit kopię, i udowodnimy sumą kontrolną, że jest wierna,
+1. sprawdzimy, czy karta czyta się **powtarzalnie**, zrobimy **obraz karty**, czyli bit-w-bit kopię, i udowodnimy sumami kontrolnymi, że jest wierna,
 2. odzyskamy z obrazu usunięte pliki dwiema metodami (**TestDisk** i **PhotoRec**) i zobaczymy, czym się różnią,
 3. zrobimy **kontrolowany eksperyment** na plikach, które sami zapiszemy i usuniemy, żeby wiedzieć, ile powinno wrócić,
 4. **bezpiecznie skasujemy** kartę i udowodnimy, że po kasowaniu nic już nie wraca,
@@ -59,16 +61,18 @@ Obie karty wkładamy **po kolei**, nie jednocześnie. Dzięki temu numer dysku j
 ## Komendy w skrócie
 
 ```bash
+D=$HOME/forensics/obrazy                                             # 0  (skrót do folderu z obrazami)
 diskutil list                                                        # 1
 diskutil info /dev/diskN                                             # 2
 diskutil unmountDisk /dev/diskN                                      # 3
-sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16.img bs=4m # 4
-ls -l $HOME/forensics/obrazy/sandisk16.img                           # 4a  (rozmiar = Disk Size z kroku 2?)
-shasum -a 256 $HOME/forensics/obrazy/sandisk16.img                   # 5
-sudo shasum -a 256 /dev/rdiskN                                       # 6
+stab /dev/rdiskN                                                     # 3a (funkcja `stab` z opisu niżej)
+caffeinate -i sudo dd if=/dev/rdiskN bs=3m | tee $D/karta.img | shasum -a 256 | tee $D/karta.card1.sha256   # 4
+ls -l $D/karta.img                                                   # 4a (rozmiar = Disk Size z kroku 2?)
+shasum -a 256 $D/karta.img | tee $D/karta.img.sha256                 # 5
+caffeinate -i sudo dd if=/dev/rdiskN bs=3m | shasum -a 256 | tee $D/karta.card2.sha256                      # 6
 ```
 
-`N` to numer dysku z kroku 1, np. `disk4`. **Nie wklejaj komend z literą `N`**, wstaw prawdziwy numer.
+`N` to numer dysku z kroku 1, np. `disk4`. **Nie wklejaj komend z literą `N`**, wstaw prawdziwy numer. `karta` to nazwa, którą nadajesz obrazowi (u mnie `noname` dla karty bez marki i `sandisk16` dla SanDiska).
 
 ## Co robi każda komenda
 
@@ -96,37 +100,72 @@ Jeśli którekolwiek się nie zgadza, **stop**. Zobacz też `Read-Only Media`: p
 
 Odłącza system plików karty od Findera, a samo urządzenie zostaje dostępne. To ważne: do kopiowania cały dysk musi być **odmontowany**, inaczej system może w trakcie coś na nim zmieniać.
 
-### 4 · `sudo dd if=/dev/rdiskN of=... bs=4m`: kopia bit-w-bit
+### 3a · `stab`: czy karta czyta się powtarzalnie
+
+**To krok, który powinien być pierwszy przy każdej karcie**, a który u mnie dodałem dopiero po wpadce z SanDiskiem (patrz niżej). Obraz ma sens tylko wtedy, gdy ta sama karta zwraca za każdym razem te same dane. Test jest tani (ok. pół minuty) i wystarczy go zrobić raz, przed godziną kopiowania.
+
+Definicja funkcji (wklej raz w oknie Terminala, zniknie po jego zamknięciu):
+
+```bash
+stab() {
+  dev=$1
+  for off in 0 48 1000 8000; do
+    echo "== offset ${off} MiB"
+    for i in 1 2 3; do
+      sudo dd if=$dev bs=1m skip=$off count=12 2>/dev/null | shasum -a 256 | cut -c1-12
+    done | sort | uniq -c
+  done
+}
+```
+
+Użycie: `stab /dev/rdiskN`.
+
+- Funkcja czyta **12 MiB z czterech miejsc karty** (od 0, 48, 1000 i 8000 MiB), każde miejsce **trzy razy**, i liczy skrót każdego odczytu (`shasum`, `cut -c1-12` skraca go do 12 znaków dla czytelności).
+- `sort | uniq -c` zlicza, ile razy wyszedł który skrót.
+- **Jedna linia z `3`** przy danym miejscu = stabilny odczyt. **Trzy linie po `1`** = każdy odczyt dał inne dane, **karta jest niewiarygodna** i obrazu z niej nie robimy.
+- `bs=1m` i `count=12` to 12 porcji po 1 MiB. Zapis `skip=$off` pomija tyle porcji, więc `off` jest w MiB.
+
+### 4 · `caffeinate -i sudo dd if=/dev/rdiskN bs=3m | tee ... | shasum ...`: kopia bit-w-bit z sumą w locie
 
 - `dd`: kopiuje dane bajt po bajcie, bez „rozumienia”, co jest w środku.
-- `if=` (*input file*): skąd czytamy, czyli **karta**.
-- `of=` (*output file*): dokąd zapisujemy, czyli **plik obrazu**.
+- `if=` (*input file*): skąd czytamy, czyli **karta**. Bez `of=` wynik idzie na standardowe wyjście, do potoku (`|`).
 - `/dev/rdiskN`: surowa (*raw*) wersja urządzenia. Z literą `r` kopiowanie jest dużo szybsze niż z `/dev/diskN`, bo omija bufor systemu.
-- `bs=4m`: kopiuj porcjami po 4 MB. Na macOS piszemy **małe `m`** (na Linuksie byłoby `4M`).
+- `bs=3m`: kopiuj porcjami po 3 MiB. Na macOS piszemy **małe `m`** (na Linuksie byłoby `3M`). Rozmiar bloku wybieramy tak, żeby **rozmiar karty dzielił się przez niego bez reszty** (u mnie 15 476 981 760 B = dokładnie 4920 bloków), bo na niepełnym ostatnim bloku czytnik się zawieszał (patrz wpadka niżej). Sprawdzenie: `echo $((ROZMIAR % 3145728))` ma dać `0`.
+- `tee $D/karta.img`: zapisuje strumień do pliku obrazu i jednocześnie przepuszcza go dalej.
+- `shasum -a 256`: liczy sumę kontrolną tego, co **faktycznie przeczytano z karty**. Dostajemy obraz i sumę z jednego przejścia (obraz nie musi być czytany drugi raz tylko po to, żeby dostać sumę karty).
+- `tee $D/karta.card1.sha256`: zapisuje tę sumę do pliku, żeby ją potem porównać.
+- `caffeinate -i`: nie pozwala Macowi zasnąć na czas kopiowania (wygaszenie ekranu nie szkodzi, uśpienie przerywa odczyt).
 
-> ⚠️ **Nie zamieniaj `if` z `of`.** Odwrócona komenda zapisuje plik na kartę, a nie kartę do pliku.
+Na końcu `dd` wypisuje liczbę skopiowanych bloków i bajtów. Powinny odpowiadać rozmiarowi karty. **Sprawdź to** (krok 4a niżej), bo `dd` potrafi skończyć z błędem i zostawić plik za krótki.
 
-`dd` nic nie pokazuje, dopóki nie skończy. Żeby sprawdzić postęp, naciśnij w oknie terminala **Ctrl+T**: macOS wypisze, ile bajtów już przekopiował. Parametr `status=progress` z Linuksa na macOS nie działa. 16 GB kopiuje się od kilku do kilkunastu minut, na karcie klasy 4 dłużej.
+W tym potoku **nie ma podglądu postępu**: **Ctrl+T** pokaże tylko linię programu `caffeinate`, a nie `dd`. Przy zwykłym `dd ... of=plik` Ctrl+T wypisuje, ile bajtów już przekopiowano. Parametr `status=progress` z Linuksa na macOS nie działa. 15 GB kopiuje się od kilkunastu do kilkudziesięciu minut zależnie od karty (u mnie 12 minut na karcie bez marki, a 38 na SanDisku).
 
-Na końcu `dd` wypisuje liczbę skopiowanych bajtów. Powinna być równa rozmiarowi karty. **Sprawdź to** (krok 4a niżej), bo `dd` potrafi skończyć z błędem i zostawić plik za krótki.
+> ⚠️ Wersja bez potoku (`dd if=... of=plik`) też jest poprawna. **Nie zamieniaj w niej `if` z `of`:** odwrócona komenda zapisuje plik na kartę, a nie kartę do pliku.
 
 ### 4a · `ls -l plik.img`: czy obraz ma pełny rozmiar
 
-`ls -l` pokazuje rozmiar pliku w bajtach (piąta kolumna). Musi być **identyczny** z `Disk Size` z kroku 2 (u mnie 16021192704). Jeśli jest mniejszy, `dd` nie doczytał końca karty, patrz wpadka niżej. Dokończenie ogona małym blokiem:
+`ls -l` pokazuje rozmiar pliku w bajtach (piąta kolumna). Musi być **identyczny** z `Disk Size` z kroku 2 (u mnie 15476981760 dla karty bez marki). Jeśli jest mniejszy, `dd` nie doczytał końca karty, patrz wpadka niżej. Dokończenie ogona małym blokiem (to był ratunek przy SanDisku):
 
 ```bash
-sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16.img bs=512 skip=LICZBA seek=LICZBA conv=notrunc
+sudo dd if=/dev/rdiskN of=$D/karta.img bs=512 skip=LICZBA seek=LICZBA conv=notrunc
 ```
 
 `LICZBA` to rozmiar dotychczasowego pliku podzielony przez 512 (liczba sektorów, które już mamy). `skip` pomija tyle sektorów na wejściu, `seek` zaczyna zapis w pliku od tego samego miejsca, a `conv=notrunc` oznacza „nie obcinaj pliku, tylko dopisz”.
 
-### 5 · `shasum -a 256 plik.img`: odcisk obrazu
+### 5 · `shasum -a 256 plik.img`: odcisk pliku obrazu
 
-`shasum -a 256` liczy **sumę kontrolną SHA-256**: ciąg 64 znaków, który jest „odciskiem palca” danych. Zmiana jednego bita w pliku daje zupełnie inny odcisk. Zapisz go.
+`shasum -a 256` liczy **sumę kontrolną SHA-256**: ciąg 64 znaków, który jest „odciskiem palca” danych. Zmiana jednego bita w pliku daje zupełnie inny odcisk. Porównujemy ją z sumą z kroku 4 (`karta.card1.sha256`). Zgodność dowodzi, że **zapis na dysk Maca niczego nie zmienił**: to, co przeczytano z karty, leży w pliku bez różnic.
 
-### 6 · `sudo shasum -a 256 /dev/rdiskN`: odcisk samej karty
+### 6 · drugi, niezależny odczyt karty
 
-To samo, ale z całej karty. **Oba odciski muszą być identyczne.** To dowód, że obraz jest wierną kopią i że żaden bajt się nie zmienił po drodze. W prawdziwym śledztwie bez takiego dowodu kopia nie ma wartości. Ta komenda czyta całą kartę jeszcze raz, więc potrwa tyle co kopiowanie.
+To samo co krok 4, ale bez zapisu pliku: czytamy kartę **jeszcze raz** i liczymy sumę (`karta.card2.sha256`). Trzy sumy (z kroku 4, z pliku z kroku 5 i z drugiego odczytu) muszą być **identyczne**. Dopiero to jest dowód, że obraz jest wierną kopią i że karta zwraca za każdym razem te same dane. W prawdziwym śledztwie bez takiego dowodu kopia nie ma wartości. Drugi odczyt trwa tyle co kopiowanie.
+
+Porównanie trzech sum jedną komendą (funkcja `f` wycina z pliku samą sumę, bez nazwy pliku):
+
+```bash
+f() { cut -d' ' -f1 "$D/$1"; }
+[ "$(f karta.card1.sha256)" = "$(f karta.img.sha256)" ] && [ "$(f karta.card1.sha256)" = "$(f karta.card2.sha256)" ] && echo ZGODNE || echo ROZNE
+```
 
 Po wszystkim: `diskutil eject /dev/diskN` i wyjmij kartę.
 
@@ -139,24 +178,69 @@ Po wszystkim: `diskutil eject /dev/diskN` i wyjmij kartę.
 | **Rozwiązanie** | pełne `diskutil list` i rozpoznanie karty po rozmiarze |
 | **Lekcja** | filtr w komendzie to założenie. Gdy wynik jest pusty, usuń filtr i zobacz całość, zanim uznasz, że karta „nie działa”. Przy wbudowanym czytniku słowo `internal` nie odróżnia karty od dysku MacBooka, odróżnia ją **rozmiar** |
 
-## Wyniki
-
 ## ❗ Wpadka: `dd` przerwał na ostatnim bloku (`Operation timed out`)
+
+Dotyczy karty **SanDisk**, pierwszej, na której zaczynałem.
 
 | | |
 |---|---|
 | **Co było widać** | `dd: /dev/rdisk4: Operation timed out`, a potem `16018046976 bytes transferred` zamiast 16021192704. Obraz był krótszy o **3 145 728 bajtów (3 MiB)** |
-| **Przyczyna** | karta ma 3819,75 bloków po 4 MiB. `dd` przeczytał 3819 pełnych, a na ostatnim, niepełnym czytnik wbudowanego slotu się zawiesił. Odczyt małym blokiem w tym samym miejscu **przeszedł bez błędu**, więc to nie uszkodzone sektory, tylko odczyt „przez koniec urządzenia” dużym blokiem |
+| **Przyczyna** | na pierwszy rzut oka: karta ma 3819,75 bloków po 4 MiB, `dd` przeczytał 3819 pełnych i zawiesił się na niepełnym. **To tłumaczenie okazało się niepełne**: ten sam punkt (bajt 16 018 046 976) zawiesił później także odczyt z `bs=3m`, który kończy się pełnym blokiem. Wiemy tylko tyle, że odczyt końcówki karty dużymi porcjami zawodzi, a małym (`bs=512`) przechodzi. Prawdziwy powód to prawdopodobnie ogólna niewiarygodność tej karty (patrz następna wpadka) |
 | **Rozwiązanie** | doczytanie samego ogona: `sudo dd if=/dev/rdisk4 of=...sandisk16.img bs=512 skip=31285248 seek=31285248 conv=notrunc` (6144 sektory, 3 MiB, 5,5 s). Potem `ls -l` pokazał dokładnie **16021192704** bajtów |
-| **Lekcja** | zakończenie komendy bez błędu w terminalu to nie dowód. Zawsze porównaj rozmiar obrazu z rozmiarem karty (krok 4a) i dopiero potem licz sumy kontrolne. Tym razem rozmiar karty dzieli się dokładnie przez 3 MiB (5093 bloki), więc przy `bs=3m` ostatni blok byłby pełny |
+| **Lekcja** | zakończenie komendy bez błędu w terminalu to nie dowód. Zawsze porównaj rozmiar obrazu z rozmiarem karty (krok 4a) i dopiero potem licz sumy kontrolne. A pierwsze, wygodne wytłumaczenie błędu traktuj jak hipotezę: ja uznałem ją za wyjaśnienie i myliłem się |
+
+## ❗ Wpadka: trzy odczyty tej samej karty, trzy różne sumy (SanDisk)
+
+To najważniejsza lekcja tego ćwiczenia. Wyglądało niewinnie: miałem tylko porównać sumę obrazu z sumą karty.
+
+| | |
+|---|---|
+| **Co było widać** | suma obrazu (pliku) różniła się od sumy odczytu karty, a po trzecim, niezależnym odczycie okazało się, że **każdy odczyt daje inną sumę** (tabela niżej). `cmp` pokazał pierwszą różnicę na bajcie 19 777 540 (ok. 18,9 MiB), a w sumie **48 450 246 różniących się bajtów** (ok. 0,3% pierwszych 15 276 MiB) rozrzuconych po **5775 MiB**. Pierwsze 18 MiB (tablica partycji, początek FAT) było identyczne we wszystkich odczytach |
+| **Przyczyna** | **karta (albo jej adapter) zwraca przy odczycie niepowtarzalne dane, bez żadnego komunikatu o błędzie.** Wbudowany czytnik MacBooka jest sprawny: druga karta w tym samym czytniku daje we wszystkich próbach identyczne sumy. Nie umiem rozstrzygnąć, czy zużyła się sama pamięć flash, czy zawodzi łączność karty z adapterem. Dla ćwiczenia to bez znaczenia: nośnik jest niewiarygodny |
+| **Rozwiązanie** | **zmiana nośnika.** Ćwiczenie robię na karcie bez marki, a SanDisk zostaje w rozdziale jako przykład. Naprawy odczytu nie ma: dane, których nie da się odczytać dwa razy tak samo, nie dają wiarygodnego obrazu |
+| **Lekcja** | `dd` bez błędu to nie dowód, a **jeden odczyt to nie dowód**. Wiarygodny obraz wymaga zgodnych sum z co najmniej dwóch niezależnych odczytów, a przed godziną kopiowania warto zrobić szybki test powtarzalności (krok 3a). Błąd, który nie krzyczy, jest groźniejszy od tego, który wyskakuje czerwonym tekstem |
+
+Przebieg, z liczbami (sumy skrócone do pierwszych 8 i ostatnich 6 znaków):
+
+| Odczyt | Co | Suma |
+|---|---|---|
+| obraz, pierwszy raz (`bs=4m`) | pierwsze 16 018 046 976 B (plik) | `a83d0784…18c145` |
+| karta, przez potok (`bs=3m`, przerwał `timed out`) | te same 16 018 046 976 B | `1a37ea1c…3a42f8` |
+| karta, drugi raz (`bs=3m count=5092`) | te same 16 018 046 976 B | `c34d455d…ed6510` |
+| ostatnie 3 MiB (`bs=512`) | karta i obraz | `bbd05cf6…f621e5`, **zgodne** |
+
+**Moja pierwsza hipoteza była błędna.** Zauważyłem, że różnice dotyczą odczytów dużymi blokami, i uznałem, że winne są duże bloki (a mały `bs=512` jest bezpieczny). Test zaprzeczył: ten sam obszar (12 MiB od 48. MiB) czytany po 6 razy każdym rozmiarem bloku dał **6 różnych sum przy każdym rozmiarze, także przy `bs=512`**:
+
+| `bs` | Czas 6 odczytów (12 MiB) | Różnych sum z 6 |
+|---|---|---|
+| 512 | 305 s | 6 |
+| 4096 | 51 s | 6 |
+| 64 KiB | 16 s | 6 |
+| 1 MiB | 13 s | 6 |
+| 3 MiB | 12 s | 6 |
+
+(Dla porównania w obszarze 18–24 MiB, gdzie różnic prawie nie było, 5 z 6 odczytów było identycznych, a odstawał jeden odczyt `bs=3m`.) Przy okazji widać, że `bs=512` jest ok. 25 razy wolniejsze od `bs=3m` i niczego nie naprawia.
+
+Test stabilności (krok 3a) na obu kartach:
+
+| Miejsce na karcie | SanDisk | Karta bez marki |
+|---|---|---|
+| 0 MiB | stabilnie (3 × ta sama suma) | stabilnie |
+| 48 MiB | 3 różne sumy | stabilnie |
+| 1000 MiB | 3 różne sumy | stabilnie |
+| 8000 MiB | 3 różne sumy | stabilnie |
+
+Początek karty (tablica partycji, spis FAT) czytał się powtarzalnie nawet na SanDisku. Prawdopodobnie dlatego `diskutil` i Finder „widziały” kartę i pliki `.mp3` bez problemu, a kłopoty zaczęły się dopiero przy czytaniu całych danych.
 
 ## Wyniki
 
-Karta SanDisk: `/dev/disk4`, 16,0 GB (16 021 192 704 bajtów = 31 291 392 sektorów po 512 B), tablica partycji MBR (`FDisk_partition_scheme`), jedna partycja FAT32 `NO NAME` (`disk4s1`, 16,0 GB). Na karcie są pliki `.mp3`. Blokada zapisu działała: `Media Read-Only: Yes`.
+**Karta bez marki (klasa 4)**, na której zrobiłem obraz: `/dev/disk4`, 15,5 GB (15 476 981 760 bajtów = 30 228 480 sektorów po 512 B = dokładnie 4920 bloków po 3 MiB), tablica partycji MBR, jedna partycja FAT32 `NO NAME`. Blokada zapisu działała: `Media Read-Only: Yes`. Test stabilności (krok 3a): we wszystkich czterech miejscach identyczne sumy.
 
-Kopiowanie `dd bs=4m`: 3819 bloków w 2273 s (ok. 38 minut), średnio 7,0 MB/s (na początku ok. 10,7 MB/s, potem wolniej). Ogon 3 MiB doczytany osobno (patrz wpadka). Rozmiar końcowego obrazu: 16 021 192 704 bajtów, zgodny z kartą.
+Kopiowanie `caffeinate -i sudo dd bs=3m | tee ... | shasum`: **4920+0 records in/out, 15 476 981 760 bajtów w 735 s (12 minut), średnio 21 MB/s, bez żadnego błędu.** Karta bez marki czyta się trzy razy szybciej niż SanDisk (7 MB/s), mimo niższej klasy na opakowaniu.
 
-*(do uzupełnienia: obie sumy SHA-256 i informacja, czy się zgadzają)*
+*(do uzupełnienia: pełne sumy SHA-256 z kroków 4, 5 i 6 oraz wynik porównania `ZGODNE`/`ROZNE`)*
+
+**SanDisk (klasa 10)**: `/dev/disk4`, 16,0 GB (16 021 192 704 bajtów = 31 291 392 sektorów), MBR, FAT32 `NO NAME`, na karcie pliki `.mp3`. Kopiowanie `dd bs=4m`: 3819 bloków w 2273 s (38 minut, 7,0 MB/s), ogon 3 MiB doczytany osobno. Obrazu z tej karty **nie uznaję za wiarygodny** (patrz wpadka wyżej), więc nie wykorzystuję go do dalszych części.
 
 ---
 
@@ -174,9 +258,9 @@ Karta mogła być wcześniej w telefonie, aparacie albo czytniku. „Usunięcie�
 ## Komendy w skrócie
 
 ```bash
-testdisk $HOME/forensics/obrazy/sandisk16.img                                       # 7
-photorec /log /d $HOME/forensics/odzysk/sandisk16/ $HOME/forensics/obrazy/sandisk16.img   # 8
-find $HOME/forensics/odzysk/sandisk16 -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn   # 9
+testdisk $HOME/forensics/obrazy/noname.img                                       # 7
+photorec /log /d $HOME/forensics/odzysk/noname/ $HOME/forensics/obrazy/noname.img   # 8
+find $HOME/forensics/odzysk/noname -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn   # 9
 ```
 
 Obie komendy działają na **obrazie**, więc nie potrzebują `sudo` i nie mogą uszkodzić karty.
@@ -190,7 +274,7 @@ TestDisk ma menu tekstowe, obsługiwane strzałkami i Enterem:
 1. `[ Proceed ]`: wybierz obraz.
 2. Typ tablicy partycji: zwykle podpowiada sam (`Intel/PC` dla kart z MBR). Zatwierdź Enterem.
 3. `[ Advanced ]`: wybierz partycję, potem `[ Undelete ]`.
-4. Lista plików: **na czerwono** są usunięte. Podpowiedź klawiszy jest na dole ekranu (zaznaczanie, kopiowanie do wybranego folderu). Kopiuj do `~/forensics/odzysk/sandisk16-testdisk/`.
+4. Lista plików: **na czerwono** są usunięte. Podpowiedź klawiszy jest na dole ekranu (zaznaczanie, kopiowanie do wybranego folderu). Kopiuj do `~/forensics/odzysk/noname-testdisk/`.
 
 Jeśli TestDisk nie widzi żadnej partycji albo spis jest pusty, to też wynik: karta mogła być sformatowana, a wtedy zostaje PhotoRec.
 
@@ -228,7 +312,7 @@ find folder -path '*/recup_dir.*' -type f | sed 's/.*\.//' | sort | uniq -c | so
 
 Na cudzych danych nie wiemy, ile **powinno** wrócić. Dlatego robimy własny test: zapisujemy znane pliki, usuwamy je i sprawdzamy, ile odzyskamy. Ta część **kasuje kartę**, więc robimy ją dopiero po częściach 1–2 (obraz oryginału już leży w `~/forensics/obrazy`).
 
-Używamy karty **SanDisk 16 GB**. Suwak LOCK ustaw teraz w pozycji odblokowanej.
+Używamy karty **bez marki (15,5 GB)**, tej samej, z której zrobiłem wiarygodny obraz w części 1. SanDisk odpada, bo jego odczyty są niepowtarzalne, więc porównywanie sum po eksperymencie nie miałoby sensu. Rozmiar tej karty dzieli się bez reszty przez 4 MiB (3690 bloków), więc `bs=4m` w komendach niżej nie zostawia niepełnego ostatniego bloku. Suwak LOCK ustaw teraz w pozycji odblokowanej.
 
 ## Komendy w skrócie
 
@@ -239,7 +323,7 @@ head -c 2m /dev/urandom > /Volumes/TEST/losowy.bin                         # 12
 shasum -a 256 /Volumes/TEST/* | tee $HOME/forensics/oryginaly.sha256       # 13
 rm /Volumes/TEST/*                                                         # 14
 diskutil unmountDisk /dev/diskN                                            # 15
-sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16-po-usunieciu.img bs=4m   # 16
+sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/noname-po-usunieciu.img bs=4m   # 16
 ```
 
 Potem powtórz kroki 7–9 na nowym obrazie, a na końcu porównaj odciski (krok 17).
@@ -269,7 +353,7 @@ Jak w części 1 (kroki 3–4), tylko z nową nazwą obrazu.
 
 ### 17 · porównanie odcisków
 
-Po odzysku z obrazu `sandisk16-po-usunieciu.img` (kroki 7–9, foldery `.../po-usunieciu-testdisk` i `.../po-usunieciu-photorec`):
+Po odzysku z obrazu `noname-po-usunieciu.img` (kroki 7–9, foldery `.../po-usunieciu-testdisk` i `.../po-usunieciu-photorec`):
 
 ```bash
 awk '{print $1}' $HOME/forensics/oryginaly.sha256 | sort > $HOME/forensics/odciski-oryginalow.txt
@@ -300,10 +384,10 @@ Skoro wiemy, że „usunięcie” i nawet szybkie formatowanie niczego nie niszc
 ```bash
 diskutil unmountDisk /dev/diskN                                            # 18
 sudo dd if=/dev/zero of=/dev/rdiskN bs=4m                                  # 19
-sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/sandisk16-po-zerach.img bs=4m   # 20
-hexdump -C $HOME/forensics/obrazy/sandisk16-po-zerach.img | head -5        # 21
-cmp $HOME/forensics/obrazy/sandisk16-po-zerach.img /dev/zero               # 22
-photorec /log /d $HOME/forensics/odzysk/po-zerach/ $HOME/forensics/obrazy/sandisk16-po-zerach.img   # 23
+sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/noname-po-zerach.img bs=4m   # 20
+hexdump -C $HOME/forensics/obrazy/noname-po-zerach.img | head -5        # 21
+cmp $HOME/forensics/obrazy/noname-po-zerach.img /dev/zero               # 22
+photorec /log /d $HOME/forensics/odzysk/po-zerach/ $HOME/forensics/obrazy/noname-po-zerach.img   # 23
 ```
 
 ## Co robi każda komenda
@@ -391,7 +475,8 @@ Po teście karta jest pełna plików F3. Możesz je skasować komendą z kroku 1
 ## Co z tego mamy
 
 - Dowód, że **usunięcie pliku i szybkie formatowanie nie niszczą danych**, a nadpisanie całej karty tak.
-- Umiejętność zrobienia i zweryfikowanego **obrazu dysku**, czyli podstawę każdej analizy śledczej.
+- Umiejętność zrobienia i zweryfikowanego **obrazu dysku**, czyli podstawę każdej analizy śledczej, razem z regułą „jeden odczyt to nie dowód”.
+- Doświadczenie z nośnikiem, który **kłamie bez komunikatu o błędzie** (SanDisk): wiem, jak to wykryć i dlaczego zgodne sumy z dwóch odczytów są ważniejsze niż „skończyło się bez błędu”.
 - Różnicę między odzyskiwaniem **ze spisu plików** (TestDisk) i **po sygnaturach** (PhotoRec).
 - Praktyczną wiedzę do labu: gdy wycofujesz kartę z Raspberry albo sprzedajesz stary telefon, wiesz, jak ją **naprawdę** wyczyścić.
 
@@ -406,5 +491,9 @@ Po teście karta jest pełna plików F3. Możesz je skasować komendą z kroku 1
 | Carving | wycinanie plików z surowych danych po sygnaturach, bez korzystania ze spisu plików |
 | Sygnatura (*magic bytes*) | charakterystyczne bajty na początku pliku, np. JPEG zaczyna się od `FF D8 FF` |
 | Wear leveling | rozkładanie zapisów po komórkach flash przez kontroler, żeby się równo zużywały |
+| Odczyt powtarzalny | ten sam fragment nośnika czytany wielokrotnie zwraca za każdym razem te same dane. Bez tego żaden obraz nie jest dowodem |
+| `tee` | polecenie, które kopiuje strumień danych do pliku i jednocześnie przepuszcza go dalej (w potoku) |
+| Potok (`\|`) | łączy wyjście jednej komendy z wejściem następnej, bez plików pośrednich |
+| `caffeinate` | polecenie macOS, które nie pozwala komputerowi zasnąć, dopóki działa wskazany program |
 
 ➡️ Następnie: wróć do [Etapu 3: Kali i cele ataku](04-attacker-kali.md)
