@@ -43,6 +43,8 @@ Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w n
 
 **Port 2222 i skrót / Port 2222 and shortcut:** SSH przeniesione na port 2222 (`02-port.conf`), port 22 wolny dla honeypota. Na PC plik `.ssh\config` ze skrótem `ssh honeypi`. Pułapka: Notatnik zapisał go jako `config.txt`, więc SSH go nie widział; poprawione przez `ren`. / SSH moved to port 2222, port 22 left for the honeypot. On the PC a `.ssh\config` with an `ssh honeypi` shortcut. Gotcha: Notepad saved it as `config.txt`, fixed with `ren`. Opis / Walkthrough: [docs/02c, części 3–4](../docs/02c-ssh-hardening.md#część-3-prawdziwy-ssh-na-porcie-2222)
 
+**Firewall:** `ufw` z domyślną blokadą ruchu przychodzącego i jednym wyjątkiem: 2222/tcp (SSH), dla IPv4 i IPv6. Bez ograniczenia do `192.168.1.0/24`, bo Windows łączy się przez IPv6 (`fe80::`). Komendy wklejone w trakcie `apt install` wyświetliły się pomieszane, ale wykonały się poprawnie. / `ufw` denies all incoming traffic except 2222/tcp for IPv4 and IPv6. Not limited to the home subnet because Windows connects over IPv6 link-local. Commands pasted during `apt install` displayed garbled but ran fine. Opis / Walkthrough: [docs/02c, część 5](../docs/02c-ssh-hardening.md#część-5-firewall-ufw)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered

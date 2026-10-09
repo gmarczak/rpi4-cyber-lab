@@ -6,7 +6,7 @@ SSH to jedyne „drzwi” do Raspberry, więc zabezpieczamy je jako pierwsze. Ko
 2. Wyłączenie logowania hasłem ✅
 3. Prawdziwy SSH na porcie 2222 (port 22 zostaje dla honeypota) ✅
 4. Skrót `ssh honeypi` na PC ✅
-5. Firewall
+5. Firewall ✅
 
 ---
 
@@ -294,4 +294,106 @@ ssh honeypi
 
 **Lekcja:** na Windowsie pliki bez rozszerzenia (`config`, `authorized_keys`) twórz i sprawdzaj przez `dir`. Eksplorator domyślnie ukrywa rozszerzenia, więc `config.txt` wygląda tam jak `config`.
 
-➡️ Dalej: część 5, firewall (wkrótce).
+---
+
+## Część 5: firewall (`ufw`)
+
+Firewall decyduje, które połączenia z zewnątrz w ogóle dotrą do Raspberry. Zasada: **wszystko zamknięte, otwieramy tylko to, czego potrzebujemy**. Na razie potrzebujemy tylko SSH na 2222. Porty honeypota (21, 22, 80) otworzymy w Etapie 2, gdy go postawimy. Pułapka, do której nikt nie może się dobić, nic nie złapie.
+
+> ⚠️ Jak w poprzednich częściach: zostaw otwarte okno z sesją SSH i testuj w nowym. Ratunek, gdyby coś poszło nie tak: `sudo ufw disable` w starym oknie.
+
+### Komendy
+
+Na Raspberry:
+
+```bash
+sudo apt install -y ufw                                                       # 1
+sudo ufw default deny incoming                                                # 2
+sudo ufw default allow outgoing                                               # 3
+sudo ufw allow 2222/tcp comment 'SSH'                                         # 4
+sudo ufw enable                                                               # 5
+sudo ufw status verbose                                                       # 6
+```
+
+Test na PC, w nowym oknie:
+
+```bat
+:: 7. czy SSH dalej działa przez firewall
+ssh honeypi
+```
+
+![Instalacja ufw](../screenshots/2026-10-09-assembly/36-ufw-install.png)
+
+![Reguły ufw](../screenshots/2026-10-09-assembly/37-ufw-rules.png)
+
+![Test SSH przez firewall](../screenshots/2026-10-09-assembly/38-ufw-ssh-test.png)
+
+### 1 · `sudo apt install -y ufw`: instalacja
+
+**ufw** (*Uncomplicated Firewall*) to prosta nakładka na filtr pakietów wbudowany w jądro Linuksa. Zamiast pisać skomplikowane reguły `iptables`/`nftables`, piszesz zdania w stylu „zezwól na 2222/tcp”. Razem z nim instalują się `iptables` i biblioteki, przez które ufw rozmawia z jądrem.
+
+`-y` = odpowiedz „tak” na pytanie o instalację.
+
+### 2 · `sudo ufw default deny incoming`: zamknij wszystko z zewnątrz
+
+Domyślna reguła dla połączeń **przychodzących**: odrzuć. Każde połączenie, dla którego nie ma wyjątku, zostanie zablokowane.
+
+### 3 · `sudo ufw default allow outgoing`: wychodzące wolno
+
+Raspberry może samo łączyć się na zewnątrz: pobierać aktualizacje (`apt`), reguły Suricaty, synchronizować czas. Odpowiedzi na te połączenia wracają bez przeszkód, bo firewall pamięta, kto zaczął rozmowę.
+
+### 4 · `sudo ufw allow 2222/tcp comment 'SSH'`: wyjątek dla SSH
+
+- `allow 2222/tcp`: przepuść połączenia na port 2222, protokół TCP (SSH zawsze używa TCP).
+- `comment 'SSH'`: opis widoczny w `ufw status`. Przy kilkunastu regułach bardzo się przydaje.
+
+`Rules updated` i `Rules updated (v6)` oznacza, że reguła działa i dla IPv4, i dla IPv6.
+
+**Dlaczego bez ograniczenia do sieci domowej** (np. `from 192.168.1.0/24`)? Windows łączy się z `honeypi.local` przez **IPv6** (adres `fe80::...` widać w „Last login”). Reguła tylko dla adresów IPv4 z sieci domowej odcięłaby mnie od Raspberry. Przed internetem i tak chroni router: nie przekierowuje do Raspberry żadnych portów.
+
+### 5 · `sudo ufw enable`: włącz
+
+Ostrzega `Command may disrupt existing ssh connections`, bo gdyby SSH nie było na liście wyjątków, połączenie by się zerwało. Nasze jest (krok 4), więc `y`.
+
+`Firewall is active and enabled on system startup`: działa teraz i startuje sam przy każdym uruchomieniu.
+
+### 6 · `sudo ufw status verbose`: sprawdź
+
+| Linijka | Znaczenie |
+|---|---|
+| `Status: active` | firewall działa |
+| `Logging: on (low)` | zablokowane próby połączeń są zapisywane w logach (`/var/log/ufw.log`, czyli na pendrivie) |
+| `Default: deny (incoming), allow (outgoing), disabled (routed)` | reguły domyślne z kroków 2–3. `routed` dotyczy przekazywania ruchu dalej, jak w routerze; Raspberry tego nie robi |
+| `2222/tcp ALLOW IN Anywhere # SSH` | wyjątek z kroku 4, dla IPv4 i `(v6)` |
+
+### 7 · `ssh honeypi`: test
+
+Zalogowało w nowym oknie ✅ Firewall przepuszcza SSH.
+
+### ❗ Uwaga: komendy wklejone w trakcie instalacji
+
+Na drugim zrzucie (żółta ramka) widać pomieszany tekst: `tgoing`, `'SSH'sudo ufw default allow outgoing`. Komendy zostały wklejone, kiedy `apt` jeszcze się instalował. Terminal wyświetlił wpisany tekst od razu, w środku wyników instalacji, a wykonał go dopiero po jej zakończeniu.
+
+Nic się nie zepsuło: każda komenda wykonała się po kolei i poprawnie (kroki 2–6 mają prawidłowe wyniki). Ale przy komendach, które o coś pytają, np. `ufw enable` z pytaniem `(y|n)`, wklejony z góry tekst mógłby zostać wzięty za odpowiedź.
+
+**Lekcja:** wklejaj następną komendę dopiero, gdy widzisz znak zachęty `grzesiek@honeypi:~ $`.
+
+---
+
+## Podsumowanie
+
+| Co | Stan |
+|---|---|
+| Logowanie | tylko kluczem, bez hasła, bez roota |
+| Port SSH | 2222 (`ssh honeypi` z PC) |
+| Port 22 | wolny, czeka na honeypota |
+| Firewall | wszystko przychodzące zamknięte poza 2222 |
+
+Pliki konfiguracji na Raspberry:
+
+```
+/etc/ssh/sshd_config.d/01-hardening.conf   # bez haseł i roota
+/etc/ssh/sshd_config.d/02-port.conf        # port 2222
+```
+
+➡️ Następnie: [03 — Obrońca](03-defender-raspberry.md)
