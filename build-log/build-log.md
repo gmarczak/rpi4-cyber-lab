@@ -33,6 +33,8 @@ Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w n
 
 ![Temperatura / CPU temperature](../screenshots/2026-10-09-assembly/22-cpu-temp.png)
 
+**Pendrive na logi / USB log drive:** sformatowany na ext4 (etykieta `logs`) i montowany przy starcie w `/mnt/logs`, 54 GB wolnego. Przy wklejaniu komenda z `tee` rozdzieliła się na dwie linijki (`Permission denied`); po poprawce wpis w `/etc/fstab` jest jeden. Opis komenda po komendzie: [docs/02b](../docs/02b-usb-log-drive.md). / Formatted as ext4 (label `logs`) and auto-mounted at `/mnt/logs`, 54 GB free. The `tee` command split into two lines when pasted (`Permission denied`); after the fix there is a single `/etc/fstab` entry. Command-by-command walkthrough: docs/02b.
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered

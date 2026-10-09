@@ -21,7 +21,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Logowanie kluczem SSH zamiast hasła, potem wyłączenie haseł / SSH key login, then disable passwords
 - [ ] Prawdziwy SSH na innym porcie (np. 2222), żeby port 22 zwolnić dla honeypota / Real SSH on another port so port 22 is free for the honeypot
 - [ ] Firewall (`ufw`): tylko potrzebne porty / only the ports we need
-- [ ] Pendrive sformatowany i zamontowany na stałe (`/mnt/logs`) / USB stick formatted and auto-mounted
+- [x] Pendrive sformatowany i zamontowany na stałe (`/mnt/logs`) / USB stick formatted and auto-mounted — [docs/02b](docs/02b-usb-log-drive.md)
 - [ ] Logi kierowane na pendrive zamiast karty / Logs written to the USB stick, not the SD card
 - [ ] Wyłączone Wi-Fi i Bluetooth (Pi chodzi po kablu) / Wi-Fi and Bluetooth off (wired only)
 

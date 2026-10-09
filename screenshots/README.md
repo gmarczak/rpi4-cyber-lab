@@ -17,6 +17,7 @@ Drop build screenshots and photos here, e.g.:
   - `20`: pierwsze logowanie SSH (adres IPv6 i odcisk klucza zamazane) / first SSH login (IPv6 address and key fingerprint blurred)
   - `21`: restart po aktualizacji i `lsblk` (adres IPv6 zamazany) / reboot after the update and `lsblk` (IPv6 address blurred)
   - `22`: temperatura procesora / CPU temperature
+  - `23`–`24`: formatowanie i montowanie pendrive'a, komendy ponumerowane jak w [docs/02b](../docs/02b-usb-log-drive.md) / USB stick formatting and mounting, numbered as in docs/02b
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

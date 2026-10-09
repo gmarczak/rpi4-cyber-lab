@@ -51,4 +51,4 @@ sudo apt update && sudo apt full-upgrade -y
 
 Po tym kroku karta i wejście SD nie są już potrzebne — dalej pracujesz zdalnie.
 
-➡️ Następnie: [03 — Obrońca](03-defender-raspberry.md)
+➡️ Następnie: [02b — Pendrive na logi](02b-usb-log-drive.md)
