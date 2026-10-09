@@ -40,8 +40,8 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 3. [The defender — honeypot & monitoring on the Pi](docs/03-defender-raspberry.md)
 4. [The attacker — Kali & targets on the PC](docs/04-attacker-kali.md)
 5. [First exercise — attack & detection loop](docs/05-first-exercise.md)
-6. [Side exercise — forensics on old microSD cards (PL)](docs/06-forensics-karty-sd.md)
 6. [Network topology explained](docs/network-topology.md)
+7. [Side exercise — forensics on old microSD cards (PL)](docs/06-forensics-karty-sd.md)
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — task checklist: what is done and what is next.
 
