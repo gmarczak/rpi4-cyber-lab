@@ -148,4 +148,106 @@ df -h /mnt/logs
 
 Jeśli pendrive znowu jest w `/mnt/logs`, montowanie przy starcie działa.
 
-➡️ Następnie: przekierowanie logów na pendrive (Etap 1 w [ROADMAP](../ROADMAP.md)), potem [03 — Obrońca](03-defender-raspberry.md)
+---
+
+# Część 2: logi z `/var/log` na pendrive
+
+Pendrive jest zamontowany, ale programy dalej piszą logi na kartę, do folderu **`/var/log`**. Tam domyślnie zapisuje system, a później także Suricata i ntopng. Zamiast przestawiać każdy program osobno, „podmieniamy” cały folder.
+
+**Bind mount** sprawia, że folder z pendrive'a (`/mnt/logs/var-log`) pojawia się w miejscu `/var/log`. Programy dalej piszą do `/var/log` i niczego nie zauważają, a dane fizycznie lądują na pendrivie.
+
+```
+karta SD:  /var/log  ──(bind mount)──►  pendrive: /mnt/logs/var-log
+```
+
+## Komendy w skrócie
+
+```bash
+sudo mkdir -p /mnt/logs/var-log                                               # 1
+sudo cp -a /var/log/. /mnt/logs/var-log/                                      # 2
+echo '/mnt/logs/var-log /var/log none bind,nofail,x-systemd.requires-mounts-for=/mnt/logs 0 0' | sudo tee -a /etc/fstab   # 3
+sudo systemctl daemon-reload                                                  # 4
+sudo reboot                                                                   # 5
+# po restarcie i ponownym zalogowaniu:
+findmnt /var/log                                                              # 6
+df -h /var/log                                                                # 7
+cat /etc/fstab                                                                # 8
+```
+
+![Przekierowanie /var/log na pendrive](../screenshots/2026-10-09-assembly/26-var-log-bind.png)
+
+![Sprawdzenie po restarcie](../screenshots/2026-10-09-assembly/27-var-log-check.png)
+
+## Co robi każda komenda
+
+### 1 · `sudo mkdir -p /mnt/logs/var-log`: folder na logi
+
+Tworzy na pendrivie folder `var-log`, który zastąpi `/var/log`. Osobny podfolder zamiast całego `/mnt/logs` zostawia na pendrivie miejsce na inne rzeczy, np. późniejsze zapisy ruchu z Suricaty.
+
+### 2 · `sudo cp -a /var/log/. /mnt/logs/var-log/`: przenieś obecne logi
+
+- `cp`: kopiuj.
+- `-a` (*archive*): zachowaj właścicieli, uprawnienia i daty plików. Bez tego część programów nie mogłaby potem pisać do swoich logów.
+- `/var/log/.`: kropka na końcu znaczy „zawartość folderu, razem z ukrytymi plikami”, a nie sam folder.
+
+Bez tej kopii po podmianie `/var/log` byłby pusty i straciłbyś dotychczasowe logi, w tym te potrzebne kilku usługom do startu.
+
+### 3 · `echo '...' | sudo tee -a /etc/fstab`: podmiana przy każdym starcie
+
+Dopisuje do `/etc/fstab` drugą linijkę:
+
+```
+/mnt/logs/var-log  /var/log  none  bind,nofail,x-systemd.requires-mounts-for=/mnt/logs  0  0
+```
+
+| Pole | Znaczenie |
+|---|---|
+| `/mnt/logs/var-log` | skąd: folder na pendrivie |
+| `/var/log` | gdzie go pokazać |
+| `none` | brak własnego systemu plików, to tylko „lustro” istniejącego folderu |
+| `bind` | typ montowania: podmiana folderu |
+| `nofail` | bez pendrive'a system i tak wystartuje, a logi pójdą wtedy po prostu na kartę |
+| `x-systemd.requires-mounts-for=/mnt/logs` | **kolejność:** najpierw zamontuj pendrive, dopiero potem podmieniaj. Bez tego system mógłby próbować podmienić folder, którego jeszcze nie ma |
+| `0 0` | bez kopii `dump` i bez sprawdzania przy starcie, bo to nie osobny dysk |
+
+Ta komenda jest długa, więc wklej ją **w całości, w jednej linii** (patrz wpadka z `tee` wyżej).
+
+### 4 · `sudo systemctl daemon-reload`: odśwież ustawienia
+
+Jak w części 1: system czyta `/etc/fstab` ponownie i widzi nową regułę.
+
+### 5 · `sudo reboot`: restart
+
+Tym razem nie używamy `mount -a`. Programy, które już działają, mają otwarte pliki w starym `/var/log` na karcie i pisałyby do nich dalej. Po restarcie wszystkie startują od nowa i od razu piszą na pendrive.
+
+Komunikat `client_loop: send disconnect: Connection reset` to normalne zerwanie SSH przy restarcie.
+
+### 6 · `findmnt /var/log`: czy podmiana działa
+
+Pokazuje, co jest zamontowane w `/var/log`:
+
+```
+TARGET    SOURCE              FSTYPE  OPTIONS
+/var/log  /dev/sda1[/var-log] ext4    rw,noatime
+```
+
+`/dev/sda1[/var-log]` oznacza: folder `var-log` z pendrive'a (`sda1`). Gdyby podmiana nie zadziałała, `findmnt` nic by nie wypisał, bo `/var/log` byłby zwykłym folderem na karcie.
+
+### 7 · `df -h /var/log`: na jakim dysku leżą logi
+
+`/dev/sda1 … 54G … /var/log`, czyli ten sam pendrive co `/mnt/logs`. Zajęte 2,4 MB to skopiowane logi.
+
+### 8 · `cat /etc/fstab`: kontrola wpisów
+
+Powinny być dokładnie dwa nowe wpisy, każdy raz:
+
+1. `LABEL=logs /mnt/logs ...`: montowanie pendrive'a (część 1),
+2. `/mnt/logs/var-log /var/log none bind,...`: podmiana `/var/log` (część 2).
+
+## Co z tego mamy
+
+- Karta SD jest odciążona: cały „szum” logów idzie na pendrive, a na kartę trafia dużo mniej zapisów.
+- Każdy przyszły program (OpenCanary, Suricata, ntopng), który pisze do `/var/log`, automatycznie trafi na pendrive. Nie trzeba niczego konfigurować osobno.
+- Jak pendrive się zużyje albo zepsuje, Raspberry dalej wystartuje dzięki `nofail`, a logi wrócą na kartę do czasu wymiany.
+
+➡️ Następnie: [03 — Obrońca](03-defender-raspberry.md)
