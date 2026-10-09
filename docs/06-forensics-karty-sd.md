@@ -2,7 +2,7 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
-> 🚧 **Status: w trakcie.** Części 1 (obraz karty), 2 (odzyskiwanie) i 3 (kontrolowany eksperyment) są wykonane, ich wyniki są niżej. Części 4–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
+> 🚧 **Status: w trakcie.** Części 1–4 (obraz, odzyskiwanie, kontrolowany eksperyment, bezpieczne kasowanie) są wykonane, ich wyniki są niżej. Część 5 ma komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.
 
@@ -689,7 +689,17 @@ cd $HOME/forensics/odzysk && sudo photorec /log /d $HOME/forensics/odzysk/po-zer
 
 > ⚠️ **To jedyna komenda w tym rozdziale, która zapisuje na dysk bez pytania.** Błędny numer `diskN` skasuje inny dysk. Przed Enterem sprawdź ostatni raz: `diskutil info /dev/diskN` (karta, 16 GB, `Secure Digital`).
 
-Czas: karta klasy 10 ok. 15–30 minut, karta klasy 4 nawet godzinę lub dłużej. Ctrl+T pokazuje postęp. Na końcu `dd` może zgłosić `end of device` albo `No space left on device`: to **normalne**, bo kończy się miejsce na karcie, czyli cała została nadpisana.
+Czas: zapis na kartę jest wolniejszy niż odczyt. U mnie karta bez marki zapisywała 8,4 MB/s, czyli 31 minut na 15,5 GB (odczyt szedł 21 MB/s).
+
+**Podgląd postępu.** `caffeinate` przed `sudo` sprawia, że Ctrl+T pokazuje tylko `caffeinate`. Pomaga druga karta Terminala (⌘T) i:
+
+```bash
+sudo pkill -INFO -x dd
+```
+
+`pkill` wysyła sygnał do procesu o podanej nazwie (`-x dd`: dokładnie `dd`), a `-INFO` to ten sam sygnał, który wysyła Ctrl+T. `dd` wypisuje wtedy stan **w pierwszej karcie**.
+
+**Koniec.** `/dev/zero` nigdy się nie kończy, więc `dd` pisze, aż zabraknie karty. Na macOS kończy się to komunikatem `dd: /dev/rdiskN: Input/output error` (w Linuksie `No space left on device`), `3691+0 records in`, ale `3690+0 records out`: ostatniego, nadmiarowego bloku nie było już gdzie zapisać. To **normalne** i znaczy, że cała karta została nadpisana. Liczba bajtów musi być równa `Disk Size`.
 
 Alternatywa: `diskutil secureErase 0 /dev/diskN` (poziom 0 = jedno przejście zerami). Na nośnikach flash bywa niedostępna, dlatego tu używamy `dd`.
 
@@ -707,9 +717,23 @@ W pierwszej wersji planu był krok 20: kolejny obraz karty po wyzerowaniu. Trzec
 
 `dd` czyta całą kartę, a `cmp` porównuje ten strumień (`-` oznacza „czytaj ze standardowego wejścia”) bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu danych** (`cmp: EOF on stdin`; w innych systemach `EOF on -`) znaczy, że cała karta do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero, i podaje gdzie.
 
+Ctrl+T w czasie `cmp` wysyła sygnał do wszystkich programów w potoku. `cmp` w macOS odpowiada wtedy linią w rodzaju `stdin /dev/zero char 7227930062 line 1`, czyli „porównałem już tyle bajtów i wszystkie się zgadzały”. To **nie** jest różnica, bo różnica zawiera słowo `differ`. `line 1` bierze się stąd, że `cmp` liczy linie po bajtach nowej linii (`0A`), a w samych zerach takiego bajtu nie ma.
+
 ### 23 · PhotoRec na wyzerowanej karcie
 
 Ten sam test co w części 2, tylko na karcie zamiast na obrazie (dlatego `sudo`). Bez tablicy partycji PhotoRec pokaże tylko `No partition` (cała karta), a typ systemu plików wybierz `Other` i tryb `Whole`, bo „wolnego miejsca” bez systemu plików nie da się wskazać. Oczekiwany wynik: **0 odzyskanych plików**. To jest „po” do zestawienia z „przed”.
+
+![Zerowanie karty](../screenshots/2026-10-09-forensics/33-zera-dd.png)
+
+**1** karta to nadal `disk4`, 15,5 GB, z systemem plików `TEST` z części 3. **18** odmontowanie i **19** zerowanie (wynik `unmountDisk` pojawia się po wklejeniu obu komend). Żółta ramka: stan `dd` po `sudo pkill -INFO -x dd` z drugiej karty: 3314 z 3690 bloków po 27,5 minutach. **!** (żółte) `Input/output error`, czyli koniec karty. **✓** `3690+0 records out`, 15476981760 B, cała karta w 1842 s.
+
+![Dowód: hexdump i cmp](../screenshots/2026-10-09-forensics/34-zera-hexdump-cmp.png)
+
+**21** pierwszy 1 MiB karty (dawniej MBR i początek FAT): same zera, `*` i adres końca `00100000`. **22** porównanie całej karty z zerami. Żółta ramka: kolejne Ctrl+T, przy których `cmp` raportuje, ile już porównał (7,2 → 15,0 GB), cały czas bez różnic. **✓** `3690+0 records`, 15476981760 B i `cmp: EOF on stdin`: koniec karty bez ani jednej różnicy. Czas `5382 secs` jest zawyżony, bo `dd` czekał też na hasło do `sudo`.
+
+![PhotoRec na wyzerowanej karcie](../screenshots/2026-10-09-forensics/35-zera-photorec.png)
+
+Żółta ramka: PhotoRec nie widzi żadnej partycji, tylko `Unknown` przez całe 30228480 sektorów. **23** `0 files saved`, `Recovery completed`.
 
 ## ⚠️ Uczciwe zastrzeżenie: pamięć flash to nie dysk
 
@@ -717,7 +741,14 @@ Karta microSD ma kontroler, który rozkłada zapisy po komórkach (*wear levelin
 
 ## Wyniki
 
-*(do uzupełnienia: czas kasowania, wynik `hexdump` i `cmp`, wynik PhotoRec po zerach)*
+| Test | Przed (część 3) | Po zerowaniu |
+|---|---|---|
+| Początek karty (`hexdump`, 1 MiB) | MBR, FAT, katalogi | same `00` |
+| Cała karta (`cmp` z `/dev/zero`) | | **0 różnych bajtów** na 15476981760 (`EOF on stdin`) |
+| PhotoRec | 111 plików (106 `mp3` z telefonu + nasze pliki testowe) | **0 plików** |
+| Czas | | zapis 31 min (8,4 MB/s), sprawdzenie `cmp` ok. 20 min |
+
+**Wniosek:** jedno pełne nadpisanie zerami usuwa wszystko, co widzi system: nie wraca ani plik testowy, ani nic sprzed formatowania. Formatowanie (część 3) zostawiło 106 starych plików, zerowanie 0. Granicę tej metody opisuje zastrzeżenie wyżej: kontroler karty może mieć ukryte bloki rezerwowe, do których `dd` nie sięga. Z tego powodu przed oddaniem karty z naprawdę wrażliwymi danymi lepsze jest szyfrowanie od początku albo zniszczenie karty.
 
 ---
 

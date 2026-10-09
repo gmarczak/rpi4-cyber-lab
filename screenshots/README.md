@@ -39,6 +39,7 @@ Drop build screenshots and photos here, e.g.:
   - `13`–`17`: TestDisk na obrazie; **nazwy usuniętych plików zamazane** (cudze dane) / TestDisk on the image; **deleted file names blurred** (someone else's data)
   - `18`–`22`: PhotoRec: menu, wpadki (`0 files saved`, log i pliki sesji w repo), 314 odzyskanych plików i liczenie typów / PhotoRec: menus, gotchas (`0 files saved`, log and session files in the repo), 314 recovered files and type counts
   - `23`–`32`: kontrolowany eksperyment: formatowanie, pliki testowe (z wpadkami `cp`/`head`), usunięcie, obraz, TestDisk (4 z 4 identyczne), PhotoRec (111 plików, 3 z 4 identyczne) / controlled experiment: format, test files (with `cp`/`head` gotchas), delete, image, TestDisk (4 of 4 identical), PhotoRec (111 files, 3 of 4 identical)
+  - `33`–`35`: zerowanie karty i dowód: `dd if=/dev/zero`, `hexdump`, `cmp` z `/dev/zero`, PhotoRec 0 plików / zero wipe and proof: `dd if=/dev/zero`, `hexdump`, `cmp` against `/dev/zero`, PhotoRec 0 files
 - [`2026-10-09-pc-self-scan/`](2026-10-09-pc-self-scan/): misja [docs/07](../docs/07-skan-wlasnego-pc.md), Raspberry skanuje mój PC / side mission, the Pi scans my PC
   - `01`: ping do całej sieci (adresy innych urządzeń i PC zamazane) / ping sweep (other devices' and the PC's addresses blurred)
   - `02`: profil sieci i nasłuchujące porty (nazwa sieci Wi-Fi/SSID zamazana) / network profile and listening ports (network name blurred)

@@ -89,5 +89,5 @@ Poza etapami, na MacBooku, na dwóch starych kartach 16 GB (SanDisk klasa 10 i k
 - [x] Obraz karty (`dd`) i dowód wierności sumą SHA-256 / Disk image and SHA-256 proof — [docs/06, część 1](docs/06-forensics-karty-sd.md#część-1-obraz-karty)
 - [x] Odzyskiwanie usuniętych plików: TestDisk i PhotoRec, porównanie metod / Undelete vs carving — [docs/06, część 2](docs/06-forensics-karty-sd.md#część-2-co-jest-na-karcie-dwie-metody-odzysku)
 - [x] Kontrolowany eksperyment: znane pliki, usunięcie, odzysk, porównanie odcisków / Controlled experiment — [docs/06, część 3](docs/06-forensics-karty-sd.md#część-3-kontrolowany-eksperyment)
-- [ ] Bezpieczne kasowanie (nadpisanie zerami) i dowód, że nic nie wraca / Secure wipe and proof — [docs/06, część 4](docs/06-forensics-karty-sd.md#część-4-bezpieczne-kasowanie-i-dowód)
+- [x] Bezpieczne kasowanie (nadpisanie zerami) i dowód, że nic nie wraca / Secure wipe and proof — [docs/06, część 4](docs/06-forensics-karty-sd.md#część-4-bezpieczne-kasowanie-i-dowód)
 - [ ] Test autentyczności karty bez marki (`f3write`/`f3read`) / Fake-capacity test on the no-name card — [docs/06, część 5](docs/06-forensics-karty-sd.md#część-5-test-autentyczności-karty-bez-marki-f3)

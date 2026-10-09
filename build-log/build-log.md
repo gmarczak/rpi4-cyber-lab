@@ -21,6 +21,17 @@ Opis / Walkthrough: [docs/07](../docs/07-skan-wlasnego-pc.md) · Zrzuty / Screen
 
 ---
 
+## 2026-10-09 — Forensics: bezpieczne kasowanie / secure wipe
+
+🇵🇱 Karta bez marki nadpisana zerami (`dd if=/dev/zero`, 31 min, 8,4 MB/s). Dowód: pierwszy MiB to same zera (`hexdump`), cała karta równa `/dev/zero` (`cmp: EOF on stdin`), PhotoRec 0 plików (przed zerowaniem 111). Na macOS koniec karty to `Input/output error`, a postęp `dd` w potoku pokazuje `sudo pkill -INFO -x dd` z drugiej karty Terminala.
+
+🇬🇧 No-name card overwritten with zeros. Proof: first MiB all zeros, whole card equals `/dev/zero` (`cmp: EOF on stdin`), PhotoRec 0 files (111 before).
+
+**Lekcja / Lesson:** formatowanie zostawiło 106 starych plików, nadpisanie 0. / Formatting left 106 old files, overwriting left none.
+Opis / Walkthrough: [docs/06, część 4](../docs/06-forensics-karty-sd.md#część-4-bezpieczne-kasowanie-i-dowód)
+
+---
+
 ## 2026-10-09 — Forensics: kontrolowany eksperyment / controlled experiment
 
 🇵🇱 Karta bez marki sformatowana (`eraseDisk`), 4 znane pliki zapisane, usunięte `rm` i obraz. TestDisk odzyskał 4 z 4 co do bajta (nazwy 8.3 bez pierwszej litery), PhotoRec 3 z 4 (plik losowych bajtów bez sygnatury przepadł). PhotoRec znalazł jednak 111 plików, w tym 106 starych `mp3` sprzed formatowania. Wpadki: `head -c 2m` nie działa na macOS, obraz z `sudo dd` należy do roota, `ls` bez `-a` nie pokazuje ukrytych folderów skopiowanych przez TestDisk.
