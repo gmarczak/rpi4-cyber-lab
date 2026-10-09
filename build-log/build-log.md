@@ -7,6 +7,20 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-09 — Misja dodatkowa: Raspberry atakuje mój PC / Side mission: the Pi attacks my PC
+
+🇵🇱 Odwróciłem role: `nmap -Pn` z Raspberry na mój PC z Windows 10. Mimo profilu sieci Public z sieci domowej widać było 4 otwarte porty: 135 (RPC), 139 (NetBIOS), 445 (SMB) i 2179 (Hyper-V). Winne reguły: udostępnianie plików i drukarek włączone dla sieci publicznych oraz reguły Hyper-V działające wszędzie. Wyłączyłem udostępnianie, NetBIOS i Hyper-V, restart. Skan kontrolny: wszystkie 1000 portów `filtered`, skan trwał 201 s zamiast 4,6 s.
+
+🇬🇧 Roles reversed: `nmap -Pn` from the Pi against my Windows 10 PC. Despite the Public network profile, 4 ports were open to the home network (135, 139, 445, 2179) because of file sharing enabled for public networks and Hyper-V rules set to Any. Turned off sharing, NetBIOS and Hyper-V, rebooted. Verification scan: all 1000 ports filtered, 201 s instead of 4.6 s.
+
+**Wpadka / Gotcha:** lista portów od środka nie pokazała 139, bo NetBIOS nasłuchuje na adresie karty, a nie na `0.0.0.0`. / The inside view missed port 139 because NetBIOS binds to the adapter address, not `0.0.0.0`.
+
+**Lekcja / Lesson:** „kto mnie widzi” sprawdza się z zewnątrz, nie od środka. Realne ryzyko przed zmianami było niskie (tylko sieć domowa, potrzebne hasło albo niezałatana luka), większym jest koniec wsparcia Windows 10 13.10.2026. / Check exposure from outside, not inside. Real risk before was low (LAN only, needs a password or an unpatched bug); the bigger one is Windows 10 consumer ESU ending on 2026-10-13.
+
+Opis / Walkthrough: [docs/07](../docs/07-skan-wlasnego-pc.md) · Zrzuty / Screenshots: [`../screenshots/2026-10-09-pc-self-scan/`](../screenshots/2026-10-09-pc-self-scan/)
+
+---
+
 ## 2026-10-09 — Forensics: kontrolowany eksperyment / controlled experiment
 
 🇵🇱 Karta bez marki sformatowana (`eraseDisk`), 4 znane pliki zapisane, usunięte `rm` i obraz. TestDisk odzyskał 4 z 4 co do bajta (nazwy 8.3 bez pierwszej litery), PhotoRec 3 z 4 (plik losowych bajtów bez sygnatury przepadł). PhotoRec znalazł jednak 111 plików, w tym 106 starych `mp3` sprzed formatowania. Wpadki: `head -c 2m` nie działa na macOS, obraz z `sudo dd` należy do roota, `ls` bez `-a` nie pokazuje ukrytych folderów skopiowanych przez TestDisk.

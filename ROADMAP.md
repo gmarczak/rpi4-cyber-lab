@@ -70,6 +70,18 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Hack The Box: pierwsza maszyna / first machine
 - [ ] Podsumowanie etapu w `docs/etap-5-podsumowanie.md` / Stage summary
 
+## Misja dodatkowa: skan własnego PC / Side mission: scanning my own PC ✅ — [docs/07](docs/07-skan-wlasnego-pc.md)
+
+Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co widać z sieci domowej. / The Pi plays attacker and scans my Windows PC to see what is exposed on the home network.
+
+- [x] Rozpoznanie sieci i portów PC od środka / Network and listening-port recon from the PC — [docs/07, komendy 1–3](docs/07-skan-wlasnego-pc.md#komendy-w-skrócie)
+- [x] Skan `nmap` z Raspberry: 4 otwarte porty (135, 139, 445, 2179) / `nmap` from the Pi: 4 open ports (2026-10-09)
+- [x] Reguły firewalla znalezione i zamknięte: udostępnianie w profilu Public, NetBIOS, Hyper-V / Firewall rules found and closed
+- [x] Skan kontrolny: wszystkie 1000 portów `filtered` / Verification scan: all 1000 ports filtered (2026-10-09)
+- [ ] Pulpit zdalny (RDP) wyłączony / Remote Desktop off
+- [ ] Pełny skan TCP (`-p-`) i UDP (`-sU`) / Full TCP and UDP scan
+- [ ] Decyzja o Windows 10 przed końcem ESU (13.10.2026) / Windows 10 decision before ESU ends
+
 ## Ćwiczenie dodatkowe: forensics kart microSD / Side exercise: microSD forensics — [docs/06](docs/06-forensics-karty-sd.md)
 
 Poza etapami, na MacBooku, na dwóch starych kartach 16 GB (SanDisk klasa 10 i karta bez marki klasa 4). Nie blokuje Etapu 3. / Outside the stages, on the MacBook, with two old 16 GB cards. Does not block stage 3.
