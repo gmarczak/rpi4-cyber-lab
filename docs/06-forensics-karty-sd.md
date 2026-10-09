@@ -675,11 +675,10 @@ Skoro wiemy, że „usunięcie” i nawet szybkie formatowanie niczego nie niszc
 
 ```bash
 diskutil unmountDisk /dev/diskN                                            # 18
-sudo dd if=/dev/zero of=/dev/rdiskN bs=4m                                  # 19
-sudo dd if=/dev/rdiskN of=$HOME/forensics/obrazy/noname-po-zerach.img bs=4m   # 20
-hexdump -C $HOME/forensics/obrazy/noname-po-zerach.img | head -5        # 21
-cmp $HOME/forensics/obrazy/noname-po-zerach.img /dev/zero               # 22
-photorec /log /d $HOME/forensics/odzysk/po-zerach/ $HOME/forensics/obrazy/noname-po-zerach.img   # 23
+caffeinate -i sudo dd if=/dev/zero of=/dev/rdiskN bs=4m                    # 19
+sudo dd if=/dev/rdiskN bs=1m count=1 2>/dev/null | hexdump -C              # 21
+caffeinate -i sudo dd if=/dev/rdiskN bs=4m | cmp - /dev/zero               # 22
+cd $HOME/forensics/odzysk && sudo photorec /log /d $HOME/forensics/odzysk/po-zerach/ /dev/rdiskN   # 23
 ```
 
 ## Co robi każda komenda
@@ -694,21 +693,23 @@ Czas: karta klasy 10 ok. 15–30 minut, karta klasy 4 nawet godzinę lub dłuże
 
 Alternatywa: `diskutil secureErase 0 /dev/diskN` (poziom 0 = jedno przejście zerami). Na nośnikach flash bywa niedostępna, dlatego tu używamy `dd`.
 
-### 20 · obraz po kasowaniu
+Po skończeniu macOS może pokazać okno, że podłączony dysk jest nieczytelny (karta nie ma już tablicy partycji). Kliknij **Ignoruj**, a nie „Inicjuj”: inicjowanie zapisałoby na kartę nową tablicę partycji.
 
-Jak wcześniej: robimy nowy obraz karty.
+### Dlaczego tym razem bez obrazu (kroku 20 nie ma)
 
-### 21 · `hexdump -C ... | head -5`: zobacz na własne oczy
+W pierwszej wersji planu był krok 20: kolejny obraz karty po wyzerowaniu. Trzeci obraz po 15,5 GB nie zmieścił się jednak na dysku MacBooka obok dwóch poprzednich, a po wyzerowaniu na karcie nie ma już czego chronić. Kroki 21–23 czytają więc **bezpośrednio kartę** (`/dev/rdiskN`, przez `sudo`). Tylko czytają, nic nie zapisują.
 
-Pokazuje początek obrazu w zapisie szesnastkowym. Po wyzerowaniu powinny być same `00`, a powtarzające się linijki `hexdump` zastępuje gwiazdką `*`.
+### 21 · `dd ... count=1 | hexdump -C`: zobacz na własne oczy
 
-### 22 · `cmp obraz /dev/zero`: dowód matematyczny
+`dd` czyta pierwszy 1 MiB karty (`bs=1m count=1`), a `hexdump -C` pokazuje go w zapisie szesnastkowym. Wcześniej był tam MBR z tablicą partycji, a teraz powinny być same `00`. Powtarzające się linijki `hexdump` zastępuje gwiazdką `*`, więc wynik to trzy linijki: zera, `*` i adres końca (`00100000` = 1 MiB). Czytamy tylko początek, bo `hexdump` na całej karcie przeczytałby wszystkie 15,5 GB.
 
-Porównuje obraz bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu pliku** (`EOF on ...`) znaczy, że cały obraz do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero.
+### 22 · `dd ... | cmp - /dev/zero`: dowód matematyczny
 
-### 23 · PhotoRec na wyzerowanym obrazie
+`dd` czyta całą kartę, a `cmp` porównuje ten strumień (`-` oznacza „czytaj ze standardowego wejścia”) bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu danych** (`EOF on -`) znaczy, że cała karta do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero, i podaje gdzie.
 
-Ten sam test co w części 2. Oczekiwany wynik: **0 odzyskanych plików**. To jest „po” do zestawienia z „przed”.
+### 23 · PhotoRec na wyzerowanej karcie
+
+Ten sam test co w części 2, tylko na karcie zamiast na obrazie (dlatego `sudo`). Bez tablicy partycji PhotoRec pokaże tylko `No partition` (cała karta), a typ systemu plików wybierz `Other` i tryb `Whole`, bo „wolnego miejsca” bez systemu plików nie da się wskazać. Oczekiwany wynik: **0 odzyskanych plików**. To jest „po” do zestawienia z „przed”.
 
 ## ⚠️ Uczciwe zastrzeżenie: pamięć flash to nie dysk
 
