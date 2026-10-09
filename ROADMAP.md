@@ -20,7 +20,8 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Stały adres IP: rezerwacja DHCP w routerze / Static IP via DHCP reservation
 - [x] Logowanie kluczem SSH / SSH key login — [docs/02c](docs/02c-ssh-hardening.md)
 - [x] Wyłączone logowanie hasłem i jako root / Password and root login disabled — [docs/02c, część 2](docs/02c-ssh-hardening.md#część-2-wyłączenie-logowania-hasłem)
-- [ ] Prawdziwy SSH na innym porcie (np. 2222), żeby port 22 zwolnić dla honeypota / Real SSH on another port so port 22 is free for the honeypot
+- [x] Prawdziwy SSH na porcie 2222, port 22 wolny dla honeypota / Real SSH on port 2222, port 22 free for the honeypot — [docs/02c, część 3](docs/02c-ssh-hardening.md#część-3-prawdziwy-ssh-na-porcie-2222)
+- [x] Skrót `ssh honeypi` na PC / `ssh honeypi` shortcut on the PC — [docs/02c, część 4](docs/02c-ssh-hardening.md#część-4-skrót-ssh-honeypi-plik-config-na-pc)
 - [ ] Firewall (`ufw`): tylko potrzebne porty / only the ports we need
 - [x] Pendrive sformatowany i zamontowany na stałe (`/mnt/logs`) / USB stick formatted and auto-mounted — [docs/02b](docs/02b-usb-log-drive.md)
 - [x] Logi kierowane na pendrive zamiast karty / Logs written to the USB stick, not the SD card — [docs/02b, część 2](docs/02b-usb-log-drive.md#część-2-logi-z-varlog-na-pendrive)

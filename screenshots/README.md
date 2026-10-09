@@ -22,6 +22,7 @@ Drop build screenshots and photos here, e.g.:
   - `26`–`27`: przeniesienie `/var/log` na pendrive i sprawdzenie po restarcie (adres IPv6 zamazany) / moving `/var/log` to the USB stick and checking after reboot (IPv6 blurred)
   - `28`: klucz SSH z Windowsa (adres IP z sieci domowej zamazany) / SSH key from Windows (home LAN IP blurred)
   - `29`–`31`: wyłączenie logowania hasłem i testy z kluczem i bez (adres IPv6 zamazany) / password login disabled, tests with and without the key (IPv6 blurred)
+  - `32`–`35`: SSH na porcie 2222, test portów, pułapka Notatnika z `config.txt` i poprawka (adres IPv6 zamazany) / SSH on port 2222, port tests, the Notepad `config.txt` trap and the fix (IPv6 blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

@@ -41,6 +41,8 @@ Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w n
 
 **Bez haseł / No passwords:** nowy plik `/etc/ssh/sshd_config.d/01-hardening.conf` wyłącza logowanie hasłem i jako root. Imager zostawił `50-cloud-init.conf`, ale nasz `01-` jest czytany pierwszy, więc wygrywa. Test: z kluczem loguje, bez klucza `Permission denied (publickey)`. / New drop-in disables password and root login; it sorts before Imager's `50-cloud-init.conf`, so it wins. Key login works, no key gives `Permission denied (publickey)`. Opis / Walkthrough: [docs/02c, część 2](../docs/02c-ssh-hardening.md#część-2-wyłączenie-logowania-hasłem)
 
+**Port 2222 i skrót / Port 2222 and shortcut:** SSH przeniesione na port 2222 (`02-port.conf`), port 22 wolny dla honeypota. Na PC plik `.ssh\config` ze skrótem `ssh honeypi`. Pułapka: Notatnik zapisał go jako `config.txt`, więc SSH go nie widział; poprawione przez `ren`. / SSH moved to port 2222, port 22 left for the honeypot. On the PC a `.ssh\config` with an `ssh honeypi` shortcut. Gotcha: Notepad saved it as `config.txt`, fixed with `ren`. Opis / Walkthrough: [docs/02c, części 3–4](../docs/02c-ssh-hardening.md#część-3-prawdziwy-ssh-na-porcie-2222)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered

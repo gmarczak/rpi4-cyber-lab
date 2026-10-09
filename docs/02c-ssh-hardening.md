@@ -4,8 +4,9 @@ SSH to jedyne „drzwi” do Raspberry, więc zabezpieczamy je jako pierwsze. Ko
 
 1. **Logowanie kluczem** zamiast hasła ✅
 2. Wyłączenie logowania hasłem ✅
-3. Prawdziwy SSH na innym porcie (port 22 zostaje dla honeypota)
-4. Firewall
+3. Prawdziwy SSH na porcie 2222 (port 22 zostaje dla honeypota) ✅
+4. Skrót `ssh honeypi` na PC ✅
+5. Firewall
 
 ---
 
@@ -160,4 +161,137 @@ Gdyby żadne okno nie było otwarte: wyjmij kartę SD, włóż ją do komputera 
 - Na Raspberry wejdziesz **tylko z komputera, który ma klucz**. Żeby logować się z innego komputera, dodaj jego klucz publiczny tak samo jak w części 1, ale jeszcze z obecnego PC (bo nowy nie zaloguje się hasłem).
 - Klucz prywatny `C:\Users\<Ty>\.ssh\id_ed25519` warto mieć w kopii zapasowej (np. w menedżerze haseł). Jego utrata oznacza utratę zdalnego dostępu.
 
-➡️ Dalej: część 3, prawdziwy SSH na innym porcie (wkrótce).
+---
+
+## Część 3: prawdziwy SSH na porcie 2222
+
+Honeypot (OpenCanary) będzie udawał serwer SSH na standardowym porcie **22**. Właśnie tam zaglądają skanery i boty, więc tam postawimy pułapkę. Prawdziwe SSH musi zwolnić to miejsce i przenieść się na **2222**.
+
+```
+port 22   → honeypot (później): każde połączenie = alert
+port 2222 → prawdziwe SSH: tylko dla mnie, tylko z kluczem
+```
+
+To nie jest zabezpieczenie samo w sobie (skaner sprawdzający wszystkie porty i tak znajdzie 2222). Chodzi o to, żeby port 22 był wolny dla pułapki i żeby z logów od razu wynikało, co jest atakiem, a co mną.
+
+### Komendy
+
+Na Raspberry:
+
+```bash
+systemctl is-active ssh.socket ssh.service                                    # 1
+echo 'Port 2222' | sudo tee /etc/ssh/sshd_config.d/02-port.conf               # 2
+sudo sshd -t && sudo systemctl reload ssh                                     # 3
+sudo ss -tlnp | grep sshd                                                     # 4
+```
+
+Test na PC, w nowym oknie:
+
+```bat
+:: 5. nowy port: ma zalogować
+ssh -p 2222 grzesiek@honeypi.local
+
+:: 6. stary port: ma odmówić
+ssh grzesiek@honeypi.local
+```
+
+![Zmiana portu SSH](../screenshots/2026-10-09-assembly/32-ssh-port.png)
+
+![Test portów 2222 i 22](../screenshots/2026-10-09-assembly/33-ssh-port-test.png)
+
+### 1 · `systemctl is-active ssh.socket ssh.service`: jak uruchamiane jest SSH
+
+W nowszych systemach SSH może startować na dwa sposoby:
+
+- **`ssh.service`**: klasycznie, serwer działa cały czas i sam wybiera port z konfiguracji,
+- **`ssh.socket`**: system nasłuchuje na porcie i uruchamia SSH dopiero przy połączeniu. Wtedy port ustawia się w innym miejscu i sama linijka `Port` w konfiguracji SSH nie działa.
+
+U mnie: `ssh.socket` = `inactive`, `ssh.service` = `active`, czyli klasycznie. Port ustawiamy w `sshd_config.d/`, tak jak w części 2.
+
+### 2 · `echo 'Port 2222' | sudo tee .../02-port.conf`: nowy port
+
+Osobny plik z jednym ustawieniem. Prefiks `02-` sprawia, że jest czytany zaraz po naszym `01-hardening.conf` i przed plikiem Imagera `50-cloud-init.conf`. Osobny plik łatwo znaleźć i w razie czego usunąć.
+
+### 3 · `sudo sshd -t && sudo systemctl reload ssh`: sprawdź i wczytaj
+
+Jak w części 2. `reload` sprawia, że SSH zaczyna nasłuchiwać na nowym porcie, a obecne połączenie zostaje.
+
+### 4 · `sudo ss -tlnp | grep sshd`: na czym nasłuchuje SSH
+
+- `ss`: pokazuje połączenia i otwarte porty.
+- `-t` TCP, `-l` tylko nasłuchujące (*listening*), `-n` numery zamiast nazw, `-p` jaki program.
+- `| grep sshd`: zostaw tylko linijki z SSH.
+
+Wynik `0.0.0.0:2222` (IPv4) i `[::]:2222` (IPv6), bez `:22`, czyli SSH słucha już tylko na nowym porcie.
+
+### 5 · `ssh -p 2222 ...`: test nowego portu
+
+`-p 2222` = połącz na port 2222. Zalogowało kluczem ✅
+
+### 6 · `ssh grzesiek@honeypi.local`: test starego portu
+
+Bez `-p` klient łączy się na domyślny port 22. Odpowiedź `Connection refused` znaczy, że nic tam nie nasłuchuje ✅ Port czeka na honeypota.
+
+---
+
+## Część 4: skrót `ssh honeypi` (plik config na PC)
+
+Żeby nie wpisywać za każdym razem `-p 2222 grzesiek@honeypi.local`, zapisujemy ustawienia w pliku `C:\Users\<Ty>\.ssh\config` na PC:
+
+```
+Host honeypi
+    HostName honeypi.local
+    User grzesiek
+    Port 2222
+```
+
+| Linijka | Znaczenie |
+|---|---|
+| `Host honeypi` | skrót, który wpisujesz w `ssh honeypi` |
+| `HostName honeypi.local` | prawdziwy adres Raspberry |
+| `User grzesiek` | login |
+| `Port 2222` | port SSH |
+
+Od teraz wystarczy:
+
+```bat
+ssh honeypi
+```
+
+### ❗ Pułapka: Notatnik dopisuje `.txt`
+
+![Notatnik zapisał config.txt](../screenshots/2026-10-09-assembly/34-notepad-txt-trap.png)
+
+Plik otwarty przez `notepad %USERPROFILE%\.ssh\config` Notatnik zapisał jako **`config.txt`** (widać to na pasku tytułu). SSH szuka pliku o nazwie dokładnie `config`, bez rozszerzenia, więc go nie widział i `ssh honeypi` próbowało domyślnego portu 22: `Connection refused`.
+
+Poprawka, zmiana nazwy pliku:
+
+```bat
+:: 7. zmień nazwę config.txt na config
+ren "%USERPROFILE%\.ssh\config.txt" config
+
+:: 8. sprawdź zawartość folderu
+dir %USERPROFILE%\.ssh
+
+:: 9. test skrótu
+ssh honeypi
+```
+
+![Poprawka nazwy i test skrótu](../screenshots/2026-10-09-assembly/35-ssh-config-fix.png)
+
+- **7 · `ren`** (*rename*): zmienia nazwę pliku. Cudzysłów jest potrzebny, gdyby w ścieżce była spacja.
+- **8 · `dir`**: lista plików w folderze `.ssh`. Ma być `config` **bez** `.txt` (niebieska ramka). Obok widać pozostałe pliki SSH:
+
+  | Plik | Co to jest |
+  |---|---|
+  | `config` | ustawienia skrótów |
+  | `id_ed25519` | klucz prywatny (nikomu go nie dawaj) |
+  | `id_ed25519.pub` | klucz publiczny (ten jest na Raspberry) |
+  | `known_hosts` | „odciski” serwerów, z którymi już się łączyłeś. Chroni przed podszyciem się pod Raspberry |
+  | `known_hosts.old` | poprzednia wersja tej listy |
+
+- **9 · `ssh honeypi`**: zalogowało od razu ✅
+
+**Lekcja:** na Windowsie pliki bez rozszerzenia (`config`, `authorized_keys`) twórz i sprawdzaj przez `dir`. Eksplorator domyślnie ukrywa rozszerzenia, więc `config.txt` wygląda tam jak `config`.
+
+➡️ Dalej: część 5, firewall (wkrótce).
