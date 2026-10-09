@@ -16,7 +16,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 
 ## Etap 1: Fundamenty / Foundations ⬅️ teraz / now
 
-- [ ] Aktualizacja systemu (`sudo apt update && sudo apt full-upgrade -y`) / System update
+- [x] Aktualizacja systemu (`sudo apt update && sudo apt full-upgrade -y`) / System update
 - [ ] Stały adres IP: rezerwacja DHCP w routerze / Static IP via DHCP reservation
 - [ ] Logowanie kluczem SSH zamiast hasła, potem wyłączenie haseł / SSH key login, then disable passwords
 - [ ] Prawdziwy SSH na innym porcie (np. 2222), żeby port 22 zwolnić dla honeypota / Real SSH on another port so port 22 is free for the honeypot

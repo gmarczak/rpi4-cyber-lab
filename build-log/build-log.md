@@ -25,6 +25,10 @@ Najnowsze na górze / Newest first.
 
 ![Pierwsze logowanie SSH / First SSH login](../screenshots/2026-10-09-assembly/20-first-ssh-login.png)
 
+**Po aktualizacji / After the update:** pełna aktualizacja systemu, restart i ponowne logowanie. `lsblk` pokazuje kartę SD (`mmcblk0`, 59,5 GB: `/boot/firmware` i `/`) oraz pendrive (`sda`, 57,3 GB, jedna partycja `sda1`, na razie niezamontowana). Następny krok to sformatowanie pendrive'a pod logi. / Full system upgrade, reboot and login again. `lsblk` shows the SD card (`mmcblk0`, 59.5 GB: `/boot/firmware` and `/`) and the USB stick (`sda`, 57.3 GB, one partition `sda1`, not mounted yet). Next: format the stick for logs.
+
+![Restart i lsblk / Reboot and lsblk](../screenshots/2026-10-09-assembly/21-reboot-lsblk.png)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered
