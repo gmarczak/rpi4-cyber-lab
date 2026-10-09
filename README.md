@@ -50,7 +50,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 ## Status
 
-🚧 Build in progress — Pi assembled and reachable over SSH (2026-10-09). Follow the [build log](build-log/build-log.md).
+🚧 Build in progress — Stage 1 (foundations) done 2026-10-09: key-only SSH on port 2222, firewall, logs on a USB stick, static IP. Next: the defender (honeypot and monitoring). Follow the [build log](build-log/build-log.md).
 
 ## License
 

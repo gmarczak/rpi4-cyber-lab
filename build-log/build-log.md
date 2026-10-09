@@ -47,6 +47,8 @@ Temperatura procesora w zamkniętej obudowie, bez obciążenia: **51,1°C**, w n
 
 **Tylko kabel / Wired only:** Wi-Fi i Bluetooth wyłączone sprzętowo w `/boot/firmware/config.txt` (`dtoverlay=disable-wifi`, `disable-bt`). Po restarcie `ip -br link` pokazuje tylko `lo` i `eth0`. / Wi-Fi and Bluetooth disabled at boot via device tree overlays; after reboot only `lo` and `eth0` remain. Opis / Walkthrough: [docs/02d](../docs/02d-network-basics.md)
 
+**Stały adres IP / Static IP:** rezerwacja DHCP w FunBoxie (Ustawienia zaawansowane → Sieć → DHCP → Statyczne adresy IP): `honeypi` ma na stałe `192.168.1.134`. **Etap 1 zamknięty.** / DHCP reservation in the FunBox pins `honeypi` to `192.168.1.134`. **Stage 1 done.** Opis / Walkthrough: [docs/02d, część 2](../docs/02d-network-basics.md#część-2-stały-adres-ip-rezerwacja-dhcp-w-funboxie)
+
 ---
 
 ## 2026-10-08 — Części zamówione / Parts ordered

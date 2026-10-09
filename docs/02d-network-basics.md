@@ -3,7 +3,7 @@
 Ostatnie fundamenty przed honeypotem: Raspberry ma mieć **jedno wejście do sieci** (kabel) i **zawsze ten sam adres**.
 
 1. Wyłączenie Wi-Fi i Bluetooth ✅
-2. Stały adres IP (rezerwacja DHCP w routerze)
+2. Stały adres IP (rezerwacja DHCP w routerze) ✅
 
 ---
 
@@ -72,6 +72,83 @@ Usuń te trzy linijki z `/boot/firmware/config.txt` i zrób restart. Gdyby Raspb
 
 ---
 
-## Część 2: stały adres IP
+## Część 2: stały adres IP (rezerwacja DHCP w FunBoxie)
 
-*W trakcie: rezerwacja DHCP w routerze Orange FunBox.*
+### Po co
+
+Router rozdaje adresy urządzeniom w sieci przez **DHCP**: każde urządzenie przy podłączeniu prosi o adres i dostaje wolny z puli. U mnie pula to `192.168.1.10`–`192.168.1.150`. Adres jest „wypożyczony” i po restarcie routera albo dłuższej przerwie może się zmienić.
+
+Dla obrońcy to problem: reguły firewalla, skany z Kali i konfiguracja honeypota odwołują się do adresu Raspberry. Gdyby się zmienił, ćwiczenia przestałyby działać.
+
+**Rezerwacja DHCP** rozwiązuje to po stronie routera: FunBox rozpoznaje Raspberry po **adresie MAC** (sprzętowym identyfikatorze karty sieciowej) i zawsze daje mu ten sam adres. Na samym Raspberry nic nie zmieniamy.
+
+### 1 · Adres i MAC Raspberry (na Raspberry)
+
+```bash
+ip -4 -br addr show eth0          # adres IPv4
+cat /sys/class/net/eth0/address   # adres MAC
+```
+
+![Adres IP i MAC](../screenshots/2026-10-09-assembly/40-ip-and-mac.png)
+
+- `ip -4 -br addr show eth0`: tylko IPv4 (`-4`), w skrócie (`-br`), tylko karta kablowa (`eth0`). Wynik `192.168.1.134/24`: adres Raspberry, a `/24` znaczy, że sieć domowa to `192.168.1.0`–`192.168.1.255`.
+- `cat /sys/class/net/eth0/address`: adres MAC karty. Na zrzucie zamazany.
+
+### 2 · Logowanie do panelu FunBoxa
+
+W przeglądarce: **http://192.168.1.1**. Login `admin`, hasło z naklejki na spodzie routera (hasło do panelu, nie do Wi-Fi).
+
+![Logowanie do FunBoxa](../screenshots/2026-10-09-assembly/41-funbox-login.png)
+
+Przeglądarka pokazuje „Niezabezpieczona”, bo panel działa po zwykłym HTTP, bez szyfrowania. W sieci domowej to normalne dla routerów.
+
+### 3 · Sprawdzenie, że to na pewno Raspberry
+
+**Podłączone urządzenia** pokazuje mapę sieci. `honeypi` jest na porcie **Eth. 2**, czyli podłączony kablem, tak jak powinien.
+
+![Mapa urządzeń](../screenshots/2026-10-09-assembly/43-funbox-device-map.png)
+
+W zakładce **Lista** po kliknięciu `honeypi` widać jego adres IP i MAC. Ten sam MAC co w kroku 1 = to na pewno Raspberry.
+
+![Szczegóły honeypi](../screenshots/2026-10-09-assembly/44-funbox-device-honeypi.png)
+
+### 4 · Rezerwacja
+
+**Ustawienia zaawansowane → Sieć** (1):
+
+![Ustawienia zaawansowane](../screenshots/2026-10-09-assembly/42-funbox-advanced.png)
+
+Zakładka **DHCP** (2), sekcja **Statyczne adresy IP**:
+
+![Rezerwacja DHCP](../screenshots/2026-10-09-assembly/45-funbox-dhcp-static.png)
+
+- (3) z listy wybierz `honeypi`. FunBox sam uzupełni jego obecny adres i MAC. Kliknij **Dodaj**.
+- (4) `honeypi` pojawia się w tabeli statycznych adresów: `192.168.1.134` na stałe przypisany do jego MAC ✅
+
+Adres `.134` leży w puli DHCP (`.10`–`.150`), ale to nie przeszkadza: zarezerwowanego adresu router nie da nikomu innemu.
+
+### Jak sprawdzić, że działa
+
+Nic nie trzeba restartować. Przy następnym odnowieniu adresu Raspberry dostanie ten sam. Dla pewności, po dowolnym restarcie:
+
+```bash
+ip -4 -br addr show eth0
+```
+
+Ma być dalej `192.168.1.134`.
+
+### Przy okazji: bezpieczeństwo routera
+
+Na ekranie ustawień zaawansowanych widać **„Mój zdalny dostęp: nieaktywny”**. Tak ma zostać: zdalny dostęp do panelu routera z internetu to częsty cel ataków. Warto też zmienić domyślne hasło do panelu (kafelek **Hasło**), jeśli wciąż jest to hasło z naklejki.
+
+---
+
+## Podsumowanie
+
+| Co | Stan |
+|---|---|
+| Wi-Fi, Bluetooth | wyłączone sprzętowo, tylko `eth0` |
+| Adres IP | `192.168.1.134`, zarezerwowany w FunBoxie |
+| Połączenie | kabel, port Eth. 2 w routerze |
+
+➡️ Następnie: [03 — Obrońca](03-defender-raspberry.md)

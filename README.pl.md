@@ -50,7 +50,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 ## Status
 
-🚧 Budowa w toku — Raspberry złożone i dostępne przez SSH (2026-10-09). Śledź [dziennik budowy](build-log/build-log.md).
+🚧 Budowa w toku — Etap 1 (fundamenty) zamknięty 2026-10-09: SSH tylko kluczem na porcie 2222, firewall, logi na pendrivie, stały adres IP. Następny: obrońca (honeypot i monitoring). Śledź [dziennik budowy](build-log/build-log.md).
 
 ## Licencja
 
