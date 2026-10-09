@@ -705,7 +705,7 @@ W pierwszej wersji planu był krok 20: kolejny obraz karty po wyzerowaniu. Trzec
 
 ### 22 · `dd ... | cmp - /dev/zero`: dowód matematyczny
 
-`dd` czyta całą kartę, a `cmp` porównuje ten strumień (`-` oznacza „czytaj ze standardowego wejścia”) bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu danych** (`EOF on -`) znaczy, że cała karta do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero, i podaje gdzie.
+`dd` czyta całą kartę, a `cmp` porównuje ten strumień (`-` oznacza „czytaj ze standardowego wejścia”) bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu danych** (`cmp: EOF on stdin`; w innych systemach `EOF on -`) znaczy, że cała karta do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero, i podaje gdzie.
 
 ### 23 · PhotoRec na wyzerowanej karcie
 
