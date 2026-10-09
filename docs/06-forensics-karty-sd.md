@@ -33,6 +33,17 @@ mkdir -p ~/forensics/obrazy ~/forensics/odzysk
 
 Wszystko ląduje w `~/forensics`, **nie** w folderze repo.
 
+`brew` to **Homebrew**, menedżer programów dla macOS. Jeśli Terminal odpowie `zsh: command not found: brew`, nie jest jeszcze zainstalowany (patrz wpadka poniżej).
+
+## ❗ Wpadka: `command not found: brew`
+
+| | |
+|---|---|
+| **Co było widać** | `zsh: command not found: brew` po wpisaniu `brew install testdisk f3` |
+| **Przyczyna** | Homebrew nie jest domyślnie w macOS. Trzeba go zainstalować jednorazowo |
+| **Rozwiązanie** | instalator ze strony [brew.sh](https://brew.sh): `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`. Zapyta o hasło do Maca i może doinstalować narzędzia programistyczne Apple. Na końcu wypisze „Next steps”, czyli dwie linijki do wklejenia, które dodają `brew` do ścieżki. Bez nich `brew` dalej nie będzie znaleziony |
+| **Lekcja** | komenda „nie znaleziona” zwykle znaczy „nie zainstalowana albo nie w `PATH`”, a nie „zepsuta”. Po instalacji otwórz nowe okno Terminala i sprawdź `brew --version` |
+
 **Blokada zapisu.** Pełnowymiarowy adapter SD ma z boku mały suwak **LOCK**. Przesuń go w stronę oznaczenia LOCK, zanim włożysz kartę do MacBooka. To prosty, sprzętowy *write blocker*: system widzi kartę jako tylko do odczytu, więc nie może jej przypadkiem zmienić. Bez blokady macOS po włożeniu karty sam ją montuje i może dopisać ukryte pliki (`.Spotlight-V100`, `.fseventsd`), czyli zmienić „dowód”. Gdy adapter nie ma suwaka, od razu po włożeniu zrób krok 3 (`unmountDisk`).
 
 Obie karty wkładamy **po kolei**, nie jednocześnie. Dzięki temu numer dysku jest oczywisty.
