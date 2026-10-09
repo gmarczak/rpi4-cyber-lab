@@ -73,7 +73,7 @@ sudo shasum -a 256 /dev/rdiskN                                       # 6
 
 ### 1 · `diskutil list`: znajdź kartę
 
-Pokazuje wszystkie dyski. Kartę rozpoznasz po **rozmiarze** (ok. 15,9 GB lub 16,0 GB) i po nazwie woluminu, jeśli ma ją nadaną. Dysk MacBooka ma setki GB, więc się nie pomylisz. Zapisz sobie nazwę dysku karty, np. `/dev/disk4`. Partycje (`disk4s1`) to część tego dysku, my pracujemy na **całym dysku** `disk4`.
+Pokazuje wszystkie dyski. Kartę rozpoznasz po **rozmiarze** (ok. 15,9 GB lub 16,0 GB) i po nazwie woluminu, jeśli ma ją nadaną. Dysk MacBooka ma setki GB (u mnie `disk0` 500 GB i `disk3` z woluminami APFS), więc się nie pomylisz. Uwaga: przy **wbudowanym** czytniku SD karta też jest opisana jako `internal, physical`, tak jak dysk systemowy, więc słowo `internal` niczego nie rozstrzyga. Liczy się rozmiar. Zapisz sobie nazwę dysku karty, np. `/dev/disk4`. Partycje (`disk4s1`) to część tego dysku, my pracujemy na **całym dysku** `disk4`.
 
 Wersja `diskutil list external physical` jest krótsza, ale u mnie **nic nie wypisała** (patrz wpadka niżej), więc używamy pełnej listy.
 
@@ -85,7 +85,7 @@ W wyniku sprawdź trzy pola:
 
 | Pole | Czego oczekujesz |
 |---|---|
-| `Device Location` | `External` |
+| `Device Location` | `Internal` (wbudowany czytnik) albo `External` (czytnik USB) |
 | `Disk Size` | ok. 16 GB |
 | `Protocol` | `Secure Digital` (przez czytnik USB zobaczysz `USB`) |
 
@@ -124,13 +124,15 @@ Po wszystkim: `diskutil eject /dev/diskN` i wyjmij kartę.
 | | |
 |---|---|
 | **Co było widać** | pusty wynik (dwa razy), mimo że w Finderze karta była widoczna z plikami `.mp3` |
-| **Przyczyna** | karta we wbudowanym czytniku SD nie jest dla macOS „zewnętrznym dyskiem” (do uzupełnienia po zobaczeniu `diskutil list`) |
+| **Przyczyna** | karta we **wbudowanym czytniku SD** MacBooka jest dla macOS dyskiem `internal, physical`, tak samo jak dysk systemowy. Filtr `external` ją więc odrzucił. Przez czytnik USB byłaby `external` |
 | **Rozwiązanie** | pełne `diskutil list` i rozpoznanie karty po rozmiarze |
-| **Lekcja** | filtr w komendzie to założenie. Gdy wynik jest pusty, usuń filtr i zobacz całość, zanim uznasz, że karta „nie działa” |
+| **Lekcja** | filtr w komendzie to założenie. Gdy wynik jest pusty, usuń filtr i zobacz całość, zanim uznasz, że karta „nie działa”. Przy wbudowanym czytniku słowo `internal` nie odróżnia karty od dysku MacBooka, odróżnia ją **rozmiar** |
 
 ## Wyniki
 
-*(do uzupełnienia po ćwiczeniu: rozmiar karty, czas kopiowania, oba odciski i informacja, czy się zgadzają)*
+Karta SanDisk: `/dev/disk4`, 16,0 GB, tablica partycji MBR (`FDisk_partition_scheme`), jedna partycja FAT32 `NO NAME` (`disk4s1`, 16,0 GB). Na karcie są pliki `.mp3`.
+
+*(do uzupełnienia po ćwiczeniu: czas kopiowania, oba odciski i informacja, czy się zgadzają)*
 
 ---
 
