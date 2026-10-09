@@ -31,6 +31,9 @@ Drop build screenshots and photos here, e.g.:
   - `65`–`67`: Suricata: `EXTERNAL_NET`, uruchomienie, diagnoza i pierwsze alerty (adres PC zamazany) / Suricata: `EXTERNAL_NET`, start, diagnosis and first alerts (PC address blurred)
 
   - `68`–`69`: codzienna aktualizacja reguł Suricaty i pierwsza wersja `check-logs.sh` (adres PC zamazany) / daily Suricata rule updates and the first `check-logs.sh` (PC address blurred)
+- [`2026-10-09-forensics/`](2026-10-09-forensics/): zdjęcia i zrzuty z ćwiczenia [docs/06](../docs/06-forensics-karty-sd.md) / photos and screenshots from the forensics exercise
+  - `01`: karta SanDisk microSD 16 GB (klasa 10) i adapter SD z zaznaczonym suwakiem LOCK; zdjęcie przycięte do kart, bez metadanych EXIF / SanDisk 16 GB microSD (class 10) and its SD adapter with the LOCK slider marked; cropped, EXIF removed
+
 ## ⚠️ Zanim wrzucisz / Before committing
 
 Zrzuty terminala przycinamy do samego okna, bez tła pulpitu. / Terminal screenshots are cropped to the window, without the desktop background.

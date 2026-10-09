@@ -46,6 +46,10 @@ Wszystko ląduje w `~/forensics`, **nie** w folderze repo.
 
 **Blokada zapisu.** Pełnowymiarowy adapter SD ma z boku mały suwak **LOCK**. Przesuń go w stronę oznaczenia LOCK, zanim włożysz kartę do MacBooka. To prosty, sprzętowy *write blocker*: system widzi kartę jako tylko do odczytu, więc nie może jej przypadkiem zmienić. Bez blokady macOS po włożeniu karty sam ją montuje i może dopisać ukryte pliki (`.Spotlight-V100`, `.fseventsd`), czyli zmienić „dowód”. Gdy adapter nie ma suwaka, od razu po włożeniu zrób krok 3 (`unmountDisk`).
 
+![Karta SanDisk microSD 16 GB klasy 10 i jej adapter SD, z zaznaczonym suwakiem LOCK](../screenshots/2026-10-09-forensics/01-karta-sandisk-16gb.jpg)
+
+Na zdjęciu suwak jest na lewej krawędzi adaptera (żółte kółko). To, czy blokada naprawdę działa, sprawdzisz w kroku 2: `diskutil info` pokaże `Read-Only Media: Yes`.
+
 Obie karty wkładamy **po kolei**, nie jednocześnie. Dzięki temu numer dysku jest oczywisty.
 
 ---
