@@ -7,6 +7,18 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Sieci w VirtualBoxie i hasło Kali / VirtualBox networking and the Kali password
+
+🇵🇱 Przed pierwszym uruchomieniem Kali rozpisałem od podstaw, czym jest wirtualna karta i czym różnią się tryby sieci: mostkowany (Kali jako osobne urządzenie w domu), wewnętrzny (`labnet`, tylko maszyny wirtualne), host-only („Ethernet 2” w Windowsie, nieużywana) i NAT. Brak karty `vEthernet (Default Switch)` potwierdził, że Hyper-V jest wyłączony. Do tego scenariusz: jak ktoś z sieci domowej przejąłby Kali z hasłem `kali`/`kali`, gdyby włączyć SSH, i lista obrony.
+
+🇬🇧 Before Kali's first boot I wrote up virtual NICs and the VirtualBox network modes from scratch: bridged (Kali as its own device on the LAN), internal (`labnet`, VMs only), host-only (the unused “Ethernet 2” in Windows) and NAT. The missing `vEthernet (Default Switch)` adapter confirmed Hyper-V is off. Plus a scenario of a LAN attacker taking over Kali with `kali`/`kali` once SSH is on, and a defense checklist.
+
+**Lekcja / Lesson:** maszyna w trybie mostkowanym to pełnoprawne urządzenie w sieci domowej, więc zabezpieczam ją jak każde inne: hasło, wyłączone usługi, firewall. / A bridged VM is a full device on the home LAN; secure it like one.
+
+Opis / Walkthrough: [docs/04b](../docs/04b-sieci-virtualbox.md)
+
+---
+
 ## 2026-10-09 — Misja dodatkowa: Raspberry atakuje mój PC / Side mission: the Pi attacks my PC
 
 🇵🇱 Odwróciłem role: `nmap -Pn` z Raspberry na mój PC z Windows 10. Mimo profilu sieci Public z sieci domowej widać było 4 otwarte porty: 135 (RPC), 139 (NetBIOS), 445 (SMB) i 2179 (Hyper-V). Winne reguły: udostępnianie plików i drukarek włączone dla sieci publicznych oraz reguły Hyper-V działające wszędzie. Wyłączyłem udostępnianie, NetBIOS i Hyper-V, restart. Skan kontrolny: wszystkie 1000 portów `filtered`, skan trwał 201 s zamiast 4,6 s.

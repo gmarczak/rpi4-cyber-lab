@@ -44,8 +44,9 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 ## Etap 3: Atakujący / Attacker ⬅️ teraz / now — [docs/04](docs/04-attacker-kali.md)
 
 - [ ] VirtualBox na PC / on the PC
-- [ ] Kali w VM, hasło zmienione / Kali VM, password changed
-- [ ] Dwie karty sieciowe: Internal + Bridged / Two network adapters
+- [ ] Kali w VM, hasło zmienione / Kali VM, password changed — dlaczego / why: [docs/04b](docs/04b-sieci-virtualbox.md#-jak-ktoś-z-sieci-domowej-mógłby-przejąć-kali-z-hasłem-kalikali)
+- [ ] Dwie karty sieciowe: Internal + Bridged / Two network adapters — [docs/04b](docs/04b-sieci-virtualbox.md)
+- [ ] Kali zabezpieczony: SSH wyłączone, `ufw`, skan z Raspberry bez otwartych portów / Kali hardened: SSH off, `ufw`, no open ports from the Pi — [docs/04b, obrona](docs/04b-sieci-virtualbox.md#jak-się-bronić)
 - [ ] DVWA tylko w sieci wewnętrznej / DVWA on the internal network only
 - [ ] Juice Shop tylko w sieci wewnętrznej / Juice Shop on the internal network only
 - [ ] Podsumowanie etapu w `docs/etap-3-podsumowanie.md` / Stage summary
