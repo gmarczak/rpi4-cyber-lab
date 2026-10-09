@@ -500,9 +500,11 @@ Używamy karty **bez marki (15,5 GB)**, tej samej, z której zrobiłem wiarygodn
 
 ```bash
 diskutil eraseDisk FAT32 TEST MBRFormat /dev/diskN                         # 10
-cp screenshots/2026-10-09-assembly/10-board-unboxed.jpg screenshots/2026-10-09-assembly/14-case-parts.jpg /Volumes/TEST/   # 11
-cupsfilter README.md > /Volumes/TEST/readme.pdf                            # 11
-head -c 2m /dev/urandom > /Volumes/TEST/losowy.bin                         # 12
+U=https://raw.githubusercontent.com/gmarczak/rpi4-cyber-lab/master/screenshots/2026-10-09-assembly
+curl -fsSL -o /Volumes/TEST/10-board-unboxed.jpg $U/10-board-unboxed.jpg   # 11
+curl -fsSL -o /Volumes/TEST/14-case-parts.jpg $U/14-case-parts.jpg         # 11
+cupsfilter README.md > /Volumes/TEST/readme.pdf 2>/dev/null                # 11 (z folderu repo)
+head -c 2097152 /dev/urandom > /Volumes/TEST/losowy.bin                    # 12
 ls -l /Volumes/TEST/                                                       # 12a
 shasum -a 256 /Volumes/TEST/* | tee $HOME/forensics/oryginaly.sha256       # 13
 rm /Volumes/TEST/*                                                         # 14
@@ -520,15 +522,25 @@ Formatuje kartę jako **FAT32** (system plików typowy dla kart w aparatach) z t
 
 ### 11–12 · pliki testowe
 
-Komendy z kroku 11 uruchamiamy **z folderu repo**, bo pliki testowe bierzemy z niego.
+Pliki testowe pochodzą z tego repo, które jest publiczne. Na karcie nie ląduje więc nic prywatnego, a każdy może powtórzyć test na tych samych plikach.
 
-- `cp`: kopiuje **dwa zdjęcia z montażu Raspberry** (`screenshots/2026-10-09-assembly/`). Są już publiczne, więc na karcie nie ląduje nic prywatnego, a każdy może powtórzyć test na tych samych plikach.
-- `cupsfilter README.md > /Volumes/TEST/readme.pdf`: `cupsfilter` to wbudowany w macOS konwerter z systemu druku (CUPS). Zamienia plik tekstowy w PDF i wypisuje go na standardowe wyjście, a `>` zapisuje to do pliku na karcie.
+- `U=...`: zmienna z adresem folderu ze zdjęciami z montażu Raspberry na GitHubie (`raw.githubusercontent.com` podaje same pliki, bez strony wokół).
+- `curl -fsSL -o plik adres`: pobiera plik. `-f` przy błędzie (np. 404) nie zapisuje strony błędu jako pliku, `-sS` ukrywa pasek postępu, ale pokazuje błędy, `-L` idzie za przekierowaniami, a `-o` podaje, gdzie zapisać. Pobieramy z GitHuba zamiast kopiować z lokalnego repo, bo lokalna kopia może być starsza (patrz wpadka niżej).
+- `cupsfilter README.md > /Volumes/TEST/readme.pdf 2>/dev/null`: `cupsfilter` to wbudowany w macOS konwerter z systemu druku (CUPS). Zamienia plik tekstowy w PDF i wypisuje go na standardowe wyjście, a `>` zapisuje to do pliku na karcie. Uruchom w folderze repo, bo tam jest `README.md`. Na ekran wypisuje dziesiątki linii `DEBUG:` (komunikaty diagnostyczne), które `2>/dev/null` wycisza.
 - JPEG i PDF to typy, które PhotoRec zna po sygnaturach (`FF D8 FF` i `%PDF`).
 - Na karcie FAT32 macOS może dopisać własne pliki `._*` i ukryte foldery systemowe (`.Spotlight-V100`, `.fseventsd`). To normalne ślady systemu, nie błąd. `*` w kolejnych komendach ich nie obejmuje, bo nie dopasowuje nazw zaczynających się od kropki.
-- `head -c 2m /dev/urandom > ...` tworzy plik z **2 MiB losowych bajtów** (`/dev/urandom` to systemowe źródło losowych danych, a `head -c 2m` bierze z niego pierwsze 2 MiB). Losowe dane nie mają żadnej sygnatury, więc PhotoRec go nie rozpozna. To celowy „test kontrolny”.
+- `head -c 2097152 /dev/urandom > ...` tworzy plik z **2 MiB losowych bajtów** (`/dev/urandom` to systemowe źródło losowych danych, a `head -c` bierze z niego tyle bajtów: 2 × 1024 × 1024 = 2097152). Losowe dane nie mają żadnej sygnatury, więc PhotoRec go nie rozpozna. To celowy „test kontrolny”.
 
-`ls -l` (krok 12a) to kontrola: na karcie mają być 4 pliki, a `losowy.bin` ma mieć dokładnie 2097152 B.
+`ls -l` (krok 12a) to kontrola: na karcie mają być 4 pliki, `10-board-unboxed.jpg` (279120 B), `14-case-parts.jpg` (350805 B), `losowy.bin` (2097152 B) i `readme.pdf`.
+
+## ❗ Wpadka: pliki testowe, `No such file or directory` i `illegal byte count`
+
+| | |
+|---|---|
+| **Co było widać** | `cp: screenshots/2026-10-09-assembly/10-board-unboxed.jpg: No such file or directory` (dwa razy), a potem `head: illegal byte count -- 2m`. `ls -l` pokazał tylko `readme.pdf` i **pusty** `losowy.bin` (0 B) |
+| **Przyczyna** | 1) w pierwszej wersji kopiowałem zdjęcia z **lokalnego** repo, a lokalna kopia była starsza niż GitHub i tych zdjęć jeszcze nie miała. 2) `head` w macOS (wersja BSD) nie rozumie skrótu `2m`, który rozumie `dd`. `head` zgłosił błąd i nic nie wypisał, ale `>` zdążył już utworzyć pusty plik |
+| **Rozwiązanie** | zdjęcia pobrane `curl` prosto z GitHuba, a w `head -c` liczba bajtów `2097152`. Potem `ls -l` i nowe `shasum` (`tee` nadpisuje stary plik z sumami) |
+| **Lekcja** | ta sama komenda może mieć inne opcje na macOS (BSD) i na Linuksie (GNU). Przekierowanie `>` tworzy plik **zanim** komenda zacznie działać, więc pusty plik po błędzie to normalny ślad. Dlatego po każdym przygotowaniu danych testowych warto sprawdzić rozmiary przez `ls -l` |
 
 ### 13 · `shasum -a 256 ... | tee plik`: odciski oryginałów
 
