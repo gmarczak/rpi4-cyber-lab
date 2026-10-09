@@ -29,7 +29,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Logi kierowane na pendrive zamiast karty / Logs written to the USB stick, not the SD card — [docs/02b, część 2](docs/02b-usb-log-drive.md#część-2-logi-z-varlog-na-pendrive)
 - [x] Wyłączone Wi-Fi i Bluetooth (Pi chodzi po kablu) / Wi-Fi and Bluetooth off (wired only) — [docs/02d](docs/02d-network-basics.md)
 
-## Etap 2: Obrońca / Defender ⬅️ teraz / now — [docs/03](docs/03-defender-raspberry.md)
+## Etap 2: Obrońca / Defender ✅ — [docs/03](docs/03-defender-raspberry.md) — 📋 [podsumowanie / summary](docs/etap-2-podsumowanie.md)
 
 - [x] OpenCanary zainstalowany w venv (`/opt/opencanary`) / installed in a venv — [docs/03, krok 1](docs/03-defender-raspberry.md#krok-1-instalacja)
 - [x] Usługi-pułapki włączone: SSH (22), HTTP (80), FTP (21), porty otwarte w `ufw` / Trap services enabled — [docs/03, krok 2](docs/03-defender-raspberry.md#krok-2-konfiguracja-pułapek-i-firewall)
@@ -37,11 +37,11 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Pierwszy alert honeypota (test z własnego PC) / First honeypot alert (test from my PC) — [docs/03, krok 3](docs/03-defender-raspberry.md#krok-3-pierwszy-test-i-pierwsze-alerty)
 - [x] Suricata zainstalowana, reguły pobrane (`suricata-update`) / installed, rules fetched — [docs/03, część 2](docs/03-defender-raspberry.md#część-2-monitoring-ruchu--suricata)
 - [x] Suricata wykrywa skaner (podpis Nmap w zapytaniu WWW z PC; pełny skan portów w Etapie 4) / detects a scanner (Nmap user agent from the PC; full port scan in stage 4) — [docs/03, krok 2](docs/03-defender-raspberry.md#krok-2-atakujący-z-domu-uruchomienie-i-pierwszy-alert)
-- [ ] ntopng z nowym hasłem (opcjonalnie) / with a new password (optional)
-- [ ] `check-logs.sh` pokazuje alerty z obu źródeł / shows alerts from both sources
-- [ ] Podsumowanie etapu w `docs/etap-2-podsumowanie.md` / Stage summary
+- [x] Codzienna aktualizacja reguł Suricaty (systemd timer) / Daily Suricata rule updates — [docs/03, część 2, krok 3](docs/03-defender-raspberry.md#krok-3-codzienna-aktualizacja-reguł)
+- [x] `check-logs.sh` pokazuje alerty z obu źródeł / shows alerts from both sources — [docs/03, część 3](docs/03-defender-raspberry.md#część-3-podgląd-alertów--check-logssh)
+- [x] Podsumowanie etapu w [`docs/etap-2-podsumowanie.md`](docs/etap-2-podsumowanie.md) / Stage summary
 
-## Etap 3: Atakujący / Attacker — [docs/04](docs/04-attacker-kali.md)
+## Etap 3: Atakujący / Attacker ⬅️ teraz / now — [docs/04](docs/04-attacker-kali.md)
 
 - [ ] VirtualBox na PC / on the PC
 - [ ] Kali w VM, hasło zmienione / Kali VM, password changed
@@ -66,5 +66,6 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Juice Shop: pierwsze 10 wyzwań / first 10 challenges
 - [ ] Alerty na e-mail albo telefon / Alerts by e-mail or phone
 - [ ] Panel z alertami (np. Grafana) / Alerts dashboard
+- [ ] ntopng: wykresy ruchu w sieci, z nowym hasłem (przeniesione z Etapu 2) / traffic charts, with a new password (moved from stage 2)
 - [ ] Hack The Box: pierwsza maszyna / first machine
 - [ ] Podsumowanie etapu w `docs/etap-5-podsumowanie.md` / Stage summary

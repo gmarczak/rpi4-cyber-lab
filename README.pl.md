@@ -44,7 +44,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — lista zadań z odhaczaniem, co zrobione i co dalej.
 
-📋 **Podsumowania etapów:** [Etap 1 — Fundamenty](docs/etap-1-podsumowanie.md) (każdy etap w jednym pliku: komendy, problemy, kontrola stanu)
+📋 **Podsumowania etapów:** [Etap 1 — Fundamenty](docs/etap-1-podsumowanie.md) · [Etap 2 — Obrońca](docs/etap-2-podsumowanie.md) (każdy etap w jednym pliku: komendy, problemy, kontrola stanu)
 
 📓 **Dziennik budowy:** [`build-log/build-log.md`](build-log/build-log.md) — datowane notatki, co zrobione i na co się natknąłem.
 
@@ -52,7 +52,7 @@ Szczegóły: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 ## Status
 
-🚧 Budowa w toku — Etap 1 (fundamenty) zamknięty 2026-10-09: SSH tylko kluczem na porcie 2222, firewall, logi na pendrivie, stały adres IP. Następny: obrońca (honeypot i monitoring). Śledź [dziennik budowy](build-log/build-log.md).
+🚧 Budowa w toku — Etapy 1 i 2 zamknięte 2026-10-09: zabezpieczone Raspberry, honeypot OpenCanary (SSH/WWW/FTP) i IDS Suricata z codziennymi regułami. Następny: atakujący (Kali w VirtualBoxie). Śledź [dziennik budowy](build-log/build-log.md).
 
 ## Licencja
 

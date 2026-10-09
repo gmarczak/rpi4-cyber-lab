@@ -30,6 +30,7 @@ Drop build screenshots and photos here, e.g.:
   - `62`–`64`: Suricata: instalacja, konfiguracja, reguły i test / Suricata: install, config, rules and test
   - `65`–`67`: Suricata: `EXTERNAL_NET`, uruchomienie, diagnoza i pierwsze alerty (adres PC zamazany) / Suricata: `EXTERNAL_NET`, start, diagnosis and first alerts (PC address blurred)
 
+  - `68`–`69`: codzienna aktualizacja reguł Suricaty i pierwsza wersja `check-logs.sh` (adres PC zamazany) / daily Suricata rule updates and the first `check-logs.sh` (PC address blurred)
 ## ⚠️ Zanim wrzucisz / Before committing
 
 Zrzuty terminala przycinamy do samego okna, bez tła pulpitu. / Terminal screenshots are cropped to the window, without the desktop background.

@@ -1,0 +1,11 @@
+# /etc/systemd/system/suricata-rules-update.timer — docs/03, część 2, krok 3
+[Unit]
+Description=Codzienna aktualizacja regul Suricaty
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
