@@ -3,6 +3,8 @@
 Lista zadań z odhaczaniem. Po skończeniu zadania zmień `[ ]` na `[x]` i dopisz wpis w [dzienniku budowy](build-log/build-log.md).
 Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to the [build log](build-log/build-log.md).
 
+📋 **Na koniec każdego etapu:** jeden plik `docs/etap-N-podsumowanie.md` z całym etapem: cel, komendy, problemy i ich rozwiązania, kontrola stanu. / At the end of each stage: one summary file with goals, commands, problems and fixes, and a status check.
+
 **Cel końcowy / End goal:** atakuję Raspberry z Kali, a obrońca to wykrywa i zapisuje w logach. / I attack the Pi from Kali and the defender detects and logs it.
 
 ---
@@ -14,7 +16,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Radiatory i obudowa / Heatsinks and case
 - [x] Pierwsze logowanie SSH (`honeypi.local`) / First SSH login (2026-10-09)
 
-## Etap 1: Fundamenty / Foundations ✅
+## Etap 1: Fundamenty / Foundations ✅ — 📋 [podsumowanie / summary](docs/etap-1-podsumowanie.md)
 
 - [x] Aktualizacja systemu (`sudo apt update && sudo apt full-upgrade -y`) / System update
 - [x] Stały adres IP: rezerwacja DHCP w routerze (FunBox) / Static IP via DHCP reservation (FunBox) — [docs/02d, część 2](docs/02d-network-basics.md#część-2-stały-adres-ip)
@@ -37,6 +39,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Suricata wykrywa skan / detects a scan
 - [ ] ntopng z nowym hasłem (opcjonalnie) / with a new password (optional)
 - [ ] `check-logs.sh` pokazuje alerty z obu źródeł / shows alerts from both sources
+- [ ] Podsumowanie etapu w `docs/etap-2-podsumowanie.md` / Stage summary
 
 ## Etap 3: Atakujący / Attacker — [docs/04](docs/04-attacker-kali.md)
 
@@ -45,6 +48,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Dwie karty sieciowe: Internal + Bridged / Two network adapters
 - [ ] DVWA tylko w sieci wewnętrznej / DVWA on the internal network only
 - [ ] Juice Shop tylko w sieci wewnętrznej / Juice Shop on the internal network only
+- [ ] Podsumowanie etapu w `docs/etap-3-podsumowanie.md` / Stage summary
 
 ## Etap 4: Pętla atak–wykrycie / Attack–detect loop — [docs/05](docs/05-first-exercise.md)
 
@@ -52,6 +56,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Ten skan widoczny w logach OpenCanary i Suricaty / The scan shows up in both logs
 - [ ] Zrzuty i wnioski w dzienniku / Screenshots and notes in the build log
 - [ ] Własna reguła Suricaty, która łapie coś, co wcześniej przeszło / A custom Suricata rule that catches something it missed
+- [ ] Podsumowanie etapu w `docs/etap-4-podsumowanie.md` / Stage summary
 
 ## Etap 5: Nauka i rozbudowa / Learning & beyond
 
@@ -62,3 +67,4 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Alerty na e-mail albo telefon / Alerts by e-mail or phone
 - [ ] Panel z alertami (np. Grafana) / Alerts dashboard
 - [ ] Hack The Box: pierwsza maszyna / first machine
+- [ ] Podsumowanie etapu w `docs/etap-5-podsumowanie.md` / Stage summary

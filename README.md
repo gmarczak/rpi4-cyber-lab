@@ -44,6 +44,8 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — task checklist: what is done and what is next.
 
+📋 **Stage summaries (PL):** [Stage 1 — Foundations](docs/etap-1-podsumowanie.md) (each stage in one file: commands, problems, status check)
+
 📓 **Build journal:** [`build-log/build-log.md`](build-log/build-log.md) — dated notes on what was done and what went wrong.
 
 ⚙️ **Config & scripts:** [`config/`](config/) — example OpenCanary config, Suricata notes, helper scripts (no secrets, no real IPs).
