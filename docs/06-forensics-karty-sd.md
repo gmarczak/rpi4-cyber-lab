@@ -2,6 +2,8 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
+> 📋 **Krótka wersja:** [podsumowanie ćwiczenia](06-forensics-podsumowanie.md).
+
 > ✅ **Status: ukończone.** Wszystkie 5 części wykonane na prawdziwych kartach 9–10.10.2026, wyniki i zrzuty są niżej. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.

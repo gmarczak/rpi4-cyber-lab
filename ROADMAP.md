@@ -95,7 +95,7 @@ Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co 
 - [ ] Nieznane urządzenie 192.168.1.16 (MAC Samsunga) zidentyfikowane / Unknown device (Samsung MAC) identified
 - [ ] Decyzja o Windows 10 przed końcem ESU (13.10.2026) / Windows 10 decision before ESU ends
 
-## Ćwiczenie dodatkowe: forensics kart microSD / Side exercise: microSD forensics ✅ — [docs/06](docs/06-forensics-karty-sd.md)
+## Ćwiczenie dodatkowe: forensics kart microSD / Side exercise: microSD forensics ✅ — [docs/06](docs/06-forensics-karty-sd.md) — 📋 [podsumowanie / summary](docs/06-forensics-podsumowanie.md)
 
 Poza etapami, na MacBooku, na dwóch starych kartach 16 GB (SanDisk klasa 10 i karta bez marki klasa 4). Nie blokuje Etapu 3. / Outside the stages, on the MacBook, with two old 16 GB cards. Does not block stage 3.
 
