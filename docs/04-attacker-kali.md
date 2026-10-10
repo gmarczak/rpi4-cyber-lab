@@ -2,6 +2,8 @@
 
 Kali i cele ataku stoją w maszynach wirtualnych na komputerze. Wszystko odseparowane od reszty systemu; maszyny można w każdej chwili skasować i postawić od nowa.
 
+> 🛠️ Jak to wyglądało u mnie krok po kroku, ze zrzutami i wpadkami: [04c — Instalacja Kali i maszyny z celami](04c-instalacja-kali-i-celow.md).
+
 ## 4a. VirtualBox + sieć
 
 1. Pobierz i zainstaluj [VirtualBox](https://www.virtualbox.org/) (darmowy).
@@ -12,10 +14,12 @@ Kali i cele ataku stoją w maszynach wirtualnych na komputerze. Wszystko odsepar
 
 > Dlaczego dwie karty: bez Bridged Kali nie zobaczy Pi (jest w innej sieci), więc ćwiczenie wykrywania by nie działało. Szczegóły: [network-topology.md](network-topology.md).
 
+> 📘 Pierwszy raz z sieciami w VirtualBoxie? Czym jest wirtualna karta, czym różnią się tryby mostkowany, wewnętrzny, host-only i NAT: [04b — Sieci w VirtualBoxie](04b-sieci-virtualbox.md).
+
 ## 4b. Kali Linux
 
 1. Pobierz gotowy obraz: [Kali dla VirtualBox](https://www.kali.org/get-kali/#kali-virtual-machines) (wersja *Virtual Machines*).
-2. Zaimportuj do VirtualBox i uruchom. Domyślny login `kali`/`kali` — **zmień hasło**.
+2. Zaimportuj do VirtualBox i uruchom. Domyślny login `kali`/`kali` — **zmień hasło** od razu (`passwd`). Przez kartę mostkowaną Kali jest widoczny dla całej sieci domowej. Jak ktoś mógłby go przejąć z domyślnym hasłem i jak się bronić: [04b, sekcja ❗](04b-sieci-virtualbox.md#-jak-ktoś-z-sieci-domowej-mógłby-przejąć-kali-z-hasłem-kalikali).
 3. Zaktualizuj:
 
 ```bash

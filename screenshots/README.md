@@ -47,6 +47,14 @@ Drop build screenshots and photos here, e.g.:
   - `04`: reguły firewalla otwierające porty / firewall rules opening the ports
   - `05`: `nmap` po zmianach, wszystko `filtered` (adres i nazwa PC zamazane) / `nmap` after, everything filtered (PC address and name blurred)
 
+- [`2026-10-10-kali-cele/`](2026-10-10-kali-cele/): instalacja Kali i maszyny z celami, ramki numerowane jak w [docs/04c](../docs/04c-instalacja-kali-i-celow.md) / Kali and target VM install, numbered as in docs/04c
+  - `01`–`07`: pobranie Kali, 7-Zip, suma SHA-256 (`05`: wpadka ze złym folderem) / Kali download, 7-Zip, SHA-256 (`05`: wrong-folder gotcha)
+  - `08`–`15`: VirtualBox, rozpakowanie, import, RAM, dwie karty sieciowe (adresy MAC zamazane) / VirtualBox, extract, import, RAM, two adapters (MACs blurred)
+  - `16`–`22`: pierwszy start Kali, `passwd`, `ip a`, aktualizacja, ping do Raspberry, snapshot (adres Kali, MAC i IPv6 zamazane) / first boot, `passwd`, `ip a`, update, ping to the Pi, snapshot (Kali address, MACs and IPv6 blurred)
+  - `23`–`28`: Ubuntu Server: suma (wpadka `shasum`), nowa maszyna `cele`, karta NAT (MAC zamazany) / Ubuntu Server: checksum (`shasum` gotcha), new `cele` VM, NAT adapter (MAC blurred)
+  - `29`–`42`: instalator Ubuntu Server, ostrzeżenie „soft lockup”, koniec instalacji (MAC i IPv6 zamazane) / Ubuntu Server installer, soft lockup warning, install complete (MAC and IPv6 blurred)
+  - `43`–`44`: pierwszy start `cele`: klucze SSH, `hostnamectl`, `ip a` (odciski kluczy, Machine ID, MAC i IPv6 zamazane) / first boot: SSH host keys, `hostnamectl`, `ip a` (key fingerprints, machine ID, MAC and IPv6 blurred)
+
 ## ⚠️ Zanim wrzucisz / Before committing
 
 Zrzuty terminala przycinamy do samego okna, bez tła pulpitu. / Terminal screenshots are cropped to the window, without the desktop background.

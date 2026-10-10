@@ -7,6 +7,32 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Kali i maszyna z celami / Kali and the target VM
+
+🇵🇱 Kali 2026.2 z gotowego obrazu dla VirtualBoxa: suma SHA-256 zgodna z kali.org, 4 GB RAM, karta 1 w sieci wewnętrznej `labnet`, karta 2 mostkowana. Hasło zmienione od razu, system zaktualizowany (jądro 7.1.5), Kali widzi Raspberry (ping 4/4), rezerwacja DHCP w routerze, snapshot czystego systemu. Potem druga maszyna `cele`: Ubuntu Server 26.04.1 LTS, 2 GB RAM, dysk 25 GB, na razie na NAT, z OpenSSH. Jutro Docker z DVWA i Juice Shop i przełączenie na `labnet`.
+
+🇬🇧 Kali 2026.2 from the pre-built VirtualBox image: SHA-256 matches kali.org, 4 GB RAM, adapter 1 on the internal `labnet`, adapter 2 bridged. Password changed right away, system updated (kernel 7.1.5), Kali reaches the Pi (ping 4/4), DHCP reservation on the router, clean snapshot. Then a second VM, `cele`: Ubuntu Server 26.04.1 LTS, 2 GB RAM, 25 GB disk, on NAT for now, with OpenSSH. Next: Docker with DVWA and Juice Shop, then the switch to `labnet`.
+
+**Wpadki / Gotchas:** `Get-FileHash` w złym folderze nie zwraca nic, nawet błędu; `shasum` ze strony Ubuntu nie istnieje w PowerShellu; kreator VirtualBoxa chciał instalację nienadzorowaną z kontem bez hasła; `soft lockup` w instalatorze to ostrzeżenie, nie awaria. / `Get-FileHash` in the wrong folder prints nothing; Ubuntu's `shasum` command doesn't exist in PowerShell; the VirtualBox wizard defaulted to an unattended install with a passwordless account; the installer's `soft lockup` is a warning, not a crash.
+
+**Lekcja / Lesson:** cele dostają osobną maszynę zamiast Dockera na Kali, bo Kali ma kartę mostkowaną i podatna aplikacja byłaby widoczna w całej sieci domowej. / Targets get their own VM instead of Docker on Kali: Kali is bridged, so a vulnerable app there would be exposed to the whole home network.
+
+Opis / Walkthrough: [docs/04c](../docs/04c-instalacja-kali-i-celow.md) · Zrzuty / Screenshots: [`../screenshots/2026-10-10-kali-cele/`](../screenshots/2026-10-10-kali-cele/)
+
+---
+
+## 2026-10-10 — Sieci w VirtualBoxie i hasło Kali / VirtualBox networking and the Kali password
+
+🇵🇱 Przed pierwszym uruchomieniem Kali rozpisałem od podstaw, czym jest wirtualna karta i czym różnią się tryby sieci: mostkowany (Kali jako osobne urządzenie w domu), wewnętrzny (`labnet`, tylko maszyny wirtualne), host-only („Ethernet 2” w Windowsie, nieużywana) i NAT. Brak karty `vEthernet (Default Switch)` potwierdził, że Hyper-V jest wyłączony. Do tego scenariusz: jak ktoś z sieci domowej przejąłby Kali z hasłem `kali`/`kali`, gdyby włączyć SSH, i lista obrony.
+
+🇬🇧 Before Kali's first boot I wrote up virtual NICs and the VirtualBox network modes from scratch: bridged (Kali as its own device on the LAN), internal (`labnet`, VMs only), host-only (the unused “Ethernet 2” in Windows) and NAT. The missing `vEthernet (Default Switch)` adapter confirmed Hyper-V is off. Plus a scenario of a LAN attacker taking over Kali with `kali`/`kali` once SSH is on, and a defense checklist.
+
+**Lekcja / Lesson:** maszyna w trybie mostkowanym to pełnoprawne urządzenie w sieci domowej, więc zabezpieczam ją jak każde inne: hasło, wyłączone usługi, firewall. / A bridged VM is a full device on the home LAN; secure it like one.
+
+Opis / Walkthrough: [docs/04b](../docs/04b-sieci-virtualbox.md)
+
+---
+
 ## 2026-10-09 — Misja dodatkowa: Raspberry atakuje mój PC / Side mission: the Pi attacks my PC
 
 🇵🇱 Odwróciłem role: `nmap -Pn` z Raspberry na mój PC z Windows 10. Mimo profilu sieci Public z sieci domowej widać było 4 otwarte porty: 135 (RPC), 139 (NetBIOS), 445 (SMB) i 2179 (Hyper-V). Winne reguły: udostępnianie plików i drukarek włączone dla sieci publicznych oraz reguły Hyper-V działające wszędzie. Wyłączyłem udostępnianie, NetBIOS i Hyper-V, restart. Skan kontrolny: wszystkie 1000 portów `filtered`, skan trwał 201 s zamiast 4,6 s.
