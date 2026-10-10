@@ -2,7 +2,7 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
-> 🚧 **Status: w trakcie.** Części 1–4 (obraz, odzyskiwanie, kontrolowany eksperyment, bezpieczne kasowanie) są wykonane, ich wyniki są niżej. Część 5 ma komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
+> ✅ **Status: ukończone.** Wszystkie 5 części wykonane na prawdziwych kartach 9–10.10.2026, wyniki i zrzuty są niżej. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.
 
@@ -792,9 +792,28 @@ Dużo `Data LOST` oznacza, że karta kłamie. Wtedy jej realna pojemność to wa
 
 Po teście karta jest pełna plików F3. Możesz je skasować komendą z kroku 10.
 
+## ❗ Wpadka: `zsh: command not found: 2caffeinate`
+
+Przy uruchamianiu `f3read` w linii poleceń stała jeszcze cyfra `2`, wpisana przypadkiem wcześniej, a wklejona komenda dopisała się do niej. Powłoka szukała programu `2caffeinate`. Lekcja: przed wklejeniem komendy sprawdź, czy linia jest pusta (Ctrl+U czyści całą linię).
+
 ## Wyniki
 
-*(do uzupełnienia: wynik f3read dla karty bez marki; opcjonalnie też dla SanDisk jako punkt odniesienia)*
+![f3write: zapis plików testowych](../screenshots/2026-10-09-forensics/36-f3write.png)
+
+**24** formatowanie (jak w kroku 10). **25** `f3write`. Żółta ramka: wolne miejsce 14,40 GB. **!** (żółte) pierwsze dwa pliki szły bardzo wolno, średnio 1,6–1,9 MB/s, a chwilami tylko 13,71 KB/s. `8OK!` przy pliku 2 to nie błąd, tylko resztka napisu postępu (`89.03%`), na który nałożyło się `OK!`. **✓** plik 15 i podsumowanie: wolne miejsce spadło do 184 KB, czyli zapisane wszystko, średnio 3,62 MB/s w 1:07:55.
+
+![f3read: weryfikacja](../screenshots/2026-10-09-forensics/37-f3read.png)
+
+**!** `2caffeinate` (wpadka wyżej). **26** `f3read`: kolumny `ok/corrupted/changed/overwritten` dla każdego pliku. Każdy pełny plik ma 2097152 sektory ok (1 GiB) i zera w pozostałych kolumnach. Żółta ramka: ostatni plik jest krótszy (827472 sektory), bo skończyło się miejsce. **✓** `Data OK: 14.39 GB`, `Data LOST: 0.00 Bytes`.
+
+| | Wynik |
+|---|---|
+| `Data OK` | **14,39 GB** (30187600 sektorów, wszystko, co zapisał `f3write`) |
+| `Data LOST` | **0** (w tym `Corrupted`, `Slightly changed`, `Overwritten`: 0) |
+| Zapis (`f3write`, przez FAT32) | śr. 3,62 MB/s, 1 h 8 min, chwilami poniżej 0,5 MB/s |
+| Odczyt (`f3read`) | śr. 22,37 MB/s, 11 min, równo przez całą kartę |
+
+**Wniosek:** karta bez marki jest **uczciwa**: ma tyle pamięci, ile deklaruje (15,5 GB, z czego 14,4 GB to miejsce na pliki po formatowaniu FAT32). Słabym punktem jest **zapis**: średnio 3,6 MB/s przez system plików i spadki do kilkuset KB/s. To mniej niż klasa 4 obiecuje (minimum 4 MB/s), więc do nagrywania wideo w aparacie czy telefonie się nie nadaje. Do przechowywania plików i ćwiczeń jest w porządku. Odczyt (22 MB/s) jest stabilny i taki sam jak przy robieniu obrazu w części 1.
 
 ---
 
@@ -805,6 +824,15 @@ Po teście karta jest pełna plików F3. Możesz je skasować komendą z kroku 1
 - Doświadczenie z nośnikiem, który **kłamie bez komunikatu o błędzie** (SanDisk): wiem, jak to wykryć i dlaczego zgodne sumy z dwóch odczytów są ważniejsze niż „skończyło się bez błędu”.
 - Różnicę między odzyskiwaniem **ze spisu plików** (TestDisk) i **po sygnaturach** (PhotoRec).
 - Praktyczną wiedzę do labu: gdy wycofujesz kartę z Raspberry albo sprzedajesz stary telefon, wiesz, jak ją **naprawdę** wyczyścić.
+- Sposób sprawdzenia, czy karta nie kłamie co do pojemności (F3), i świadomość, że samo zerowanie tego nie wykryje.
+
+| Część | Wynik w liczbach |
+|---|---|
+| 1 · obraz | karta bez marki: 3 zgodne sumy SHA-256; SanDisk: 3 odczyty, 3 różne sumy |
+| 2 · odzysk z cudzej karty | 314 plików (PhotoRec), głównie `mp3` z telefonu |
+| 3 · kontrolowany eksperyment | TestDisk 4/4, PhotoRec 3/4 identyczne; po formatowaniu wciąż 111 plików |
+| 4 · zerowanie | 0 różnych bajtów, PhotoRec 0 plików |
+| 5 · F3 | 14,39 GB OK, 0 utraconych, karta uczciwa |
 
 ## Słowniczek
 
