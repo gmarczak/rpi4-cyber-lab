@@ -2,6 +2,17 @@
 
 Repo dokumentuje budowę domowego labu cyberbezpieczeństwa na Raspberry Pi 4 (`honeypi`). Właściciel uczy się od zera, więc dokumentacja ma tłumaczyć, a nie tylko wypisywać komendy. Język dokumentacji: polski (README i ROADMAP dwujęzyczne PL/EN).
 
+## Komendy podawane w czacie
+
+Właściciel wkleja komendy do terminala (PowerShell, SSH, konsola VirtualBoxa). Wklejony naraz blok kilku komend potrafi się rozjechać: linijki giną albo trafiają w pytanie `sudo` o hasło (wpadki w [docs/04d](docs/04d-docker-dvwa-juice-shop.md#-wpadki)). Dlatego w odpowiedziach na czacie:
+
+- **jedna komenda = jeden osobny blok kodu** z przyciskiem kopiowania, nigdy kilka komend w jednym bloku,
+- wyjątek: komenda wielolinijkowa, która jest jedną całością (np. `tee` z *heredoc* `<<'EOF' … EOF`), idzie w jednym bloku, ale sama,
+- przed pierwszą komendą z `sudo` w serii: osobny blok `sudo true`, żeby hasło zostało podane, zanim cokolwiek zostanie wklejone,
+- przy każdym bloku krótko, czego się spodziewać w wyniku.
+
+W dokumentacji (`docs/`) sekcja „Komendy w skrócie” może zbierać komendy w większe bloki, bo służy do czytania, nie do wklejania.
+
 ## Podsumowanie na koniec każdego etapu
 
 Po zamknięciu etapu z [ROADMAP.md](ROADMAP.md) powstaje **jeden plik** `docs/etap-N-podsumowanie.md` z całym etapem. Wzór: [docs/etap-1-podsumowanie.md](docs/etap-1-podsumowanie.md). Etap 0 (sprzęt i montaż) nie ma podsumowania.

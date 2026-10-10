@@ -311,10 +311,10 @@ Machine ID, Boot ID, adres MAC i adresy IPv6 zamazane.
 
 ## Co dalej w tym etapie
 
-- [ ] Na `cele`: aktualizacja, Docker z oficjalnego repozytorium, DVWA ([github.com/digininja/DVWA](https://github.com/digininja/DVWA)) i OWASP Juice Shop
-- [ ] Karta `cele` przełączona z NAT na `labnet`; stałe adresy w `labnet` dla `cele` i dla `eth0` w Kali
+- [x] Na `cele`: aktualizacja, Docker z oficjalnego repozytorium, DVWA ([github.com/digininja/DVWA](https://github.com/digininja/DVWA)) i OWASP Juice Shop → [04d](04d-docker-dvwa-juice-shop.md)
+- [ ] Karta `cele` przełączona z NAT na `labnet`; stałe adresy w `labnet` dla `cele` i dla `eth0` w Kali → [04d, część 5](04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet-w-toku)
 - [ ] Testy z Kali: ping, `nmap`, obie aplikacje w przeglądarce, `ssh` z porównaniem odcisku klucza; `cele` bez internetu
 - [ ] Snapshot „cele czyste”
 - [ ] Zabezpieczenie Kali według [04b, obrona](04b-sieci-virtualbox.md#jak-się-bronić)
 
-➡️ Następnie: [05 — Pierwsze ćwiczenie](05-first-exercise.md)
+➡️ Następnie: [04d — Docker, DVWA i Juice Shop na `cele`](04d-docker-dvwa-juice-shop.md)
