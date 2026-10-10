@@ -7,6 +7,17 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Zrzuty do 04e / Screenshots for 04e
+
+🇵🇱 12 zrzutów do rozdziału o zabezpieczeniu Kali i stabilności labu, plus snapshot do 04d. Komendy powtórzone wieczorem na gotowym labie, więc trzy usterki (zawieszenie `cele`, 4096 MB, czekanie na sieć) nie mają zdjęć: były już naprawione. Powtórka dała nowe drobiazgi do opisu: ping do wyłączonej `cele` (ten sam wynik co rano), `NTP service: inactive` na Kali, literówka w haśle `sudo`.
+
+🇬🇧 12 screenshots for the Kali hardening and lab stability chapter, plus a snapshot for 04d. Commands were re-run in the evening on the finished lab, so three faults (target VM freeze, 4 GB RAM, network wait) have no pictures: they were already fixed. The re-run added a few small notes: a ping to the powered-off target (same result as in the morning), `NTP service: inactive` on Kali, a `sudo` password typo.
+
+**Lekcja / Lesson:** zrzut robię w chwili, gdy coś się dzieje, zwłaszcza usterkę; po naprawie nie ma już czego fotografować. / Take the screenshot while it happens, especially a fault; once fixed there is nothing left to capture.
+Opis / Walkthrough: [docs/04e, Zrzuty](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty)
+
+---
+
 ## 2026-10-10 — Misja „skan własnego PC” zamknięta / PC scan mission closed
 
 🇵🇱 Dokończona lista z 9.10. Znalezione i zamknięte: udział `Users` (`C:\Users`, Wszyscy: Full), reguły firewalla dla Node.js w profilu Public, martwe przekierowanie `minecraft` i martwy wpis UPnP w routerze, WPS. PC zapisany do ESU (łatki do 12.10.2027). Nieznany „localhost” to telewizor Samsung. Pełny skan z Raspberry: 65 535 portów TCP `filtered`, żaden UDP otwarty. Suricata na Raspberry zapisała kilkanaście alertów z własnego skanu, ale tylko dla portów z konkretnymi regułami. W logu honeypota znalazło się moje prawdziwe hasło: SSH z MacBooka trafiło przez pomyłkę na port 22.
@@ -45,7 +56,7 @@ Najnowsze na górze / Newest first.
 🇬🇧 Kali: SSH off and disabled, no IP forwarding, `ufw` denying incoming traffic, no private keys, Warsaw time zone. Scan from the Pi: 1000 filtered ports in 201.4 s. The target VM froze for 361 s while I was at the PC. Cause: a 4-core CPU with VMs asking for 2 + 2, and Windows Memory Integrity keeping its hypervisor on, so VirtualBox runs in its slow mode (green turtle). The target VM now has 1 vCPU and 2 GB and runs without lockups; Memory Integrity stays on for now. Finally `optional: true` in netplan: the target VM boots in 18 s instead of waiting over 2 minutes for the network.
 
 **Lekcja / Lesson:** suma procesorów maszyn wirtualnych < liczba rdzeni komputera, a diagnozę zawieszeń zaczynam od gospodarza. / Total vCPUs < host cores, and debug freezes from the host side first.
-Opis / Walkthrough: [docs/04e](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md) · Zrzuty / Screenshots: do dodania / to be added ([lista / list](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania))
+Opis / Walkthrough: [docs/04e](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md) · Zrzuty / Screenshots: [lista / list](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty)
 
 ---
 

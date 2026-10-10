@@ -57,7 +57,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Koniec zawieszania `cele`: 1 procesor, 2048 MB; przyczyna: 4 rdzenie i Integralność pamięci w Windowsie / Target VM no longer freezes: 1 vCPU, 2 GB; cause: 4 cores and Windows Memory Integrity (2026-10-10) — [docs/04e, część 2](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#część-2-śledztwo--dlaczego-cele-się-zawiesza)
 - [x] Start `cele` bez czekania na sieć (`optional: true`), 18 s / Target VM boots in 18 s, no wait for network (2026-10-10) — [docs/04e, część 3](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#część-3-start-cele-bez-czekania-na-sieć)
 - [x] Snapshoty „Kali zabezpieczony” i „cele czyste (1 CPU, bez czekania na sieć)” / Final snapshots of both VMs (2026-10-10)
-- [ ] Zrzuty do docs/04e obrobione i dodane / Screenshots for docs/04e cropped, blurred and added — [lista / list](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania)
+- [x] Zrzuty do docs/04e obrobione i dodane / Screenshots for docs/04e cropped, blurred and added (2026-10-10) — [lista / list](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty)
 - [x] Podsumowanie etapu w [`docs/etap-3-podsumowanie.md`](docs/etap-3-podsumowanie.md) / Stage summary
 
 ## Etap 4: Pętla atak–wykrycie / Attack–detect loop ⬅️ teraz / now — [docs/05](docs/05-first-exercise.md)

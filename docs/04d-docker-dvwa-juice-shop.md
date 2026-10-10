@@ -499,6 +499,10 @@ Na razie `cele` działa poprawnie: aplikacje odpowiadały, baza się utworzyła.
 
 **Po co właśnie teraz:** to stan „gotowe do ćwiczeń”: Docker, obie aplikacje, utworzona baza, sieć `labnet`, brak internetu. Baza DVWA leży w wolumenie Dockera, czyli na wirtualnym dysku `cele.vdi`, więc snapshot ją obejmuje. Jeśli w ćwiczeniach coś zepsuję, wracam tu jednym kliknięciem, zamiast powtarzać cały rozdział.
 
+![Snapshot cele czyste (DVWA z bazą) w drzewku VirtualBoxa](../screenshots/2026-10-10-cele-docker/25-snapshot-cele-czyste.png)
+
+Zrzut drzewka zrobiony później, dlatego pod „cele czyste (DVWA z bazą)” (13:04, ramka 33) widać już kolejny snapshot z [04e, krok 29](04e-zabezpieczenie-kali-i-stabilnosc.md#29-snapshot-cele-czyste-1-cpu-bez-czekania-na-sieć).
+
 ![Soft lockupy i wyłączenie cele](../screenshots/2026-10-10-cele-docker/24-soft-lockup-cele.png)
 
 > ℹ️ **Dlaczego na zrzucie nie ma wyniku `ip -br a`.** Przyciąłem go, bo pokazywał adresy IPv6 `fe80::…`. Taki adres jest często zbudowany z adresu MAC karty: `fe80::a00:27ff:fe…` to MAC `08:00:27:…` z wstawionym w środek `ff:fe` (metoda EUI-64). Dlatego w repo zamazuję IPv6 tak samo jak MAC.

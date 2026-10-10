@@ -30,7 +30,7 @@ Ostatni rozdział Etapu 3. Trzy części:
 
 ## Komendy w skrócie
 
-Numery zgadzają się z ramkami na zrzutach (lista zrzutów na końcu rozdziału). Kroki 13, 14, 19, 20 i 29 to klikanie, opisane niżej.
+Numery zgadzają się z ramkami na zrzutach ([lista na końcu rozdziału](#zrzuty)). Kroki 13, 14, 19, 20 i 29 to klikanie, opisane niżej.
 
 ```bash
 # --- w Kali ---
@@ -106,6 +106,12 @@ Najpierw sprawdzam, czy Kali w ogóle ma „otwarte drzwi”.
 - `systemctl is-enabled ssh` → **`disabled`**: nie włączy się też sama po restarcie. Kali tak ma domyślnie ([polityka Kali](https://www.kali.org/docs/policy/kali-linux-network-service-policy/)); sprawdzam, bo łatwo ją kiedyś włączyć „na chwilę” i zapomnieć.
 - `sysctl net.ipv4.ip_forward` → **`= 0`**: Kali nie przekazuje pakietów z karty na kartę. Gdyby przekazywał (`1`), ktoś z sieci domowej mógłby przez Kali dostać się do zamkniętej sieci `labnet` z celowo dziurawymi aplikacjami.
 
+> ℹ️ **Zrzuty z tego rozdziału są powtórką.** Zrobiłem je wieczorem (ok. 18:07), powtarzając te same komendy na gotowym już labie. Dlatego na zrzucie 5 `apt` pisze `ufw is already the newest version` zamiast instalować, krok 6 (`ufw enable`) pominąłem, bo firewall już działał, a godziny i drobne liczby (czas startu, zajęta pamięć) różnią się od tych w tekście. Tam, gdzie powtórka wyszła inaczej niż za pierwszym razem, opisuję to przy zrzucie.
+
+![Kali: SSH wyłączone, ip_forward = 0, ufw już zainstalowany (kroki 1–5)](../screenshots/2026-10-10-kali-zabezpieczenie/01-kali-ssh-ufw-instalacja.png)
+
+Na zrzucie zielone ramki to oczekiwane wyniki: `inactive`, `disabled`, `= 0`. Przy kroku 5 `apt` niczego nie instaluje, bo `ufw` jest już na miejscu; lista `no longer required` jest ta sama co za pierwszym razem.
+
 ### 4–7. Firewall `ufw`
 
 To ten sam prosty firewall co na Raspberry ([02c, część 5](02c-ssh-hardening.md#część-5-firewall-ufw)). Na Kali nie był zainstalowany.
@@ -125,11 +131,17 @@ Co znaczą te trzy słowa:
 
 Odpowiedzi na połączenia, które Kali sam zaczął (np. strona DVWA odsyłająca treść), wracają normalnie. `ufw` pamięta, kto zaczął rozmowę.
 
+![ufw status verbose i ping do cele (kroki 7–8!)](../screenshots/2026-10-10-kali-zabezpieczenie/02-kali-ufw-ping.png)
+
+Ramka 7: `Status: active` i trzy domyślne zasady z tabeli wyżej. `Logging: on (low)` znaczy, że `ufw` zapisuje odrzucone próby w logu systemowym (na Kali: `sudo journalctl -k | grep UFW`). `New profiles: skip` dotyczy profili aplikacji instalowanych później: nie są włączane same.
+
 > ℹ️ **Na później (Etap 5):** w niektórych ćwiczeniach DVWA to cel łączy się z powrotem do Kali (np. `nc -lvnp 4444` na Kali). Wtedy otworzę port **tylko od strony `labnet`**: `sudo ufw allow in on eth0 to any port 4444`. Karta mostkowana zostaje zamknięta.
 
 ### 8. Ruch wychodzący dalej działa
 
 `ping -c 2 10.10.10.10`. Za pierwszym razem: `Destination Host Unreachable` od `10.10.10.5`, czyli od samego Kali. Za drugim: 2 odpowiedzi w ~1–2 ms. Pierwsza próba nie była winą firewalla; opis w [❗ Wpadkach](#-wpadki).
+
+Na zrzucie (żółte ramki 8!) widać właśnie tę nieudaną próbę. Przy powtórce `cele` była **wyłączona** (stan „Wyłączona” na zrzucie 12), więc wynik wyszedł ten sam co rano: `Destination Host Unreachable` od `10.10.10.5`. Kali pyta w sieci „kto ma adres 10.10.10.10?” (ARP), nikt nie odpowiada, więc to sam Kali zgłasza, że celu nie ma. Firewall tu nic nie blokuje: gdyby blokował ruch wychodzący, `ping` napisałby `Operation not permitted`.
 
 ### 9. Czy na Kali nie leży klucz do Raspberry
 
@@ -142,6 +154,13 @@ Odpowiedzi na połączenia, które Kali sam zaczął (np. strona DVWA odsyłają
 | `agent/` | folder, w którym nowsze wersje SSH trzymają połączenie z *ssh-agentem* (programem pamiętającym odblokowane klucze) |
 
 Nie ma plików `id_ed25519` ani `id_rsa`, czyli **kluczy prywatnych**. Gdyby ktoś przejął Kali, nie znalazłby tu niczego, co otwiera `honeypi`. Tak ma zostać ([04b, tabela „Co mógłby zrobić”](04b-sieci-virtualbox.md#co-mógłby-zrobić-po-przejęciu-kali)).
+
+![~/.ssh bez kluczy prywatnych, strefa Europe/Warsaw (kroki 9–11)](../screenshots/2026-10-10-kali-zabezpieczenie/03-kali-ssh-strefa-czasu.png)
+
+W ramce 10 zamiast `set-timezone` jest samo `timedatectl`: strefa była już ustawiona, więc pokazuję jej stan. Dwie linijki warte uwagi:
+
+- `Time zone: Europe/Warsaw (CEST, +0200)`: to jest wynik kroku 10,
+- `System clock synchronized: no` i `NTP service: inactive`: Kali sam nie synchronizuje zegara z serwerem czasu. Czas bierze z VirtualBoxa, który podaje mu zegar Windowsa, więc w praktyce się zgadza (porównaj z `Universal time` i godziną na Raspberry). Przy zestawianiu ataku z alertem w Etapie 4 sprawdzę, czy różnica nie przekracza sekundy.
 
 ### 10–11. Strefa czasowa
 
@@ -164,9 +183,17 @@ Dwie rzeczy warte zapamiętania z tego wyniku:
 - **`Connect Scan`.** `nmap` bez `sudo` robi skan „grzeczny”: przy każdym porcie próbuje nawiązać pełne połączenie, jak zwykły program. Z `sudo` robi **skan SYN**: zaczyna połączenie i go nie kończy, szybciej i mniej widocznie. Różnicę sprawdzę w Etapie 4 na logach Suricaty.
 - **`kali.home`.** Router sam podpowiedział nazwę urządzenia. Każdy, kto przeskanuje moją sieć, zobaczy maszynę o nazwie „kali”, czyli od razu wie, czym jest. Nic nie jest przez to otwarte, ale nazwa zdradza informację. Pomysł na później: nijaka nazwa (`hostnamectl set-hostname`).
 
+![Raspberry skanuje Kali: wszystkie porty filtered, 201,40 s (krok 12)](../screenshots/2026-10-10-kali-zabezpieczenie/04-raspberry-nmap-kali.png)
+
+Zamazane: adres Kali (w komendzie i dwa razy w wyniku) oraz adres IPv6 w `Last login`. Środkowa część zrzutu to raporty postępu (`Stats: … Connect Scan Timing: About 17.50% done`), które `nmap` wypisuje sam przy długim skanie: widać, że w 3 minuty przeszedł ledwie przez tysiąc portów, bo na każdy czeka do limitu. Wynik powtórki jest identyczny jak pierwszy, co do setnej sekundy: `201.40 seconds`.
+
 ### 13. Snapshot „Kali zabezpieczony (ufw, SSH off, CEST)”
 
 `sudo poweroff`, potem w VirtualBoxie: Migawki → Zrób. Powstał pod snapshotem „Kali 2026.2 czysty po aktualizacji” z [04c, krok 15](04c-instalacja-kali-i-celow.md#15-snapshot). Przy „Aktualny stan” VirtualBox dopisał „(zmieniony)”: tak oznacza bieżący stan, gdy cokolwiek różni się od chwili zdjęcia. Snapshot jest zapisany.
+
+![Snapshot Kali zabezpieczony (ufw, SSH off, CEST) w VirtualBoxie (krok 13)](../screenshots/2026-10-10-kali-zabezpieczenie/05-kali-snapshot.png)
+
+Drzewko pokazuje kolejność: najpierw „Kali 2026.2 czysty po aktualizacji” (00:51), pod nim „Kali zabezpieczony” (13:36), a pod nim bieżący stan. Powrót do któregoś z nich to zaznaczenie go i **Przywróć**.
 
 ---
 
@@ -184,6 +211,8 @@ Po starcie `cele` z nowego snapshotu konsola przestała reagować: nie dało si�
 
 Procesor nr 1 maszyny przez **6 minut** nie dostał od Windowsa ani chwili czasu, około 9 minut po starcie. Ważne: tym razem **pracowałem przy komputerze**. Rano można było podejrzewać uśpiony PC ([04d, krok 32](04d-docker-dvwa-juice-shop.md#32-ostrzeżenia-soft-lockup-na-cele)); teraz to odpada. Problem leży po stronie Windowsa, który nie przydziela maszynie procesora.
 
+> ℹ️ Zrzutów zawieszenia w repo nie ma: po zmianie na 1 procesor lockup już się nie powtarza, więc przy powtórce nie było czego sfotografować. Komunikat jest przepisany wyżej co do znaku.
+
 ### 15. Ile rdzeni ma komputer
 
 Menedżer zadań (`Ctrl+Shift+Esc`) → Wydajność → Procesor:
@@ -199,6 +228,10 @@ A maszyny chciały: Kali 2 + `cele` 2 = **4 procesory, czyli wszystko**. Windows
 
 **Zasada:** suma procesorów włączonych naraz maszyn powinna być **mniejsza** niż liczba rdzeni komputera. Co najmniej jeden rdzeń zostaje dla Windowsa.
 
+![Menedżer zadań: i5-7600K, 4 rdzenie, 4 procesory logiczne (krok 15)](../screenshots/2026-10-10-kali-zabezpieczenie/06-menedzer-zadan-cpu.png)
+
+Zrzut jest złożony z dwóch kawałków okna Menedżera zadań: nagłówka z nazwą procesora i tabeli spod wykresu. Ramka zielona: **Rdzenie 4** i **Procesory logiczne 4**. Gdy te dwie liczby są równe, procesor nie ma Hyper-Threadingu, czyli każdy rdzeń wykonuje jeden wątek naraz.
+
 ### 16–18. Czy VirtualBox działa w wolnym trybie
 
 | Komenda | Wynik | Co znaczy |
@@ -211,9 +244,15 @@ A maszyny chciały: Kali 2 + `cele` 2 = **4 procesory, czyli wszystko**. Windows
 
 Hyper-V wyłączyłem dzień wcześniej ([07](07-skan-wlasnego-pc.md)), ale to wyłączyło tylko funkcję do tworzenia maszyn Hyper-V. Hypervisor zostaje, bo potrzebuje go Integralność pamięci.
 
+![PowerShell: hypervisor wykryty, VBS = 2, usługa 2 = Integralność pamięci (kroki 16–18)](../screenshots/2026-10-10-kali-zabezpieczenie/07-powershell-hypervisor-vbs.png)
+
 ### 19. Żółw na pasku stanu
 
 W prawym dolnym rogu okna `cele`, na pasku małych ikonek, zamiast niebieskiego „V” stoi **zielony żółw**. Tak VirtualBox pokazuje, że działa przez hypervisor Windowsa (tryb NEM). To potwierdza wyniki 16–18.
+
+![Zielony żółw na pasku stanu okna cele (krok 19), powiększony 3×](../screenshots/2026-10-10-kali-zabezpieczenie/08-zolw.png)
+
+Wycinek prawego dolnego rogu okna `cele`, powiększony 3 razy. Pozostałe ikonki to po kolei: dysk, napęd CD, dźwięk, sieć, USB, foldery współdzielone, ekran, nagrywanie; po żółwiu: integracja myszy i przechwytywanie klawiatury. **Right Control** to klawisz *Host*, którym wychodzi się z okna maszyny.
 
 ### 20. Naprawa: `cele` dostaje 1 procesor i 2048 MB
 
@@ -224,10 +263,16 @@ Przy wyłączonej `cele`: Ustawienia → System:
 
 Przy okazji widać tam *OS Version: Ubuntu 25.04 (Plucky Puffin)*. VirtualBox 7.2.14 nie zna jeszcze 26.04 i wybrał najbliższą wersję. To tylko etykieta z domyślnymi ustawieniami, na działanie nie wpływa.
 
+> ℹ️ Zrzutu ustawień „przed” (4096 MB) w repo nie ma: przy powtórce `cele` miała już 1 procesor i 2048 MB. Stan „po” widać w kroku 21–22.
+
 ### 21–22. Sprawdzenie w `cele`
 
 - `nproc` → **`1`**: system widzi jeden procesor,
 - `free -h` → `total 1.6Gi`, `used 618Mi`, `available 1.0Gi`. Spodziewałem się ok. 1,9 GiB; brakujące ~300 MB Ubuntu domyślnie rezerwuje na **jądro awaryjne** (*crashkernel*): mały zapasowy system, który przy awarii głównego jądra zapisuje raport. `free` tej rezerwy nie liczy.
+
+![cele: nproc = 1, free -h total 1.6Gi (kroki 21–22)](../screenshots/2026-10-10-kali-zabezpieczenie/09-cele-nproc-free.png)
+
+Przy powtórce `used` wyszło 643 MiB, a `available` 999 MiB, czyli prawie tyle samo co za pierwszym razem: Docker z trzema kontenerami zajmuje stałą porcję pamięci. Żółta ramka 26! u góry to te same ostrzeżenia `vmwgfx` co w kroku 26: pojawiają się przy każdym starcie, opis niżej.
 
 ### Wynik testu i decyzja
 
@@ -252,6 +297,8 @@ Przy okazji widać tam *OS Version: Ubuntu 25.04 (Plucky Puffin)*. VirtualBox 7.
 
 Przy każdym starcie `cele` stała na tej linijce z licznikiem `(21s / no limit)` i dopiero po ok. 2 minutach pokazywała logowanie.
 
+> ℹ️ Zrzutu tej linijki (14) nie ma: po kroku 24 już się nie pojawia, a odtwarzanie problemu tylko dla zdjęcia nie jest warte zepsucia konfiguracji.
+
 **Co to jest:** `systemd-networkd-wait-online` przy starcie czeka, aż sieć będzie „gotowa”, żeby programy, które od razu łączą się z siecią, nie wywaliły się na starcie. Na zwykłym serwerze to ma sens. W `cele` celowo nie ma bramy ani internetu ([04d, krok 19](04d-docker-dvwa-juice-shop.md#19-stały-adres-bez-bramy)), więc ten moment może nie nadejść i usługa czeka do własnego limitu (domyślnie 2 minuty). `no limit` w komunikacie dotyczy samego zadania; program w środku ma swój limit i po nim się poddaje.
 
 ### 24–25. `optional: true`
@@ -272,6 +319,10 @@ network:
 
 `sudo netplan generate` nic nie wypisał. U `netplan` brak komunikatu znaczy, że plik jest poprawny.
 
+![Plik 01-labnet.yaml z optional: true i netplan generate bez błędów (kroki 24–25)](../screenshots/2026-10-10-kali-zabezpieczenie/10-netplan-optional.png)
+
+Przy powtórce zamiast `nano` użyłem `sudo cat`: pokazuje plik, ale niczego nie zmienia, więc nie da się przypadkiem zepsuć wcięć. Zielona ramka: dopisana linijka `optional: true`, wcięta tak samo jak `dhcp4` i `addresses`. Żółta ramka 24!: literówka w haśle do `sudo`, opis w [❗ Wpadkach](#-wpadki).
+
 ### 26–28. Restart i sprawdzenie
 
 - Po `sudo reboot` linijki `wait-online` już nie było.
@@ -279,9 +330,17 @@ network:
 - `ip -br a` → `enp0s3 UP 10.10.10.10/24`: adres bez zmian.
 - `systemd-analyze` → `Startup finished in 1.411s (kernel) + 3.406s (initrd) + 13.119s (userspace) = 17.937s`. **Start trwa 18 sekund** zamiast ponad dwóch minut.
 
+![cele po restarcie: ostrzeżenia vmwgfx, adres 10.10.10.10, start w 18,9 s (kroki 26–28)](../screenshots/2026-10-10-kali-zabezpieczenie/11-cele-szybki-start.png)
+
+Na zrzucie z powtórki start trwał **18,919 s**, sekundę dłużej niż za pierwszym razem; takie wahania są normalne. Pozostałe karty z `ip -br a` to sieci Dockera opisane w [04d, krok 21](04d-docker-dvwa-juice-shop.md#21-sprawdzenie). Adresy IPv6 (`fe80::…`) są zamazane, bo zawierają adresy MAC kart.
+
 ### 29. Snapshot „cele czyste (1 CPU, bez czekania na sieć)”
 
 `sudo poweroff`, potem Migawki → Zrób. To teraz aktualny punkt powrotu dla `cele`: Docker, obie aplikacje, baza DVWA, `labnet`, 1 procesor, szybki start.
+
+![Drzewko snapshotów cele z nowym „cele czyste (1 CPU, bez czekania na sieć)” (krok 29)](../screenshots/2026-10-10-kali-zabezpieczenie/12-cele-snapshoty.png)
+
+Drzewko ma teraz trzy poziomy: „cele z Dockerem, przed labnet” (11:36) → „cele czyste (DVWA z bazą)” (13:04) → „cele czyste (1 CPU, bez czekania na sieć)” (13:43). Każdy kolejny jest zbudowany na poprzednim, więc nie można usunąć starszego, nie tracąc zmian z nowszych. Przy `cele` po lewej VirtualBox pokazuje w nawiasie nazwę ostatniego snapshotu.
 
 ---
 
@@ -326,32 +385,33 @@ network:
 | Więcej RAM-u nie pomogło (krok 20) | po pierwszym zawieszeniu `cele` dostała 4096 MB zamiast 2048 MB, a dalej się zawieszała | zawieszenia brały się z braku **czasu procesora**, nie pamięci; `cele` używała ok. 650 MB | z powrotem 2048 MB, za to 1 procesor | zanim coś zmienię, czytam, o czym mówi błąd: `CPU#1 stuck` to procesor. Dokładanie zasobów „na ślepo” może nawet zaszkodzić, bo zabiera je gospodarzowi |
 | Moja zapowiedź `1.9Gi` się nie sprawdziła (krok 22) | `free -h` → `total 1.6Gi` | Ubuntu rezerwuje ok. 300 MB na jądro awaryjne (*crashkernel*) | nic; wszystko w porządku | „brakująca” pamięć to często rezerwa jądra, nie usterka |
 | 2 minuty czekania na sieć przy starcie (krok 23) | `Job systemd-networkd-wait-online.service/start running (21s / no limit)` | sieć bez bramy i internetu nigdy nie wygląda na „gotową”, więc usługa czeka do swojego limitu | `optional: true` w `01-labnet.yaml` | w sieciach odciętych od świata kartę oznaczam jako opcjonalną, żeby start na nią nie czekał |
+| Złe hasło przy `sudo cat` (krok 24, powtórka) | `sudo: Authentication failed, try again.` (zrzut 10, żółta ramka 24!) | literówka w haśle (znaków nie widać) | drugie podejście | to samo co w [04d, krok 19](04d-docker-dvwa-juice-shop.md#-wpadki): przy pierwszym `sudo` w sesji najpierw `sudo true` |
 | `vmwgfx … unsupported hypervisor` (krok 26) | trzy linijki `*ERROR*` na początku ekranu | sterownik grafiki wykrył VirtualBoxa pod hypervisorem Windowsa | nic | `ERROR` w logu startu nie zawsze dotyczy czegoś, czego używam; serwer bez pulpitu grafiki nie potrzebuje |
 
 ---
 
-## Zrzuty do dodania
+## Zrzuty
 
-Zrzuty z tego rozdziału czekają na obróbkę według [zasad z CLAUDE.md](../CLAUDE.md#zrzuty-ekranu-screenshots) i trafią do `screenshots/2026-10-10-kali-zabezpieczenie/`. Plan:
+Folder [`screenshots/2026-10-10-kali-zabezpieczenie/`](../screenshots/2026-10-10-kali-zabezpieczenie/). Zrzuty to powtórka komend wieczorem 10.10 (opis przy kroku 1–3).
 
-| Plik | Kroki | Co zamazać / przyciąć |
+| Plik | Kroki | Zamazane / uwagi |
 |---|---|---|
-| `01-kali-ssh-ufw-instalacja.png` | 1–5 | przyciąć pasek innego okna z lewej |
-| `02-kali-ufw-ping.png` | 6–8 (8! żółta ramka przy pierwszym pingu) | przyciąć do terminala, bez paska Kali i VirtualBoxa |
+| `01-kali-ssh-ufw-instalacja.png` | 1–5 | przycięty pasek innego okna |
+| `02-kali-ufw-ping.png` | 7, 8! | — |
 | `03-kali-ssh-strefa-czasu.png` | 9–11 | — |
-| `04-raspberry-nmap-kali.png` | 12 | **adres `fe80::…` w `Last login`** i **adres Kali** (w komendzie i w wyniku dwa razy) |
+| `04-raspberry-nmap-kali.png` | 12 | adres Kali (3×), IPv6 w `Last login` |
 | `05-kali-snapshot.png` | 13 | — |
-| `06-cele-zawieszona.png`, `07-cele-lockup-361s.png` | 14 (czerwone ramki) | przyciąć pasek innego okna z lewej |
-| `08-menedzer-zadan-cpu.png` | 15 | przyciąć do nazwy procesora i tabeli na dole |
-| `09-powershell-hypervisor-vbs.png`, `10-powershell-hvci.png` | 16–18 | przyciąć tło pulpitu |
-| `11-zolw.png` | 19 | wycinek prawego dolnego rogu okna `cele`, powiększony |
-| `12-cele-ustawienia-przed.png` | 20 (4096 MB, etykieta Ubuntu 25.04) | — |
-| `13-cele-nproc-free.png` | 21–22 | — |
-| `14-cele-wait-online.png` | 23 | przyciąć pasek innego okna z lewej |
-| `15-netplan-optional.png` | 24–25 | — |
-| `16-cele-szybki-start.png` | 26–29 | **adresy `fe80::…` w wyniku `ip -br a`** |
+| `06-menedzer-zadan-cpu.png` | 15 | złożony z nagłówka i tabeli |
+| `07-powershell-hypervisor-vbs.png` | 16–18 | — |
+| `08-zolw.png` | 19 | wycinek paska stanu, powiększony 3× |
+| `09-cele-nproc-free.png` | 21–22 (26!) | — |
+| `10-netplan-optional.png` | 24, 24!, 25 | `cat` zamiast `nano` |
+| `11-cele-szybki-start.png` | 26!–28 | adresy IPv6 |
+| `12-cele-snapshoty.png` | 29 | — |
 
-Do folderu [`2026-10-10-cele-docker/`](../screenshots/2026-10-10-cele-docker/) dochodzi jeszcze `25-snapshot-cele-czyste.png` (snapshot z [04d, krok 33](04d-docker-dvwa-juice-shop.md#33-wyłączenie-i-snapshot-cele-czyste-dvwa-z-bazą), przycięty bez tła pulpitu).
+Bez zrzutu: zawieszenie i lockup z kroku 14, ustawienia „przed” z kroku 20 i linijka `wait-online` z kroku 23. Wszystkie trzy usterki były już naprawione przy powtórce, a odtwarzanie ich tylko dla zdjęcia nie ma sensu. Jeśli znajdą się oryginalne zrzuty z rana, dojdą jako `13`–`15`.
+
+Do [04d](04d-docker-dvwa-juice-shop.md#33-wyłączenie-i-snapshot-cele-czyste-dvwa-z-bazą) doszedł `25-snapshot-cele-czyste.png` (snapshot z kroku 33).
 
 ---
 
