@@ -7,6 +7,20 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Docker, DVWA i Juice Shop na `cele` / Docker, DVWA and Juice Shop on the target VM
+
+🇵🇱 Na `cele` Docker 29.9.0 z oficjalnego repozytorium; Ubuntu 26.04 (`resolute`) jest już w nim obsługiwane. W konsoli VirtualBoxa nie da się wklejać, więc przekierowałem port 2201 → 22 w NAT (tylko z `127.0.0.1`) i dalej pracowałem przez SSH z PowerShella. DVWA z `compose.yml` autora z dwiema zmianami: port na wszystkich kartach zamiast tylko `127.0.0.1` (inaczej Kali by go nie zobaczył) i `pull_policy: missing` (inaczej start bez internetu by się wywalił). Juice Shop przez `docker run`. Trzy kontenery `Up`, DVWA odpowiada `302`, Juice Shop `200`. Następne: stały adres 10.10.10.10 i przełączenie karty na `labnet`.
+
+🇬🇧 Docker 29.9.0 on the target VM from Docker's official repo, which already supports Ubuntu 26.04 (`resolute`). The VirtualBox console can't paste, so I forwarded NAT port 2201 → 22 (from `127.0.0.1` only) and worked over SSH from PowerShell. DVWA from the author's `compose.yml` with two edits: listen on all interfaces instead of `127.0.0.1` only (otherwise Kali can't reach it) and `pull_policy: missing` (otherwise it fails to start offline). Juice Shop via `docker run`. Three containers up, DVWA returns `302`, Juice Shop `200`. Next: static 10.10.10.10 and switching the adapter to `labnet`.
+
+**Wpadki / Gotchas:** literówki przy przepisywaniu (`downolad`, `dev` zamiast `deb`, `sources.lisat.d`, `udpate`); `Connection refused` przed zatwierdzeniem reguły portu; odcisk klucza SSH zaakceptowany bez porównania; zgubione `docker compose up -d` przy wklejaniu kilku linijek; timeout Docker Hub przy Juice Shop, naprawiony osobnym `docker pull`. / Typos from retyping; `Connection refused` before the port rule was saved; SSH fingerprint accepted without comparing; a lost `docker compose up -d` when pasting several lines; a Docker Hub timeout on Juice Shop, fixed with a separate `docker pull`.
+
+**Lekcja / Lesson:** grupa `docker` to w praktyce root. Na celowo słabej maszynie w zamkniętej sieci jest OK, na Raspberry nie. / The `docker` group is effectively root: fine on a deliberately weak isolated VM, not on the Pi.
+
+Opis / Walkthrough: [docs/04d](../docs/04d-docker-dvwa-juice-shop.md) · Zrzuty / Screenshots: [`../screenshots/2026-10-10-cele-docker/`](../screenshots/2026-10-10-cele-docker/)
+
+---
+
 ## 2026-10-10 — Kali i maszyna z celami / Kali and the target VM
 
 🇵🇱 Kali 2026.2 z gotowego obrazu dla VirtualBoxa: suma SHA-256 zgodna z kali.org, 4 GB RAM, karta 1 w sieci wewnętrznej `labnet`, karta 2 mostkowana. Hasło zmienione od razu, system zaktualizowany (jądro 7.1.5), Kali widzi Raspberry (ping 4/4), rezerwacja DHCP w routerze, snapshot czystego systemu. Potem druga maszyna `cele`: Ubuntu Server 26.04.1 LTS, 2 GB RAM, dysk 25 GB, na razie na NAT, z OpenSSH. Jutro Docker z DVWA i Juice Shop i przełączenie na `labnet`.

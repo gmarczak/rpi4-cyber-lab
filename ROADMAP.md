@@ -48,6 +48,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] Dwie karty sieciowe: Internal + Bridged / Two network adapters — [docs/04b](docs/04b-sieci-virtualbox.md)
 - [ ] Kali zabezpieczony: SSH wyłączone, `ufw`, skan z Raspberry bez otwartych portów / Kali hardened: SSH off, `ufw`, no open ports from the Pi — [docs/04b, obrona](docs/04b-sieci-virtualbox.md#jak-się-bronić)
 - [x] Maszyna `cele` (Ubuntu Server 26.04.1) zainstalowana / Target VM installed (2026-10-10) — [docs/04c, część 2](docs/04c-instalacja-kali-i-celow.md#część-2-maszyna-cele)
+- [x] Docker 29.9 na `cele`; DVWA i Juice Shop działają w kontenerach / Docker on the target VM; DVWA and Juice Shop running in containers (2026-10-10) — [docs/04d](docs/04d-docker-dvwa-juice-shop.md)
 - [ ] DVWA tylko w sieci wewnętrznej / DVWA on the internal network only
 - [ ] Juice Shop tylko w sieci wewnętrznej / Juice Shop on the internal network only
 - [ ] Podsumowanie etapu w `docs/etap-3-podsumowanie.md` / Stage summary

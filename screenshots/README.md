@@ -54,6 +54,15 @@ Drop build screenshots and photos here, e.g.:
   - `29`–`42`: instalator Ubuntu Server, ostrzeżenie „soft lockup”, koniec instalacji (MAC i IPv6 zamazane) / Ubuntu Server installer, soft lockup warning, install complete (MAC and IPv6 blurred)
   - `43`–`44`: pierwszy start `cele`: klucze SSH, `hostnamectl`, `ip a` (odciski kluczy, Machine ID, MAC i IPv6 zamazane) / first boot: SSH host keys, `hostnamectl`, `ip a` (key fingerprints, machine ID, MAC and IPv6 blurred)
 
+- [`2026-10-10-cele-docker/`](2026-10-10-cele-docker/): Docker, DVWA i Juice Shop na maszynie `cele`, ramki numerowane jak w [docs/04d](../docs/04d-docker-dvwa-juice-shop.md) / Docker, DVWA and Juice Shop on the target VM, numbered as in docs/04d
+  - `01`: koniec `apt full-upgrade` / end of `apt full-upgrade`
+  - `02`–`04`: klucz i repozytorium Dockera, z literówkami (`downolad`, `dev`, `lisat.d`, `udpate`) i poprawką / Docker key and repo, with typos and the fix
+  - `05`: przekierowanie portu 2201 → 22 w NAT VirtualBoxa / NAT port forwarding 2201 → 22
+  - `06`: SSH z PowerShella i instalacja Dockera (odcisk klucza ED25519 i IPv6 zamazane) / SSH from PowerShell and Docker install (ED25519 fingerprint and IPv6 blurred)
+  - `07`–`08`: grupa `docker`, ponowne logowanie, `hello-world` (IPv6 zamazany) / `docker` group, re-login, `hello-world` (IPv6 blurred)
+  - `09`: DVWA: `git clone`, `sed`, `docker compose pull`; timeout przy Juice Shop / DVWA clone, edit, pull; Juice Shop timeout
+  - `10`: DVWA i Juice Shop działają: `docker ps`, `curl` / both targets running
+
 ## ⚠️ Zanim wrzucisz / Before committing
 
 Zrzuty terminala przycinamy do samego okna, bez tła pulpitu. / Terminal screenshots are cropped to the window, without the desktop background.
