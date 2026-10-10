@@ -18,6 +18,8 @@ Teorię sieci (czym jest karta mostkowana, wewnętrzna i NAT) opisuje [04b](04b-
 | Kali | Kali Linux 2026.2, jądro 7.1.5 | 4096 MB / 2 / 80 GB dynamiczny | 1: wewnętrzna `labnet` · 2: mostkowana (Killer E2500) | ✅ zaktualizowany, widzi Raspberry, snapshot |
 | `cele` | Ubuntu Server 26.04.1 LTS, jądro 7.0.0 | 2048 MB / 2 / 25 GB dynamiczny | 1: NAT (tymczasowo, do instalacji) | ✅ zainstalowany, czeka na Dockera i przełączenie na `labnet` |
 
+> ℹ️ **Później zmienione:** `cele` ma teraz **1 procesor** (przy 2 maszyny zabierały wszystkie 4 rdzenie PC i `cele` się zawieszała) i kartę w `labnet`. Szczegóły: [04e, część 2](04e-zabezpieczenie-kali-i-stabilnosc.md#część-2-śledztwo--dlaczego-cele-się-zawiesza).
+
 Wersje programów na PC: VirtualBox 7.2.14 (był już zainstalowany; najnowszy w dniu instalacji: 7.2.20), 7-Zip 26.04.
 
 ---
@@ -317,7 +319,7 @@ Machine ID, Boot ID, adres MAC i adresy IPv6 zamazane.
 - [x] Karta `cele` przełączona z NAT na `labnet`; stałe adresy w `labnet` dla `cele` i dla `eth0` w Kali → [04d, części 5–6](04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet)
 - [x] Testy z Kali: ping, `nmap`, obie aplikacje w przeglądarce, `ssh` z porównaniem odcisku klucza; `cele` bez internetu → [04d, część 6](04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
 - [x] Baza DVWA → [04d, część 7](04d-docker-dvwa-juice-shop.md#część-7-baza-dvwa-i-snapshot-cele-czyste)
-- [ ] Snapshot „cele czyste (DVWA z bazą)”
-- [ ] Zabezpieczenie Kali według [04b, obrona](04b-sieci-virtualbox.md#jak-się-bronić)
+- [x] Snapshot „cele czyste (DVWA z bazą)”
+- [x] Zabezpieczenie Kali → [04e](04e-zabezpieczenie-kali-i-stabilnosc.md)
 
 ➡️ Następnie: [04d — Docker, DVWA i Juice Shop na `cele`](04d-docker-dvwa-juice-shop.md)

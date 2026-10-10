@@ -73,6 +73,7 @@ Drop build screenshots and photos here, e.g.:
   - `20`–`21`: DVWA i Juice Shop otwarte w Firefoksie na Kali / DVWA and Juice Shop in Firefox on Kali
   - `22`–`23`: DVWA: strona Setup (Create / Reset Database, brak klucza reCAPTCHA) i pierwsze logowanie z oknem zapisu hasła / DVWA setup page and first login with the save-password prompt
   - `24`: soft lockupy na `cele` (oba procesory po 490 s) i `sudo poweroff`; wynik `ip -br a` z adresami IPv6 przycięty / soft lockups on the target VM and shutdown; the `ip -br a` output with IPv6 cropped out
+- `2026-10-10-kali-zabezpieczenie/` (w przygotowaniu / in progress): zabezpieczenie Kali, śledztwo z zawieszaniem `cele`, start bez czekania na sieć; lista plików i tego, co zamazać, w [docs/04e](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania) / Kali hardening, the freeze investigation, faster boot; file list in docs/04e
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

@@ -2,7 +2,7 @@
 
 Kali i cele ataku stoją w maszynach wirtualnych na komputerze. Wszystko odseparowane od reszty systemu; maszyny można w każdej chwili skasować i postawić od nowa.
 
-> 🛠️ Jak to wyglądało u mnie krok po kroku, ze zrzutami i wpadkami: [04c — Instalacja Kali i maszyny z celami](04c-instalacja-kali-i-celow.md). Docker, DVWA i Juice Shop na `cele`: [04d](04d-docker-dvwa-juice-shop.md).
+> 🛠️ Jak to wyglądało u mnie krok po kroku, ze zrzutami i wpadkami: [04c — Instalacja Kali i maszyny z celami](04c-instalacja-kali-i-celow.md). Docker, DVWA i Juice Shop na `cele`: [04d](04d-docker-dvwa-juice-shop.md). Zabezpieczenie Kali i stabilność labu: [04e](04e-zabezpieczenie-kali-i-stabilnosc.md). Cały etap w jednym pliku: 📋 [podsumowanie Etapu 3](etap-3-podsumowanie.md).
 
 ## 4a. VirtualBox + sieć
 

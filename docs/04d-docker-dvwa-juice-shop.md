@@ -24,7 +24,7 @@ Kolejność jest ważna: wszystko, co trzeba pobrać, pobieram **przed** przeł�
 | Snapshot „cele z Dockerem, przed labnet” | ✅ |
 | Kali w `labnet` pod stałym adresem 10.10.10.5, widzi obie aplikacje | ✅ `nmap -p-`, Firefox |
 | Baza DVWA utworzona, logowanie `admin` / `password` | ✅ `You have logged in as 'admin'` |
-| Snapshot „cele czyste (DVWA z bazą)” | ⏳ po wyłączeniu `cele` |
+| Snapshot „cele czyste (DVWA z bazą)” | ✅ |
 
 ---
 
@@ -322,6 +322,8 @@ Do tej pory adres dawał DHCP od NAT (`10.0.2.15`). W `labnet` nie ma żadnego s
 
 W konfiguracji celowo **nie ma bramy** (`routes`/`gateway`): `cele` zna tylko sieć 10.10.10.0/24 i nie ma którędy wyjść do internetu. To druga warstwa zabezpieczenia, obok samej sieci wewnętrznej.
 
+> ℹ️ **Później dopisane:** `optional: true` pod `dhcp4: false`. Bez tego start `cele` czekał 2 minuty na „gotową” sieć, która bez bramy nigdy taka nie jest ([04e, część 3](04e-zabezpieczenie-kali-i-stabilnosc.md#część-3-start-cele-bez-czekania-na-sieć)).
+
 `netplan generate` sprawdza plik bez stosowania zmian i odpowiada `KONFIG_OK` (zielona ramka). `netplan apply` od razu zerwałby połączenie SSH, więc nowy adres zadziała po restarcie.
 
 Pierwsza próba się nie udała: wkleiłem cały blok naraz, a `sudo` zapytało o hasło w połowie wklejania. Opis w [❗ Wpadkach](#-wpadki) (czerwone ramki 19!). Druga próba, polecenie po poleceniu, przeszła czysto.
@@ -576,8 +578,8 @@ Na razie `cele` działa poprawnie: aplikacje odpowiadały, baza się utworzyła.
 - [x] Kali: stały adres 10.10.10.5 na `eth0` (karta w `labnet`) — część 6
 - [x] Testy z Kali: ping, `nmap` (z lekcją o `-p-`), DVWA i Juice Shop w przeglądarce, `ssh` z porównaniem odcisku klucza — część 6
 - [x] Baza DVWA utworzona, logowanie `admin` / `password` — część 7
-- [ ] Snapshot „cele czyste (DVWA z bazą)” — część 7, krok 33
-- [ ] Zabezpieczenie Kali według [04b, obrona](04b-sieci-virtualbox.md#jak-się-bronić)
-- [ ] Podsumowanie Etapu 3 w `docs/etap-3-podsumowanie.md`
+- [x] Snapshot „cele czyste (DVWA z bazą)” — część 7, krok 33
+- [x] Zabezpieczenie Kali, koniec zawieszania `cele`, start bez czekania na sieć → [04e](04e-zabezpieczenie-kali-i-stabilnosc.md)
+- [x] [Podsumowanie Etapu 3](etap-3-podsumowanie.md)
 
-➡️ Następnie: [05 — Pierwsze ćwiczenie](05-first-exercise.md)
+➡️ Następnie: [04e — Zabezpieczenie Kali i stabilność labu](04e-zabezpieczenie-kali-i-stabilnosc.md)
