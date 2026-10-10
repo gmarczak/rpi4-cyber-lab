@@ -417,4 +417,4 @@ nmap -Pn ADRES_KALI
 
 **Etap 4: pętla atak–wykrycie**, sedno całego labu. Z Kali skanuję Raspberry (`nmap -sV`, potem z `sudo`, czyli skan SYN) i sprawdzam w logach OpenCanary i Suricaty, czy obrońca to zauważył. Zgodna strefa czasowa Kali i Raspberry ułatwi porównanie godzin. Na koniec własna reguła Suricaty, która łapie coś, co wcześniej przeszło. Plan w [ROADMAP](../ROADMAP.md), instrukcja w [05 — Pierwsze ćwiczenie](05-first-exercise.md).
 
-Poza etapem: decyzja o Windows 10 przed 13.10.2026 (Windows 11 czy PC tylko do labu; na nią wpływa też FACEIT, który na Windows 10 wymaga rozszerzonych aktualizacji ESU) i zrzuty z [04e](04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania) do obrobienia.
+Poza etapem: decyzja o Windows 10 przed 13.10.2026 (Windows 11 czy PC tylko do labu; na nią wpływa też FACEIT, który na Windows 10 wymaga rozszerzonych aktualizacji ESU). Zrzuty z [04e](04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty) dodane 10.10 wieczorem.

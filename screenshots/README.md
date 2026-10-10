@@ -73,7 +73,15 @@ Drop build screenshots and photos here, e.g.:
   - `20`–`21`: DVWA i Juice Shop otwarte w Firefoksie na Kali / DVWA and Juice Shop in Firefox on Kali
   - `22`–`23`: DVWA: strona Setup (Create / Reset Database, brak klucza reCAPTCHA) i pierwsze logowanie z oknem zapisu hasła / DVWA setup page and first login with the save-password prompt
   - `24`: soft lockupy na `cele` (oba procesory po 490 s) i `sudo poweroff`; wynik `ip -br a` z adresami IPv6 przycięty / soft lockups on the target VM and shutdown; the `ip -br a` output with IPv6 cropped out
-- `2026-10-10-kali-zabezpieczenie/` (w przygotowaniu / in progress): zabezpieczenie Kali, śledztwo z zawieszaniem `cele`, start bez czekania na sieć; lista plików i tego, co zamazać, w [docs/04e](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania) / Kali hardening, the freeze investigation, faster boot; file list in docs/04e
+  - `25`: drzewko snapshotów `cele`, ramka 33 na „cele czyste (DVWA z bazą)” / target VM snapshot tree, frame 33 on the clean snapshot
+- [`2026-10-10-kali-zabezpieczenie/`](2026-10-10-kali-zabezpieczenie/): zabezpieczenie Kali, śledztwo z zawieszaniem `cele`, start bez czekania na sieć, ramki numerowane jak w [docs/04e](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty); powtórka komend wieczorem 10.10 / Kali hardening, the freeze investigation, faster boot, numbered as in docs/04e; commands re-run on the evening of 10 Oct
+  - `01`–`03`: Kali: SSH wyłączone, `ip_forward = 0`, `ufw`, ping do wyłączonej `cele` (8!), `~/.ssh` bez kluczy, strefa CEST / SSH off, no forwarding, `ufw`, ping to the powered-off target (8!), no private keys, CEST
+  - `04`: Raspberry skanuje Kali: 1000 portów `filtered` (adres Kali i IPv6 zamazane) / the Pi scans Kali: 1000 filtered ports (Kali address and IPv6 blurred)
+  - `05`: snapshot „Kali zabezpieczony” / Kali hardened snapshot
+  - `06`–`08`: Menedżer zadań (4 rdzenie), PowerShell (hypervisor, VBS, HVCI), żółw na pasku stanu powiększony 3× / Task Manager, PowerShell VBS checks, the turtle icon zoomed 3×
+  - `09`: `cele`: `nproc` = 1, `free -h` / one vCPU, memory
+  - `10`–`11`: `optional: true` w netplan, restart w 18,9 s (IPv6 zamazane) / netplan `optional: true`, 18.9 s boot (IPv6 blurred)
+  - `12`: drzewko snapshotów `cele` / target VM snapshot tree
 
 ## ⚠️ Zanim wrzucisz / Before committing
 
