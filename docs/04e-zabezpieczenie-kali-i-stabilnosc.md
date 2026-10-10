@@ -220,7 +220,7 @@ W prawym dolnym rogu okna `cele`, na pasku małych ikonek, zamiast niebieskiego 
 Przy wyłączonej `cele`: Ustawienia → System:
 
 - **Procesor → 1**. `cele` to mały serwer: dwie strony WWW i baza. Kali zostaje z 2, bo na nim działa Firefox i `nmap`. Razem 3, więc jeden rdzeń zostaje dla Windowsa,
-- **Płyta główna → 2048 MB**. Było 4096 MB, choć `cele` używała ok. 650 MB. Windows dostaje więcej wolnej pamięci.
+- **Płyta główna → 2048 MB**. Wcześniej sam podniosłem to do 4096 MB, bo po pierwszym zawieszeniu myślałem, że `cele` ma za mało pamięci. Nie pomogło, i nie mogło: `cele` używała ok. 650 MB, a komunikat mówił o **procesorze** (`CPU#1 stuck`), nie o pamięci. Wracam do 2048 MB, żeby Windows miał więcej wolnej pamięci. Opis w [❗ Wpadkach](#-wpadki).
 
 Przy okazji widać tam *OS Version: Ubuntu 25.04 (Plucky Puffin)*. VirtualBox 7.2.14 nie zna jeszcze 26.04 i wybrał najbliższą wersję. To tylko etykieta z domyślnymi ustawieniami, na działanie nie wpływa.
 
@@ -235,10 +235,14 @@ Przy okazji widać tam *OS Version: Ubuntu 25.04 (Plucky Puffin)*. VirtualBox 7.
 
 | Opcja | Plus | Minus | Decyzja |
 |---|---|---|---|
-| Zostawić Integralność pamięci, `cele` na 1 procesorze | Windows dalej chroniony przed podmianą kodu jądra | VirtualBox wolniejszy (żółw) | ✅ **teraz** |
-| Wyłączyć Integralność pamięci (Zabezpieczenia Windows → Zabezpieczenia urządzenia → Izolacja rdzenia) | VirtualBox szybki, żółw znika | słabsza ochrona Windowsa | jeśli lockupy wrócą |
+| Zostawić Integralność pamięci, `cele` na 1 procesorze | Windows dalej chroniony przed podmianą kodu jądra; działa FACEIT | VirtualBox wolniejszy (żółw) | ✅ **na stałe** |
+| Wyłączyć Integralność pamięci (Zabezpieczenia Windows → Zabezpieczenia urządzenia → Izolacja rdzenia) | VirtualBox szybki, żółw znika | słabsza ochrona Windowsa; **FACEIT może przestać działać** | ❌ odpada |
 
-Na decyzję wpływa też Windows 10, który od 13.10.2026 przestaje dostawać łatki ([notatki z hardeningu PC](07-skan-wlasnego-pc.md)). Jeśli PC zostanie komputerem tylko do labu, wyłączenie Integralności pamięci kosztuje mniej.
+**Dlaczego „na stałe”: FACEIT.** Na tym PC gram z anty-cheatem FACEIT, który wymaga m.in. TPM 2.0, Secure Boot i **VBS** (bez VBS nie działa u nich pewnie IOMMU), a niektórych graczy prosi też o włączenie Integralności pamięci ([FACEIT: wymagania](https://support.faceit.com/hc/en-us/articles/23117181142556), [FACEIT: znane problemy](https://support.faceit.com/hc/en-us/articles/22851956652956-Known-issues-with-Anti-Cheat-Requirements)). Opcje, które włączałem w BIOS-ie dla FACEIT, to najpewniej właśnie to, co uruchamia hypervisor Windowsa. Wyłączenie Integralności pamięci mogłoby więc zepsuć grę, a żółw i tak by pewnie został, bo VBS jest potrzebne niezależnie.
+
+**Wniosek:** na tym komputerze VirtualBox będzie zawsze działał w trybie żółwia. Lab ma się do tego dostosować: **suma procesorów maszyn ≤ 3** (Kali 2 + `cele` 1), a jeśli kiedyś dojdzie trzecia maszyna, Kali też zejdzie do 1 procesora albo nie będą działać wszystkie naraz.
+
+> ℹ️ Ranne lockupy po 377 i 490 s ([04d, krok 32](04d-docker-dvwa-juice-shop.md#32-ostrzeżenia-soft-lockup-na-cele)): nie pamiętam, czy PC wtedy usnął. Mogły mieć tę samą przyczynę co lockup z kroku 14, mogły też wynikać z uśpienia. Po zmianie na 1 procesor nie wróciły.
 
 ---
 
@@ -319,6 +323,7 @@ network:
 | Pierwszy ping do `cele` się nie udał (krok 8) | `From 10.10.10.5 icmp_seq=1 Destination Host Unreachable` | `cele` jeszcze startowała (czekała na sieć, krok 23). Kali sam sobie odpowiedział: pod tym adresem nikt się nie zgłasza | ponowny ping po chwili: 2/2 | „Unreachable” od **własnego** adresu znaczy, że cel milczy. Firewall Kali ruchu wychodzącego nie blokuje |
 | `cele` przestała reagować (krok 14) | nie da się nic wpisać ani kliknąć w maszynie | wirtualny procesor `cele` przez minuty nie dostawał czasu od Windowsa | Maszyna → Wyłącz (ACPI), `Host+H`; maszyna się „obudziła” | zanim wyłączę maszynę na twardo, próbuję grzecznego sygnału ACPI; a przy zawieszeniu sprawdzam najpierw, czy klawiatura w ogóle trafia do okna maszyny |
 | *Soft lockup* 361 s mimo pracy przy PC (krok 14) | `CPU#1 stuck for 361s!` | Kali 2 + `cele` 2 procesory = wszystkie 4 rdzenie, a VirtualBox działał przez hypervisor Windowsa (Integralność pamięci, żółw) | `cele` → 1 procesor i 2048 MB; Integralność pamięci na razie zostaje | suma procesorów maszyn < liczba rdzeni komputera. Diagnozę zaczynam od tego, co widzi gospodarz (Menedżer zadań, `systeminfo`), nie tylko gość |
+| Więcej RAM-u nie pomogło (krok 20) | po pierwszym zawieszeniu `cele` dostała 4096 MB zamiast 2048 MB, a dalej się zawieszała | zawieszenia brały się z braku **czasu procesora**, nie pamięci; `cele` używała ok. 650 MB | z powrotem 2048 MB, za to 1 procesor | zanim coś zmienię, czytam, o czym mówi błąd: `CPU#1 stuck` to procesor. Dokładanie zasobów „na ślepo” może nawet zaszkodzić, bo zabiera je gospodarzowi |
 | Moja zapowiedź `1.9Gi` się nie sprawdziła (krok 22) | `free -h` → `total 1.6Gi` | Ubuntu rezerwuje ok. 300 MB na jądro awaryjne (*crashkernel*) | nic; wszystko w porządku | „brakująca” pamięć to często rezerwa jądra, nie usterka |
 | 2 minuty czekania na sieć przy starcie (krok 23) | `Job systemd-networkd-wait-online.service/start running (21s / no limit)` | sieć bez bramy i internetu nigdy nie wygląda na „gotową”, więc usługa czeka do swojego limitu | `optional: true` w `01-labnet.yaml` | w sieciach odciętych od świata kartę oznaczam jako opcjonalną, żeby start na nią nie czekał |
 | `vmwgfx … unsupported hypervisor` (krok 26) | trzy linijki `*ERROR*` na początku ekranu | sterownik grafiki wykrył VirtualBoxa pod hypervisorem Windowsa | nic | `ERROR` w logu startu nie zawsze dotyczy czegoś, czego używam; serwer bez pulpitu grafiki nie potrzebuje |
