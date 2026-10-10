@@ -28,23 +28,17 @@ sudo apt update && sudo apt full-upgrade -y
 
 Narzędzia na start: **nmap** (co jest w sieci), **Wireshark** (podgląd ruchu), **Burp Suite** (analiza aplikacji WWW).
 
-## 4c. Cel — DVWA
+## 4c. Cele — DVWA i OWASP Juice Shop
 
-```bash
-sudo apt install -y docker.io
-sudo docker run -d -p 80:80 vulnerables/web-dvwa
-```
+Cele stoją na **osobnej maszynie** `cele` (Ubuntu Server), która ma tylko kartę w sieci wewnętrznej `labnet`. Docker jest z oficjalnego repozytorium, DVWA z pliku `compose.yml` autora ([github.com/digininja/DVWA](https://github.com/digininja/DVWA)), Juice Shop z obrazu `bkimminich/juice-shop`.
 
-Otwórz `http://ADRES_CELU`, zaloguj (`admin`/`password`), w zakładce *DVWA Security* ustaw poziom trudności.
+| Aplikacja | Adres z Kali | Logowanie |
+|---|---|---|
+| DVWA | `http://10.10.10.10:4280` | najpierw `setup.php` → *Create / Reset Database*, potem `admin` / `password` |
+| OWASP Juice Shop | `http://10.10.10.10:3000` | bez logowania; panel wyzwań w menu |
 
-> ℹ️ Obraz `vulnerables/web-dvwa` jest stary (działa do nauki). Najnowszą wersję znajdziesz na <https://github.com/digininja/DVWA>.
+Instalacja krok po kroku, ze zrzutami i wpadkami: [04d](04d-docker-dvwa-juice-shop.md).
 
-## 4d. Cel — OWASP Juice Shop
-
-```bash
-sudo docker run -d -p 3000:3000 bkimminich/juice-shop
-```
-
-Otwórz `http://ADRES_CELU:3000`. Ma wbudowany panel wyzwań — od razu widać postępy.
+> ℹ️ Wcześniejsza wersja tego rozdziału proponowała `apt install docker.io` i stary obraz `vulnerables/web-dvwa` na porcie 80. Nie używam ich: obraz od lat nie jest aktualizowany, a autor DVWA wspiera Dockera z oficjalnego repozytorium i własny `compose.yml`.
 
 ➡️ Następnie: [05 — Pierwsze ćwiczenie](05-first-exercise.md)

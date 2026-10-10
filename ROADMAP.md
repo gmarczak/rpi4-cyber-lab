@@ -19,7 +19,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 ## Etap 1: Fundamenty / Foundations ✅ — 📋 [podsumowanie / summary](docs/etap-1-podsumowanie.md)
 
 - [x] Aktualizacja systemu (`sudo apt update && sudo apt full-upgrade -y`) / System update
-- [x] Stały adres IP: rezerwacja DHCP w routerze (FunBox) / Static IP via DHCP reservation (FunBox) — [docs/02d, część 2](docs/02d-network-basics.md#część-2-stały-adres-ip)
+- [x] Stały adres IP: rezerwacja DHCP w routerze (FunBox) / Static IP via DHCP reservation (FunBox) — [docs/02d, część 2](docs/02d-network-basics.md#część-2-stały-adres-ip-rezerwacja-dhcp-w-funboxie)
 - [x] Logowanie kluczem SSH / SSH key login — [docs/02c](docs/02c-ssh-hardening.md)
 - [x] Wyłączone logowanie hasłem i jako root / Password and root login disabled — [docs/02c, część 2](docs/02c-ssh-hardening.md#część-2-wyłączenie-logowania-hasłem)
 - [x] Prawdziwy SSH na porcie 2222, port 22 wolny dla honeypota / Real SSH on port 2222, port 22 free for the honeypot — [docs/02c, część 3](docs/02c-ssh-hardening.md#część-3-prawdziwy-ssh-na-porcie-2222)
@@ -52,6 +52,8 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] `cele` i Kali ze stałymi adresami w `labnet` (10.10.10.10 i 10.10.10.5), `cele` bez internetu / `cele` and Kali with static addresses on `labnet`, `cele` with no internet (2026-10-10) — [docs/04d, części 5–6](docs/04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet)
 - [x] DVWA i Juice Shop widoczne z Kali tylko w sieci wewnętrznej (`nmap`, przeglądarka) / DVWA and Juice Shop reachable from Kali on the internal network only (2026-10-10) — [docs/04d, część 6](docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
 - [x] Test z Kali: `ssh` na `cele` z porównaniem odcisku klucza / Test from Kali: `ssh` to `cele` with a fingerprint check (2026-10-10) — [docs/04d, krok 28](docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
+- [x] Baza DVWA utworzona (*Create / Reset Database*), logowanie `admin` / `password` / DVWA database created, admin login works (2026-10-10) — [docs/04d, część 7](docs/04d-docker-dvwa-juice-shop.md#część-7-baza-dvwa-i-snapshot-cele-czyste)
+- [ ] Snapshot „cele czyste (DVWA z bazą)” / Clean snapshot of the target VM — [docs/04d, krok 33](docs/04d-docker-dvwa-juice-shop.md#33-wyłączenie-i-snapshot-cele-czyste-dvwa-z-bazą)
 - [ ] Podsumowanie etapu w `docs/etap-3-podsumowanie.md` / Stage summary
 
 ## Etap 4: Pętla atak–wykrycie / Attack–detect loop — [docs/05](docs/05-first-exercise.md)

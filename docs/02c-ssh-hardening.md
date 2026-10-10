@@ -104,7 +104,7 @@ ssh grzesiek@honeypi.local
 ssh -o PubkeyAuthentication=no grzesiek@honeypi.local
 ```
 
-![Wyłączenie hasła](../screenshots/2026-10-09-assembly/29-ssh-no-password.png)
+> ℹ️ Zrzut z samego wyłączenia hasła (miał być nr 29) nie trafił do repo. Wynik widać na zrzutach 30 i 31 poniżej.
 
 ![Test z kluczem](../screenshots/2026-10-09-assembly/30-ssh-key-test.png)
 
