@@ -93,6 +93,8 @@ Na kali.org pod kafelkiem VirtualBox jest link **sum**. Wynik z PowerShella był
 ![Suma na kali.org](../screenshots/2026-10-10-kali-cele/06-suma-kali-org.png)
 ![Suma w PowerShellu](../screenshots/2026-10-10-kali-cele/07-suma-powershell.png)
 
+> ℹ️ **Czego suma nie załatwia (poprawka po przeglądzie).** Zgodna suma dowodzi, że plik dotarł **cały i niezmieniony w drodze**. Ale sumę wziąłem z tej samej strony co plik. Gdyby ktoś przejął samą stronę kali.org, podmieniłby i obraz, i sumę, a moje porównanie i tak by się zgodziło. Przed tym chroni dopiero **podpis GPG**: Kali podpisuje plik z sumami (`SHA256SUMS.gpg`) swoim kluczem, a podpisu nie da się podrobić bez tego klucza. Do labu w domu wystarczy suma; w pracy przy narzędziach bezpieczeństwa sprawdza się też podpis.
+
 Pierwsza próba nic nie zwróciła, opis w [❗ Wpadkach](#-wpadki).
 
 ### 4. Wersja VirtualBoxa
@@ -311,10 +313,11 @@ Machine ID, Boot ID, adres MAC i adresy IPv6 zamazane.
 
 ## Co dalej w tym etapie
 
-- [x] Na `cele`: aktualizacja, Docker z oficjalnego repozytorium, DVWA ([github.com/digininja/DVWA](https://github.com/digininja/DVWA)) i OWASP Juice Shop → [04d](04d-docker-dvwa-juice-shop.md)
-- [ ] Karta `cele` przełączona z NAT na `labnet`; stałe adresy w `labnet` dla `cele` i dla `eth0` w Kali → [04d, część 5](04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet-w-toku)
-- [ ] Testy z Kali: ping, `nmap`, obie aplikacje w przeglądarce, `ssh` z porównaniem odcisku klucza; `cele` bez internetu
-- [ ] Snapshot „cele czyste”
+- [x] Na `cele`: aktualizacja, Docker z oficjalnego repozytorium, DVWA i OWASP Juice Shop → [04d, części 1–4](04d-docker-dvwa-juice-shop.md)
+- [x] Karta `cele` przełączona z NAT na `labnet`; stałe adresy w `labnet` dla `cele` i dla `eth0` w Kali → [04d, części 5–6](04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet)
+- [x] Testy z Kali: ping, `nmap`, obie aplikacje w przeglądarce, `ssh` z porównaniem odcisku klucza; `cele` bez internetu → [04d, część 6](04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
+- [x] Baza DVWA → [04d, część 7](04d-docker-dvwa-juice-shop.md#część-7-baza-dvwa-i-snapshot-cele-czyste)
+- [ ] Snapshot „cele czyste (DVWA z bazą)”
 - [ ] Zabezpieczenie Kali według [04b, obrona](04b-sieci-virtualbox.md#jak-się-bronić)
 
 ➡️ Następnie: [04d — Docker, DVWA i Juice Shop na `cele`](04d-docker-dvwa-juice-shop.md)

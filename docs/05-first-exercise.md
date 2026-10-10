@@ -12,9 +12,10 @@ Sedno labu: robisz coś jako atakujący, potem sprawdzasz, co zobaczył obrońca
 
 2. **Obrona (Raspberry):** zajrzyj w logi honeypota i Suricaty:
    ```bash
-   tail -f /var/tmp/opencanary.log
+   sudo tail -f /var/log/opencanary/opencanary.log
    sudo tail -f /var/log/suricata/fast.log
    ```
+   Albo oba naraz skryptem `check-logs.sh` z [03, część 3](03-defender-raspberry.md#część-3-podgląd-alertów--check-logssh). Log honeypota leży w `/var/log/opencanary/`, czyli na pendrivie ([03, krok 2](03-defender-raspberry.md#krok-2-konfiguracja-pułapek-i-firewall)), a nie w domyślnym `/var/tmp/`.
    Powinieneś zobaczyć zapis swojego skanu.
 
 3. **Wniosek:** porównaj, co zrobiłeś, z tym, co urządzenie wykryło. Sedno nauki to nie „czy się udało", tylko „czy zostawiłem ślad i czy obrona go złapała".

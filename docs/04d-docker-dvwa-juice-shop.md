@@ -22,12 +22,15 @@ Kolejność jest ważna: wszystko, co trzeba pobrać, pobieram **przed** przeł�
 | Kontenery wstają same po restarcie (`restart: unless-stopped`) | ✅ |
 | `cele` w `labnet` pod stałym adresem 10.10.10.10, bez internetu | ✅ `ping 8.8.8.8` → `Network is unreachable` |
 | Snapshot „cele z Dockerem, przed labnet” | ✅ |
+| Kali w `labnet` pod stałym adresem 10.10.10.5, widzi obie aplikacje | ✅ `nmap -p-`, Firefox |
+| Baza DVWA utworzona, logowanie `admin` / `password` | ✅ `You have logged in as 'admin'` |
+| Snapshot „cele czyste (DVWA z bazą)” | ⏳ po wyłączeniu `cele` |
 
 ---
 
 ## Komendy w skrócie
 
-Numery zgadzają się z ramkami na zrzutach w [`screenshots/2026-10-10-cele-docker/`](../screenshots/2026-10-10-cele-docker/). Krok 6 to klikanie w VirtualBoxie, opisane niżej.
+Numery zgadzają się z ramkami na zrzutach w [`screenshots/2026-10-10-cele-docker/`](../screenshots/2026-10-10-cele-docker/). Krok 6 to klikanie w VirtualBoxie, kroki 29–31 to klikanie w przeglądarce; oba opisane niżej.
 
 ```bash
 # --- w konsoli VirtualBoxa, na cele ---
@@ -124,6 +127,42 @@ sudo poweroff
 # 21. po starcie, w konsoli VirtualBoxa: adres i brak internetu
 ip -br a
 ping -c 2 8.8.8.8
+```
+
+```bash
+# --- w Kali ---
+# 22. hasło do sudo podane z góry
+sudo true
+
+# 23. stały adres 10.10.10.5 na eth0 (karta w labnet), bez bramy; potem włączenie
+sudo nmcli connection add type ethernet ifname eth0 con-name labnet ipv4.method manual ipv4.addresses 10.10.10.5/24 ipv6.method disabled connection.autoconnect-priority 10
+sudo nmcli connection up labnet
+
+# 24. adresy kart
+ip -br a
+
+# 25. czy Kali widzi cele
+ping -c 3 10.10.10.10
+
+# 26. skan 1000 najpopularniejszych portów (DVWA na 4280 się nie pokaże)
+nmap -sV 10.10.10.10
+
+# 27. skan wszystkich portów
+nmap -sV -p- 10.10.10.10
+
+# 28. SSH na cele; przed „yes” porównać odcisk klucza
+ssh grzesiek@10.10.10.10
+
+# 29. w Firefoksie: http://10.10.10.10:4280 (DVWA) i http://10.10.10.10:3000 (Juice Shop)
+# 30. w Firefoksie: http://10.10.10.10:4280/setup.php → Create / Reset Database
+# 31. logowanie admin / password; okno „Save password” → Not now
+```
+
+```bash
+# --- w konsoli VirtualBoxa, na cele ---
+# 32. (ostrzeżenia soft lockup pojawiły się same, bez komendy)
+# 33. wyłączenie przed snapshotem „cele czyste (DVWA z bazą)”
+sudo poweroff
 ```
 
 ---
@@ -374,7 +413,14 @@ Tym razem robię to, czego nie zrobiłem rano: porównuję odcisk klucza przed w
 ssh grzesiek@10.10.10.10
 ```
 
-Odcisk z Kali (zielona ramka): `SHA256:ByR4pOhu4JKVvVvtorD/LbEYG57pxayXKdVcSmp3SbQ`. To ten sam odcisk, który zaakceptowałem rano z PowerShella ([część 2, krok 7](#7-pierwsze-logowanie-i-odcisk-klucza)). Zgodność dowodzi, że łączę się z prawdziwą `cele`, a nie z kimś, kto ją podstawił. Odcisk klucza serwera jest jawny z założenia (służy właśnie do porównywania), więc tu go nie zamazuję.
+Odcisk z Kali (zielona ramka): `SHA256:ByR4pOhu4JKVvVvtorD/LbEYG57pxayXKdVcSmp3SbQ`. To ten sam odcisk, który zaakceptowałem rano z PowerShella ([część 2, krok 7](#7-pierwsze-logowanie-i-odcisk-klucza)). Odcisk klucza serwera jest jawny z założenia (służy właśnie do porównywania), więc tu go nie zamazuję.
+
+> ℹ️ **Poprawka po przeglądzie: z czym naprawdę porównywać.** Rano odcisku nie sprawdziłem (to jest w wpadkach), więc porównałem dwa odczyty, które oba przyszły **przez sieć**. Ich zgodność mówi tylko, że klucz się w ciągu dnia nie zmienił. Nie dowodzi, że od początku rozmawiałem z prawdziwą `cele`. Wzorzec musi pochodzić z drogi, której nikt w sieci nie może podmienić: z **konsoli** maszyny. Są dwa takie wzorce:
+>
+> - ekran pierwszego startu ([04c, krok 22](04c-instalacja-kali-i-celow.md#22-pierwszy-start-klucze-ssh-serwera), zrzut 43: oryginał bez zamazania),
+> - komenda w konsoli VirtualBoxa na `cele`: `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`.
+>
+> W tym labie ryzyko podmiany jest znikome (zamknięta sieć wewnętrzna, przekierowanie tylko z `127.0.0.1`), ale nawyk jest ważny: **wzorzec bierzemy z konsoli, nie z sieci**.
 
 ![SSH z Kali, odcisk zgodny](../screenshots/2026-10-10-cele-docker/19-ssh-odcisk-cele.png)
 
@@ -382,13 +428,78 @@ Odcisk z Kali (zielona ramka): `SHA256:ByR4pOhu4JKVvVvtorD/LbEYG57pxayXKdVcSmp3S
 
 W Firefoksie na Kali:
 
-- **`http://10.10.10.10:4280`** — strona logowania DVWA. Przy pierwszym wejściu trzeba zejść na stronę **Setup** i kliknąć **Create / Reset Database**, potem logowanie `admin` / `password`.
+- **`http://10.10.10.10:4280`** — strona logowania DVWA. Zanim da się zalogować, trzeba utworzyć bazę ([część 7](#część-7-baza-dvwa-i-snapshot-cele-czyste)).
 - **`http://10.10.10.10:3000`** — OWASP Juice Shop, sklep z sokami. Okno powitalne zamykam przyciskiem **Dismiss**.
 
 Obie strony ładują się z `cele` przez `labnet`. Pasek przeglądarki pokazuje `Not Secure` i `http://`, bo to lab bez certyfikatu — w zamkniętej sieci to w porządku.
 
 ![DVWA w przeglądarce Kali](../screenshots/2026-10-10-cele-docker/20-dvwa-przegladarka.png)
 ![Juice Shop w przeglądarce Kali](../screenshots/2026-10-10-cele-docker/21-juice-shop-przegladarka.png)
+
+---
+
+## Część 7: baza DVWA i snapshot „cele czyste”
+
+DVWA to strona w PHP, która wszystkie dane trzyma w bazie MariaDB: użytkowników, hasła, wpisy z ćwiczeń. Kontener z bazą działa od kroku 14, ale baza jest **pusta**: nie ma w niej ani jednej tabeli. Dlatego logowanie jeszcze nie działa. Bazę tworzy się raz, jednym przyciskiem.
+
+### 30. Strona Setup i przycisk „Create / Reset Database”
+
+W Firefoksie na Kali: `http://10.10.10.10:4280/setup.php`. Strona najpierw sprawdza, czy wszystko jest gotowe (**Setup Check**), a na dole ma przycisk **Create / Reset Database** (ramka 30). Kliknięcie tworzy tabele i konto `admin` z hasłem `password`, potem przenosi na stronę logowania.
+
+Co warto przeczytać w Setup Check, zanim się kliknie:
+
+| Pozycja | U mnie | Co znaczy |
+|---|---|---|
+| `Writable folder …/uploads/` i `…/config` | Yes | DVWA może zapisywać pliki; potrzebne w ćwiczeniu *File Upload* |
+| PHP version | 8.5.11 | PHP jest w obrazie Dockera, na `cele` go nie instalowałem |
+| `allow_url_include`, `allow_url_fopen` | Enabled (zielona ramka) | PHP może dołączać pliki z innych adresów. W normalnym serwerze to groźne i wyłączone; tu jest włączone celowo, do ćwiczenia *File Inclusion* |
+| Database host / port | `db` / `3306` | DVWA szuka bazy pod nazwą `db`, czyli pod nazwą drugiego kontenera z `compose.yml`. Docker sam zamienia tę nazwę na adres w sieci `dvwa_dvwa` |
+| reCAPTCHA key | **Missing** (żółta ramka 30!) | brak klucza Google reCAPTCHA. Psuje tylko jedno ćwiczenie: *Insecure CAPTCHA*. Resztę można robić bez niego, a klucz można dodać później |
+| DVWA version | Unknown | obraz Dockera nie zapisuje numeru wersji; bez znaczenia |
+
+Napis na stronie mówi wprost: na czerwono jest to, co popsuje *niektóre* moduły. Czerwone nie znaczy „nie działa nic”.
+
+> ⚠️ **„Reset” kasuje wszystko.** Kliknięcie tego samego przycisku później wyczyści bazę: przepadną wpisy z ćwiczeń, a hasło `admin` wróci do `password`. To przydatne, gdy coś w ćwiczeniu „zepsuję”, ale trzeba o tym pamiętać.
+
+![Strona Setup DVWA](../screenshots/2026-10-10-cele-docker/22-dvwa-setup.png)
+
+### 31. Pierwsze logowanie
+
+Logowanie `admin` / `password`. Dowód, że baza powstała: na dole strony `You have logged in as 'admin'` (zielona ramka 31). Bez bazy logowanie by się nie udało, bo nie byłoby gdzie sprawdzić hasła.
+
+Firefox od razu zapytał, czy zapamiętać hasło (żółta ramka 31!). Klikam **Not now** (albo z listy obok *Never save*). Hasło `password` jest jawne i znane całemu światu, ale nawyk jest prosty: w przeglądarce maszyny do ataków nie zapisuję żadnych haseł. Gdyby ktoś przejął Kali ([04b](04b-sieci-virtualbox.md#-jak-ktoś-z-sieci-domowej-mógłby-przejąć-kali-z-hasłem-kalikali)), zapisane hasła byłyby pierwszą rzeczą, po którą by sięgnął.
+
+![Zalogowany do DVWA](../screenshots/2026-10-10-cele-docker/23-dvwa-zalogowany.png)
+
+> ℹ️ **Poziom trudności sprawdzam przy pierwszym ćwiczeniu.** W menu **DVWA Security** wybiera się poziom: *low*, *medium*, *high*, *impossible*. W nowszych wersjach DVWA domyślny bywa *impossible* (zabezpieczony kod), więc na start trzeba przestawić na **low**. Poziom zapisuje się w ciasteczku przeglądarki, nie w bazie, więc snapshot go nie obejmuje.
+
+### 32. Ostrzeżenia „soft lockup” na `cele`
+
+Kiedy pracowałem w Kali, w konsoli `cele` (włączonej od rana) pojawiło się sześć ostrzeżeń jądra (żółta ramka 32!). To ten sam komunikat co rano przy instalacji ([04c, krok 20](04c-instalacja-kali-i-celow.md#20-ostrzeżenie-soft-lockup)), tylko dużo dłuższy: rano 26 s, teraz 21–377 s, a dwa ostatnie po **490 s** (czerwona ramka).
+
+**Co to znaczy, prostymi słowami.** Jądro Linuksa ma „strażnika” (*watchdog*). Co kilka sekund sprawdza, czy każdy procesor robi postęp. Jeśli przez ponad 20 s któryś procesor nie ruszył, strażnik zapisuje ostrzeżenie. W maszynie wirtualnej procesory są udawane: dostają czas od prawdziwego procesora komputera tylko wtedy, gdy Windows go przydzieli.
+
+**Najważniejsza wskazówka na zrzucie:** dwa ostatnie wpisy mają ten sam czas (`2054.57`), dotyczą **obu** procesorów (`CPU#0` i `CPU#1`) i mówią o tych samych 490 s. Czyli przez ponad 8 minut **cała maszyna** stała w miejscu. To nie był jeden zawieszony program w `cele`, tylko komputer, który przestał dawać maszynie czas.
+
+Możliwe przyczyny, od najbardziej prawdopodobnej:
+
+| Przyczyna | Jak sprawdzić | Groźne? |
+|---|---|---|
+| PC zasnął albo stał bezczynnie z zablokowanym ekranem; VirtualBox wstrzymał wtedy maszyny | czy w tym czasie była przerwa od komputera | nie: po wybudzeniu jądro tylko „zauważa” brakujący czas |
+| VirtualBox działa przez warstwę Hyper-V (tryb wolny) | **zielony żółw** w prawym dolnym rogu okna maszyny zamiast niebieskiego „V”. Włącza go nie tylko Hyper-V, ale też Izolacja rdzenia / Integralność pamięci, WSL2 i Platforma maszyny wirtualnej | spowalnia; przy długich przestojach warto to wyłączyć |
+| za dużo naraz: Kali i `cele` po 2 procesory, do tego Firefox i `nmap -p-` | Menedżer zadań Windows → zakładka Wydajność w trakcie pracy | krótkie przestoje (20–40 s) tak tłumaczy; 490 s już nie |
+
+Na razie `cele` działa poprawnie: aplikacje odpowiadały, baza się utworzyła. Obserwuję, czy lockupy pojawią się **w trakcie** pracy przy komputerze. Jeśli tak, sprawdzam żółwia.
+
+### 33. Wyłączenie i snapshot „cele czyste (DVWA z bazą)”
+
+`sudo poweroff` w konsoli `cele` (różowa ramka 33), potem w VirtualBoxie: **Migawki** → **Zrób** → „cele czyste (DVWA z bazą)”.
+
+**Po co właśnie teraz:** to stan „gotowe do ćwiczeń”: Docker, obie aplikacje, utworzona baza, sieć `labnet`, brak internetu. Baza DVWA leży w wolumenie Dockera, czyli na wirtualnym dysku `cele.vdi`, więc snapshot ją obejmuje. Jeśli w ćwiczeniach coś zepsuję, wracam tu jednym kliknięciem, zamiast powtarzać cały rozdział.
+
+![Soft lockupy i wyłączenie cele](../screenshots/2026-10-10-cele-docker/24-soft-lockup-cele.png)
+
+> ℹ️ **Dlaczego na zrzucie nie ma wyniku `ip -br a`.** Przyciąłem go, bo pokazywał adresy IPv6 `fe80::…`. Taki adres jest często zbudowany z adresu MAC karty: `fe80::a00:27ff:fe…` to MAC `08:00:27:…` z wstawionym w środek `ff:fe` (metoda EUI-64). Dlatego w repo zamazuję IPv6 tak samo jak MAC.
 
 ---
 
@@ -431,6 +542,7 @@ Obie strony ładują się z `cele` przez `labnet`. Pasek przeglądarki pokazuje 
 | `nmap -sV ADRES` | skanuje 1000 najpopularniejszych portów i próbuje rozpoznać wersję usługi (`-sV` = *service/version*) |
 | `nmap -sV -p- ADRES` | `-p-` = skanuj **wszystkie** 65535 portów, nie tylko domyślną tysiąc |
 | `ssh UŻYTKOWNIK@ADRES` | logowanie SSH; przy pierwszym razie pokazuje odcisk klucza serwera do porównania |
+| `ssh-keygen -lf PLIK.pub` | wypisuje odcisk (*fingerprint*) klucza z pliku. `-l` = pokaż odcisk, `-f` = z tego pliku. W konsoli serwera daje wzorzec do porównania z tym, co pokazuje `ssh` |
 
 ---
 
@@ -451,7 +563,9 @@ Obie strony ładują się z `cele` przez `labnet`. Pasek przeglądarki pokazuje 
 | Wklejony blok „zjedzony” przez `sudo` (krok 19) | `[sudo: authenticate] Password:` w środku wklejanego tekstu, 3 × `Authentication failed`, potem `network:: command not found` i podobne (zrzut 11, czerwone ramki 19!) | `sudo` zapytało o hasło (minął czas zapamiętania hasła). Wklejane linijki trafiły do pola hasła, a reszta wykonała się jako zwykłe komendy | wpisać hasło przy pierwszym `sudo`, potem wklejać po jednym poleceniu | przed wklejeniem bloku z `sudo` najpierw jedno krótkie `sudo true`, żeby hasło było już podane. Nic się nie zepsuło: bez hasła żadne `sudo` się nie wykonało |
 | Złe hasło przy ponownym `sudo` (krok 19) | jedno `Authentication failed`, za drugim razem przeszło (zrzut 11) | literówka w haśle | ponowne wpisanie | hasła przy `sudo` nie widać, więc łatwo o literówkę |
 | `Command 'ipa' not found` (krok 21) | Ubuntu proponuje instalację `freeipa-client` (zrzut 15, żółta ramka 21!) | literówka: `ipa` zamiast `ip` | `ip -br a` | podpowiedź „can be installed with” to nie znaczy, że trzeba coś instalować; najpierw sprawdzam pisownię |
-| `Command 'sSnmap' not found` (krok 26) | Ubuntu proponuje `stnmap` z `deb grads` (zrzut 16, żółta ramka 26!) | literówka: `sSnmap` zamiast `nmap -sV` (zlały się dwa kawałki komendy) | `nmap -sV 10.10.10.10` | to samo co wyżej: podpowiedź instalacji nie znaczy, że brakuje narzędzia |
+| `Command 'sSnmap' not found` (krok 26) | Kali proponuje `stnmap` z `deb grads` (zrzut 16, żółta ramka 26!) | literówka: `sSnmap` zamiast `nmap -sV` (zlały się dwa kawałki komendy) | `nmap -sV 10.10.10.10` | to samo co wyżej: podpowiedź instalacji nie znaczy, że brakuje narzędzia |
+| Okno „Save password” w Firefoksie (krok 31) | pytanie o zapisanie `admin` / `password` (zrzut 23, żółta ramka 31!) | Firefox domyślnie proponuje zapamiętanie każdego hasła | **Not now** | w przeglądarce maszyny do ataków nie zapisuję haseł; przejęty Kali oddałby je od razu |
+| Soft lockupy na `cele`, do 490 s (krok 32) | sześć ostrzeżeń `watchdog: BUG: soft lockup`, dwa ostatnie: oba procesory po 490 s naraz (zrzut 24, ramki 32!) | cała maszyna przez ponad 8 minut nie dostała czasu od Windowsa. Najpewniej uśpiony lub bezczynny PC, możliwe też VirtualBox przez warstwę Hyper-V (zielony żółw) | nic na razie; obserwować, czy wraca w trakcie pracy, i sprawdzić ikonę żółwia | patrzę, **ile** procesorów i **kiedy**: jeden proces = problem w maszynie, wszystkie naraz = problem po stronie komputera |
 | Timeout przy pobieraniu Juice Shop (krok 16) | `failed to copy: httpReadSeeker … timeout awaiting response headers` (zrzut 09, ramki 16!) | Docker Hub nie odpowiedział na czas przy jednej z warstw dużego obrazu (ponad 20 warstw pobieranych naraz) | `docker pull bkimminich/juice-shop`, potem `docker run` | timeout to zwykle chwilowy problem z siecią; pobieranie wznawia się od miejsca przerwania |
 
 ---
@@ -461,8 +575,9 @@ Obie strony ładują się z `cele` przez `labnet`. Pasek przeglądarki pokazuje 
 - [x] Kroki 19–21: `cele` w `labnet` pod adresem 10.10.10.10, bez internetu
 - [x] Kali: stały adres 10.10.10.5 na `eth0` (karta w `labnet`) — część 6
 - [x] Testy z Kali: ping, `nmap` (z lekcją o `-p-`), DVWA i Juice Shop w przeglądarce, `ssh` z porównaniem odcisku klucza — część 6
-- [ ] Na `cele`: strona Setup DVWA → **Create / Reset Database** i logowanie `admin`/`password` (do zrobienia przy pierwszym ćwiczeniu)
-- [ ] Snapshot „cele czyste” (po konfiguracji bazy DVWA)
+- [x] Baza DVWA utworzona, logowanie `admin` / `password` — część 7
+- [ ] Snapshot „cele czyste (DVWA z bazą)” — część 7, krok 33
 - [ ] Zabezpieczenie Kali według [04b, obrona](04b-sieci-virtualbox.md#jak-się-bronić)
+- [ ] Podsumowanie Etapu 3 w `docs/etap-3-podsumowanie.md`
 
 ➡️ Następnie: [05 — Pierwsze ćwiczenie](05-first-exercise.md)

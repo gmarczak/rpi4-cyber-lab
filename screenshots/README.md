@@ -21,7 +21,7 @@ Drop build screenshots and photos here, e.g.:
   - `25`: sprawdzenie `/etc/fstab` / `/etc/fstab` check
   - `26`–`27`: przeniesienie `/var/log` na pendrive i sprawdzenie po restarcie (adres IPv6 zamazany) / moving `/var/log` to the USB stick and checking after reboot (IPv6 blurred)
   - `28`: klucz SSH z Windowsa (adres IP z sieci domowej zamazany) / SSH key from Windows (home LAN IP blurred)
-  - `29`–`31`: wyłączenie logowania hasłem i testy z kluczem i bez (adres IPv6 zamazany) / password login disabled, tests with and without the key (IPv6 blurred)
+  - `30`–`31`: testy po wyłączeniu logowania hasłem: z kluczem i bez (adres IPv6 zamazany; zrzutu `29` nie ma) / tests after disabling password login, with and without the key (IPv6 blurred; there is no `29`)
   - `32`–`35`: SSH na porcie 2222, test portów, pułapka Notatnika z `config.txt` i poprawka (adres IPv6 zamazany) / SSH on port 2222, port tests, the Notepad `config.txt` trap and the fix (IPv6 blurred)
   - `36`–`38`: firewall `ufw`: instalacja, reguły i test SSH (adres IPv6 zamazany) / `ufw` firewall: install, rules and SSH test (IPv6 blurred)
   - `39`: wyłączenie Wi-Fi i Bluetooth (adres MAC i IPv6 zamazane) / Wi-Fi and Bluetooth disabled (MAC and IPv6 blurred)
@@ -68,9 +68,11 @@ Drop build screenshots and photos here, e.g.:
   - `12`–`14`: snapshot, karta 1 w `labnet` (MAC zamazany), SSH z PC już nie działa / snapshot, adapter 1 on `labnet` (MAC blurred), SSH from the PC no longer works
   - `15`: `10.10.10.10/24` i `Network is unreachable` (IPv6 zamazane) / static address and no internet (IPv6 blurred)
   - `16`: Kali ze stałym `10.10.10.5` na `eth0` i ping do `cele` (adres domowy `eth1` i IPv6 zamazane) / Kali static on `eth0`, ping to the target (home address and IPv6 blurred)
-  - `17`–`18`: `nmap -sV` (brak DVWA w domyślnym skanie) i `nmap -p-` (wszystkie trzy usługi) / default scan misses DVWA, full scan finds all three
+  - `17`–`18`: `nmap -sV` (krok 26: brak DVWA w domyślnym skanie) i `nmap -p-` (krok 27: wszystkie trzy usługi) / default scan misses DVWA, full scan finds all three
   - `19`: SSH z Kali z odciskiem klucza zgodnym z rannym logowaniem / SSH from Kali, fingerprint matches
   - `20`–`21`: DVWA i Juice Shop otwarte w Firefoksie na Kali / DVWA and Juice Shop in Firefox on Kali
+  - `22`–`23`: DVWA: strona Setup (Create / Reset Database, brak klucza reCAPTCHA) i pierwsze logowanie z oknem zapisu hasła / DVWA setup page and first login with the save-password prompt
+  - `24`: soft lockupy na `cele` (oba procesory po 490 s) i `sudo poweroff`; wynik `ip -br a` z adresami IPv6 przycięty / soft lockups on the target VM and shutdown; the `ip -br a` output with IPv6 cropped out
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

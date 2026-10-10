@@ -7,6 +7,17 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Baza DVWA i soft lockupy / DVWA database and soft lockups
+
+🇵🇱 Na stronie Setup DVWA utworzyłem bazę (*Create / Reset Database*) i zalogowałem się jako `admin`. Setup Check prawie cały zielony; brakuje tylko klucza reCAPTCHA, co psuje jedno ćwiczenie (*Insecure CAPTCHA*). Firefox chciał zapamiętać hasło: odmówiłem, bo na maszynie do ataków haseł nie zapisuję. W konsoli `cele` znalazłem sześć ostrzeżeń *soft lockup*, w tym oba procesory naraz po 490 s: cała maszyna stała ponad 8 minut, najpewniej przez uśpiony PC. Do obserwacji. Przy okazji przegląd wcześniejszych rozdziałów: poprawiona ścieżka logu honeypota w 05, nieaktualne sekcje w 04, martwe kotwice, numeracja na zrzucie 17 i uwagi o sumach SHA-256 i o porównywaniu odcisku klucza z konsolą.
+
+🇬🇧 Created the DVWA database on the setup page and logged in as `admin`. Setup check almost all green; only the reCAPTCHA key is missing, which breaks one module. Declined Firefox's offer to save the password. The target VM's console showed six soft-lockup warnings, both CPUs stalled for 490 s at once, most likely a sleeping PC. Watching it. Also reviewed earlier chapters: fixed the honeypot log path in 05, stale sections in 04, dead anchors, screenshot 17 numbering, and added notes on SHA-256 vs GPG and on checking SSH fingerprints against the console.
+
+**Lekcja / Lesson:** przy ostrzeżeniu jądra patrzę, ile procesorów i kiedy: wszystkie naraz to problem komputera, nie maszyny. / With a kernel warning, check how many CPUs and when: all at once means the host, not the guest.
+Zrzuty / Screenshots: [../screenshots/2026-10-10-cele-docker/](../screenshots/2026-10-10-cele-docker/) (`22`–`24`) · Opis / Walkthrough: [docs/04d, część 7](../docs/04d-docker-dvwa-juice-shop.md#część-7-baza-dvwa-i-snapshot-cele-czyste)
+
+---
+
 ## 2026-10-10 — Pierwszy kontakt Kali → cele / First contact Kali → target VM
 
 🇵🇱 Kali ze stałym `10.10.10.5` na `eth0` (nmcli, bez bramy, internet zostaje na `eth1` mostkowanej). Ping do `cele` 3/3. `nmap -sV` pokazał tylko 22 i 3000 — DVWA na 4280 zniknęło, bo domyślnie skanuje 1000 portów; dopiero `nmap -p-` pokazał wszystkie trzy usługi, baza 3306 dalej niewidoczna. SSH na `cele` z porównaniem odcisku klucza (zgodny z rannym z PowerShella). DVWA i Juice Shop otwarte w Firefoksie na Kali. To domyka testy z Etapu 3.
