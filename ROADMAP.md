@@ -41,22 +41,26 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [x] `check-logs.sh` pokazuje alerty z obu źródeł / shows alerts from both sources — [docs/03, część 3](docs/03-defender-raspberry.md#część-3-podgląd-alertów--check-logssh)
 - [x] Podsumowanie etapu w [`docs/etap-2-podsumowanie.md`](docs/etap-2-podsumowanie.md) / Stage summary
 
-## Etap 3: Atakujący / Attacker ⬅️ teraz / now — [docs/04](docs/04-attacker-kali.md)
+## Etap 3: Atakujący / Attacker ✅ — [docs/04](docs/04-attacker-kali.md) — 📋 [podsumowanie / summary](docs/etap-3-podsumowanie.md)
 
 - [x] VirtualBox na PC / on the PC (7.2.14)
 - [x] Kali w VM, hasło zmienione / Kali VM, password changed (2026-10-10) — [docs/04c](docs/04c-instalacja-kali-i-celow.md) — dlaczego / why: [docs/04b](docs/04b-sieci-virtualbox.md#-jak-ktoś-z-sieci-domowej-mógłby-przejąć-kali-z-hasłem-kalikali)
 - [x] Dwie karty sieciowe: Internal + Bridged / Two network adapters — [docs/04b](docs/04b-sieci-virtualbox.md)
-- [ ] Kali zabezpieczony: SSH wyłączone, `ufw`, skan z Raspberry bez otwartych portów / Kali hardened: SSH off, `ufw`, no open ports from the Pi — [docs/04b, obrona](docs/04b-sieci-virtualbox.md#jak-się-bronić)
+- [x] Kali zabezpieczony: SSH wyłączone, `ufw`, brak kluczy, czas CEST, skan z Raspberry: 1000 portów `filtered` / Kali hardened: SSH off, `ufw`, no keys, CEST time, 1000 filtered ports from the Pi (2026-10-10) — [docs/04e, część 1](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#część-1-zabezpieczenie-kali)
 - [x] Maszyna `cele` (Ubuntu Server 26.04.1) zainstalowana / Target VM installed (2026-10-10) — [docs/04c, część 2](docs/04c-instalacja-kali-i-celow.md#część-2-maszyna-cele)
 - [x] Docker 29.9 na `cele`; DVWA i Juice Shop działają w kontenerach / Docker on the target VM; DVWA and Juice Shop running in containers (2026-10-10) — [docs/04d](docs/04d-docker-dvwa-juice-shop.md)
 - [x] `cele` i Kali ze stałymi adresami w `labnet` (10.10.10.10 i 10.10.10.5), `cele` bez internetu / `cele` and Kali with static addresses on `labnet`, `cele` with no internet (2026-10-10) — [docs/04d, części 5–6](docs/04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet)
 - [x] DVWA i Juice Shop widoczne z Kali tylko w sieci wewnętrznej (`nmap`, przeglądarka) / DVWA and Juice Shop reachable from Kali on the internal network only (2026-10-10) — [docs/04d, część 6](docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
 - [x] Test z Kali: `ssh` na `cele` z porównaniem odcisku klucza / Test from Kali: `ssh` to `cele` with a fingerprint check (2026-10-10) — [docs/04d, krok 28](docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
 - [x] Baza DVWA utworzona (*Create / Reset Database*), logowanie `admin` / `password` / DVWA database created, admin login works (2026-10-10) — [docs/04d, część 7](docs/04d-docker-dvwa-juice-shop.md#część-7-baza-dvwa-i-snapshot-cele-czyste)
-- [ ] Snapshot „cele czyste (DVWA z bazą)” / Clean snapshot of the target VM — [docs/04d, krok 33](docs/04d-docker-dvwa-juice-shop.md#33-wyłączenie-i-snapshot-cele-czyste-dvwa-z-bazą)
-- [ ] Podsumowanie etapu w `docs/etap-3-podsumowanie.md` / Stage summary
+- [x] Snapshot „cele czyste (DVWA z bazą)” / Clean snapshot of the target VM (2026-10-10) — [docs/04d, krok 33](docs/04d-docker-dvwa-juice-shop.md#33-wyłączenie-i-snapshot-cele-czyste-dvwa-z-bazą)
+- [x] Koniec zawieszania `cele`: 1 procesor, 2048 MB; przyczyna: 4 rdzenie i Integralność pamięci w Windowsie / Target VM no longer freezes: 1 vCPU, 2 GB; cause: 4 cores and Windows Memory Integrity (2026-10-10) — [docs/04e, część 2](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#część-2-śledztwo--dlaczego-cele-się-zawiesza)
+- [x] Start `cele` bez czekania na sieć (`optional: true`), 18 s / Target VM boots in 18 s, no wait for network (2026-10-10) — [docs/04e, część 3](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#część-3-start-cele-bez-czekania-na-sieć)
+- [x] Snapshoty „Kali zabezpieczony” i „cele czyste (1 CPU, bez czekania na sieć)” / Final snapshots of both VMs (2026-10-10)
+- [ ] Zrzuty do docs/04e obrobione i dodane / Screenshots for docs/04e cropped, blurred and added — [lista / list](docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania)
+- [x] Podsumowanie etapu w [`docs/etap-3-podsumowanie.md`](docs/etap-3-podsumowanie.md) / Stage summary
 
-## Etap 4: Pętla atak–wykrycie / Attack–detect loop — [docs/05](docs/05-first-exercise.md)
+## Etap 4: Pętla atak–wykrycie / Attack–detect loop ⬅️ teraz / now — [docs/05](docs/05-first-exercise.md)
 
 - [ ] `nmap -sV` z Kali na Raspberry / from Kali against the Pi
 - [ ] Ten skan widoczny w logach OpenCanary i Suricaty / The scan shows up in both logs

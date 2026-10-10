@@ -47,7 +47,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 🗺️ **Roadmap:** [`ROADMAP.md`](ROADMAP.md) — task checklist: what is done and what is next.
 
-📋 **Stage summaries (PL):** [Stage 1 — Foundations](docs/etap-1-podsumowanie.md) · [Stage 2 — Defender](docs/etap-2-podsumowanie.md) (each stage in one file: commands, problems, status check)
+📋 **Stage summaries (PL):** [Stage 1 — Foundations](docs/etap-1-podsumowanie.md) · [Stage 2 — Defender](docs/etap-2-podsumowanie.md) · [Stage 3 — Attacker](docs/etap-3-podsumowanie.md) (each stage in one file: commands, problems, status check)
 
 📓 **Build journal:** [`build-log/build-log.md`](build-log/build-log.md) — dated notes on what was done and what went wrong.
 
@@ -55,7 +55,7 @@ Full details: [`docs/01-hardware.md`](docs/01-hardware.md).
 
 ## Status
 
-🚧 Build in progress — Stages 1 and 2 done 2026-10-09: hardened Pi, OpenCanary honeypot (SSH/web/FTP) and Suricata IDS with daily rule updates. Next: the attacker (Kali in VirtualBox). Follow the [build log](build-log/build-log.md).
+🚧 Build in progress — Stages 1 and 2 done 2026-10-09: hardened Pi, OpenCanary honeypot (SSH/web/FTP) and Suricata IDS with daily rule updates. Stage 3 done 2026-10-10: hardened Kali in VirtualBox plus DVWA and Juice Shop targets on the isolated `labnet`. Next: the attack–detect loop. Follow the [build log](build-log/build-log.md).
 
 ## License
 

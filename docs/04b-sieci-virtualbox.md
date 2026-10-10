@@ -135,14 +135,16 @@ Przejęte Kali jest groźniejsze niż zwykły przejęty komputer, bo ma gotowe n
 
 Każdy punkt przerywa łańcuch w innym miejscu. Pierwszy wystarczy, żeby krok 4 przestał działać.
 
-- [ ] Hasło zmienione zaraz po pierwszym uruchomieniu (komenda 1): min. 12 znaków, nieużywane nigdzie indziej
-- [ ] SSH na Kali wyłączone (komenda 3 → `inactive`)
-- [ ] Jeśli SSH jest potrzebne: logowanie tylko kluczem, bez hasła, tak jak na Raspberry ([docs/02c](02c-ssh-hardening.md))
-- [ ] Firewall `ufw` włączony (komenda 5)
-- [ ] Na Kali nie leży klucz SSH do `honeypi`, chyba że jest naprawdę potrzebny
-- [ ] Karta mostkowana odłączona, gdy ćwiczę tylko na celach w `labnet` (Ustawienia VM → Sieć → Karta 2 → odznaczyć „Włącz kartę sieciową”)
-- [ ] Snapshot „czysty Kali po aktualizacji”: punkt powrotu, gdyby coś poszło źle
-- [ ] Skan z Raspberry nie pokazuje otwartych portów (komenda 6)
+- [x] Hasło zmienione zaraz po pierwszym uruchomieniu (komenda 1): min. 12 znaków, nieużywane nigdzie indziej
+- [x] SSH na Kali wyłączone (komenda 3 → `inactive`)
+- [ ] Jeśli SSH jest potrzebne: logowanie tylko kluczem, bez hasła, tak jak na Raspberry ([docs/02c](02c-ssh-hardening.md)) — nie jest potrzebne
+- [x] Firewall `ufw` włączony (komenda 5)
+- [x] Na Kali nie leży klucz SSH do `honeypi`, chyba że jest naprawdę potrzebny
+- [ ] Karta mostkowana odłączona, gdy ćwiczę tylko na celach w `labnet` (Ustawienia VM → Sieć → Karta 2 → odznaczyć „Włącz kartę sieciową”) — nawyk na ćwiczenia
+- [x] Snapshot „czysty Kali po aktualizacji”: punkt powrotu, gdyby coś poszło źle
+- [x] Skan z Raspberry nie pokazuje otwartych portów (komenda 6)
+
+✅ Zrobione 2026-10-10, z wynikami i zrzutami: [04e, część 1](04e-zabezpieczenie-kali-i-stabilnosc.md#część-1-zabezpieczenie-kali).
 
 ---
 

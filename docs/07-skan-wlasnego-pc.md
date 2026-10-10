@@ -130,7 +130,9 @@ Stany portów: **open** to usługa odpowiada, **closed** to nic tam nie ma, ale 
 Zmiany w okienkach:
 
 - **Udostępnianie plików i drukarek wyłączone dla sieci publicznych**: Panel sterowania → Centrum sieci i udostępniania → Zmień zaawansowane ustawienia udostępniania → Publiczne. Zamyka porty 139 i 445.
-- **Hyper-V wyłączony**: Start → „Włącz lub wyłącz funkcje systemu Windows” → odznaczyć Hyper-V. Zamyka 135 i 2179, a VirtualBox działa szybciej.
+- **Hyper-V wyłączony**: Start → „Włącz lub wyłącz funkcje systemu Windows” → odznaczyć Hyper-V. Zamyka 135 i 2179 (porty zarządzania maszynami Hyper-V).
+
+  > ℹ️ **Poprawka (2026-10-10):** wyłączenie funkcji Hyper-V **nie** przyspieszyło VirtualBoxa. Hypervisor Windowsa dalej działa, bo potrzebuje go Integralność pamięci (VBS/HVCI), a VirtualBox chodzi wtedy w wolnym trybie (zielony żółw). Śledztwo: [04e, część 2](04e-zabezpieczenie-kali-i-stabilnosc.md#część-2-śledztwo--dlaczego-cele-się-zawiesza).
 
 ---
 

@@ -7,6 +7,27 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Koniec Etapu 3 / Stage 3 done
+
+🇵🇱 Etap 3 zamknięty. Kali i `cele` działają, są zabezpieczone i mają snapshoty, a cały etap jest w jednym pliku: polecenia, 23 wpadki z lekcjami, kontrola stanu i słowniczek.
+
+🇬🇧 Stage 3 closed. Kali and the target VM work, are hardened and have snapshots; the whole stage is in one file with commands, 23 gotchas and lessons, a status check and a glossary.
+
+📋 Podsumowanie / Summary: [docs/etap-3-podsumowanie.md](../docs/etap-3-podsumowanie.md)
+
+---
+
+## 2026-10-10 — Kali zabezpieczony i koniec zawieszania `cele` / Kali hardened, target VM stops freezing
+
+🇵🇱 Na Kali: SSH `inactive` i `disabled`, `ip_forward = 0`, `ufw` z blokadą ruchu przychodzącego, brak kluczy prywatnych w `~/.ssh`, strefa czasowa `Europe/Warsaw`. Skan z Raspberry: 1000 portów `filtered` w 201,4 s, tyle co przy PC. Router podpowiada nazwę `kali.home`, co zdradza, czym jest ta maszyna (pomysł na później: nijaka nazwa). `cele` zawiesiła się na 361 s, gdy pracowałem przy PC. Śledztwo: procesor ma 4 rdzenie, a maszyny chciały 2 + 2; do tego Integralność pamięci w Windowsie trzyma hypervisor, więc VirtualBox działa w wolnym trybie (zielony żółw). `cele` dostała 1 procesor i 2048 MB i od tej pory pracuje bez lockupów; Integralność pamięci na razie zostaje. Na koniec `optional: true` w netplanie: start `cele` w 18 s zamiast ponad 2 minut czekania na sieć.
+
+🇬🇧 Kali: SSH off and disabled, no IP forwarding, `ufw` denying incoming traffic, no private keys, Warsaw time zone. Scan from the Pi: 1000 filtered ports in 201.4 s. The target VM froze for 361 s while I was at the PC. Cause: a 4-core CPU with VMs asking for 2 + 2, and Windows Memory Integrity keeping its hypervisor on, so VirtualBox runs in its slow mode (green turtle). The target VM now has 1 vCPU and 2 GB and runs without lockups; Memory Integrity stays on for now. Finally `optional: true` in netplan: the target VM boots in 18 s instead of waiting over 2 minutes for the network.
+
+**Lekcja / Lesson:** suma procesorów maszyn wirtualnych < liczba rdzeni komputera, a diagnozę zawieszeń zaczynam od gospodarza. / Total vCPUs < host cores, and debug freezes from the host side first.
+Opis / Walkthrough: [docs/04e](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md) · Zrzuty / Screenshots: do dodania / to be added ([lista / list](../docs/04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania))
+
+---
+
 ## 2026-10-10 — Baza DVWA i soft lockupy / DVWA database and soft lockups
 
 🇵🇱 Na stronie Setup DVWA utworzyłem bazę (*Create / Reset Database*) i zalogowałem się jako `admin`. Setup Check prawie cały zielony; brakuje tylko klucza reCAPTCHA, co psuje jedno ćwiczenie (*Insecure CAPTCHA*). Firefox chciał zapamiętać hasło: odmówiłem, bo na maszynie do ataków haseł nie zapisuję. W konsoli `cele` znalazłem sześć ostrzeżeń *soft lockup*, w tym oba procesory naraz po 490 s: cała maszyna stała ponad 8 minut, najpewniej przez uśpiony PC. Do obserwacji. Przy okazji przegląd wcześniejszych rozdziałów: poprawiona ścieżka logu honeypota w 05, nieaktualne sekcje w 04, martwe kotwice, numeracja na zrzucie 17 i uwagi o sumach SHA-256 i o porównywaniu odcisku klucza z konsolą.
