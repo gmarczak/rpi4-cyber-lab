@@ -7,6 +7,16 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Podsumowanie forensics / Forensics summary
+
+🇵🇱 Ćwiczenie z kartami microSD w jednym krótkim pliku: 5 części z jednym zrzutem każda, wyniki w tabeli, najważniejsze wpadki i lekcje.
+
+🇬🇧 The microSD exercise in one short file: 5 parts with one screenshot each, results in a table, key gotchas and lessons.
+
+📋 [docs/06-forensics-podsumowanie.md](../docs/06-forensics-podsumowanie.md)
+
+---
+
 ## 2026-10-10 — Koniec Etapu 3 / Stage 3 done
 
 🇵🇱 Etap 3 zamknięty. Kali i `cele` działają, są zabezpieczone i mają snapshoty, a cały etap jest w jednym pliku: polecenia, 23 wpadki z lekcjami, kontrola stanu i słowniczek.
