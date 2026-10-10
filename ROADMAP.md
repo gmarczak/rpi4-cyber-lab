@@ -88,12 +88,12 @@ Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co 
 - [x] Skan `nmap` z Raspberry: 4 otwarte porty (135, 139, 445, 2179) / `nmap` from the Pi: 4 open ports (2026-10-09)
 - [x] Reguły firewalla znalezione i zamknięte: udostępnianie w profilu Public, NetBIOS, Hyper-V / Firewall rules found and closed
 - [x] Skan kontrolny: wszystkie 1000 portów `filtered` / Verification scan: all 1000 ports filtered (2026-10-09)
-- [ ] Pulpit zdalny (RDP) wyłączony / Remote Desktop off
+- [x] Pulpit zdalny (RDP) wyłączony: `fDenyTSConnections = 1`, port 3389 nie nasłuchuje / Remote Desktop off, port 3389 not listening (2026-10-10)
 - [ ] Pełny skan TCP (`-p-`) i UDP (`-sU`) / Full TCP and UDP scan
-- [ ] `Get-SmbShare`: tylko `ADMIN$`, `C$`, `IPC$` / only the default admin shares
+- [x] `Get-SmbShare`: usunięty udział `Users` (`C:\Users`, Wszyscy: Full); zostały tylko udziały systemowe / removed the `Users` share (Everyone: Full); only default admin shares left (2026-10-10)
 - [ ] Router: brak przekierowań portów, UPnP wyłączone, Wi-Fi WPA2/WPA3 z hasłem 12+ / Router: no port forwards, UPnP off, WPA2/WPA3 with a 12+ char password
 - [ ] Nieznane urządzenie 192.168.1.16 (MAC Samsunga) zidentyfikowane / Unknown device (Samsung MAC) identified
-- [ ] Decyzja o Windows 10 przed końcem ESU (13.10.2026) / Windows 10 decision before ESU ends
+- [x] Decyzja o Windows 10: zapis do ESU (bezpłatnie z kontem Microsoft, do 12.10.2027), łatki z 10.10.2026 zainstalowane; Windows 11 nie wspiera i5-7600K, więc później nowy sprzęt / Windows 10 decision: enrolled in ESU until 12 Oct 2027, patches installed; Windows 11 does not support the i5-7600K (2026-10-10)
 
 ## Podmisja: skan MacBooka / Sub-mission: scanning my MacBook ⬜ — [docs/07b](docs/07b-skan-macbooka.md)
 
