@@ -95,6 +95,16 @@ Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co 
 - [ ] Nieznane urządzenie 192.168.1.16 (MAC Samsunga) zidentyfikowane / Unknown device (Samsung MAC) identified
 - [ ] Decyzja o Windows 10 przed końcem ESU (13.10.2026) / Windows 10 decision before ESU ends
 
+## Podmisja: skan MacBooka / Sub-mission: scanning my MacBook ⬜ — [docs/07b](docs/07b-skan-macbooka.md)
+
+To samo co przy PC, tylko na MacBooku: Raspberry sprawdza, co widać z sieci domowej. / Same as the PC mission, for the MacBook: the Pi checks what is exposed on the home network.
+
+- [ ] Widok od środka: adres, nasłuchujące porty (`lsof`), stan firewalla i trybu niewidzialnego / Inside view: address, listening ports, firewall and stealth mode — [docs/07b, część 1](docs/07b-skan-macbooka.md#część-1-widok-od-środka-komendy-14)
+- [ ] Skan `nmap` z Raspberry / `nmap` from the Pi — [docs/07b, część 2](docs/07b-skan-macbooka.md#część-2-widok-z-raspberry-komenda-5)
+- [ ] Niepotrzebne udostępnianie wyłączone, firewall i tryb niewidzialny włączone / Unneeded sharing off, firewall and stealth mode on — [docs/07b, część 3](docs/07b-skan-macbooka.md#część-3-zamknięcie-i-skan-kontrolny-komenda-6)
+- [ ] Skan kontrolny: brak otwartych portów / Verification scan: no open ports
+- [ ] Wyniki, zrzuty i wpadki w docs/07b / Results, screenshots and gotchas in docs/07b
+
 ## Ćwiczenie dodatkowe: forensics kart microSD / Side exercise: microSD forensics ✅ — [docs/06](docs/06-forensics-karty-sd.md) — 📋 [podsumowanie / summary](docs/06-forensics-podsumowanie.md)
 
 Poza etapami, na MacBooku, na dwóch starych kartach 16 GB (SanDisk klasa 10 i karta bez marki klasa 4). Nie blokuje Etapu 3. / Outside the stages, on the MacBook, with two old 16 GB cards. Does not block stage 3.

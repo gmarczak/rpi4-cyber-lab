@@ -2,6 +2,8 @@
 
 Czas: ~1 godzina. Raspberry (`honeypi`) i PC z Windows 10.
 
+> 🍎 Podmisja: to samo dla MacBooka w [07b](07b-skan-macbooka.md).
+
 Zwykle w tym labie Raspberry jest **obrońcą**. Tym razem role się odwracają: Raspberry skanuje mój PC tak, jak zrobiłby to atakujący, który dostał się do sieci domowej. Cel to odpowiedź na dwa pytania:
 
 1. **Co widzi mój PC** w sieci domowej?
