@@ -236,7 +236,7 @@ nproc                                     # 1
 free -h                                   # total 1.6Gi (część zarezerwowana na crashkernel)
 ```
 
-Integralność pamięci na razie zostaje włączona; wyłączę ją, jeśli lockupy wrócą.
+Integralność pamięci zostaje włączona **na stałe**: na tym PC działa anty-cheat FACEIT, który wymaga VBS ([04e, decyzja](04e-zabezpieczenie-kali-i-stabilnosc.md#wynik-testu-i-decyzja)). Lab musi więc żyć z żółwiem: suma procesorów maszyn ≤ 3.
 
 ### 11. Start `cele` bez czekania na sieć → [04e, część 3](04e-zabezpieczenie-kali-i-stabilnosc.md#część-3-start-cele-bez-czekania-na-sieć)
 
@@ -274,6 +274,7 @@ systemd-analyze                           # 17.937s
 | 17 | *Soft lockup* przy instalacji `cele` | `CPU#0 stuck for 26s` | wirtualny procesor nie dostał czasu od Windowsa | nic, instalacja się udała | „BUG” w ostrzeżeniu jądra nie znaczy awarii; patrzę, czy wraca |
 | 18 | Lockupy na `cele` do 490 s, oba procesory naraz | sześć ostrzeżeń `watchdog` | cała maszyna stała ponad 8 minut (pierwsze podejrzenie: uśpiony PC) | obserwacja | patrzę, ile procesorów i kiedy |
 | 19 | `cele` przestała reagować, lockup 361 s przy pracy przy PC | brak reakcji na klawiaturę, `CPU#1 stuck for 361s!` | Kali 2 + `cele` 2 = wszystkie 4 rdzenie; VirtualBox przez hypervisor Windowsa (Integralność pamięci, żółw) | `Host+H` (ACPI), `cele` → 1 CPU i 2048 MB | suma procesorów maszyn < liczba rdzeni; diagnozę zaczynam od gospodarza |
+| 19a | Więcej RAM-u dla `cele` nie pomogło | 4096 MB zamiast 2048 MB, zawieszenia dalej | problem dotyczył czasu procesora, nie pamięci (`cele` używała ~650 MB) | z powrotem 2048 MB, za to 1 procesor | najpierw czytam, o czym mówi błąd; zasoby „na ślepo” zabiera się gospodarzowi |
 | 20 | Pierwszy ping Kali → `cele` po włączeniu `ufw` nie przeszedł | `Destination Host Unreachable` od 10.10.10.5 | `cele` jeszcze startowała | ponowny ping po chwili | „Unreachable” od własnego adresu = cel milczy, nie firewall |
 | 21 | 2 minuty czekania na sieć przy starcie `cele` | `Job systemd-networkd-wait-online.service/start running` | sieć bez bramy nigdy nie jest „gotowa” | `optional: true` | w sieciach odciętych od świata kartę oznaczam jako opcjonalną |
 | 22 | `free -h` pokazało 1,6 GiB zamiast ~1,9 | mniej pamięci, niż się spodziewałem | rezerwa na jądro awaryjne (*crashkernel*) | nic | „brakująca” pamięć to często rezerwa jądra |
@@ -416,4 +417,4 @@ nmap -Pn ADRES_KALI
 
 **Etap 4: pętla atak–wykrycie**, sedno całego labu. Z Kali skanuję Raspberry (`nmap -sV`, potem z `sudo`, czyli skan SYN) i sprawdzam w logach OpenCanary i Suricaty, czy obrońca to zauważył. Zgodna strefa czasowa Kali i Raspberry ułatwi porównanie godzin. Na koniec własna reguła Suricaty, która łapie coś, co wcześniej przeszło. Plan w [ROADMAP](../ROADMAP.md), instrukcja w [05 — Pierwsze ćwiczenie](05-first-exercise.md).
 
-Poza etapem: decyzja o Windows 10 przed 13.10.2026 (Windows 11 czy PC tylko do labu) i zrzuty z [04e](04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania) do obrobienia.
+Poza etapem: decyzja o Windows 10 przed 13.10.2026 (Windows 11 czy PC tylko do labu; na nią wpływa też FACEIT, który na Windows 10 wymaga rozszerzonych aktualizacji ESU) i zrzuty z [04e](04e-zabezpieczenie-kali-i-stabilnosc.md#zrzuty-do-dodania) do obrobienia.

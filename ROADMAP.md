@@ -80,7 +80,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Hack The Box: pierwsza maszyna / first machine
 - [ ] Podsumowanie etapu w `docs/etap-5-podsumowanie.md` / Stage summary
 
-## Misja dodatkowa: skan własnego PC / Side mission: scanning my own PC ✅ — [docs/07](docs/07-skan-wlasnego-pc.md)
+## Misja dodatkowa: skan własnego PC / Side mission: scanning my own PC 🟡 w toku / in progress — [docs/07](docs/07-skan-wlasnego-pc.md)
 
 Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co widać z sieci domowej. / The Pi plays attacker and scans my Windows PC to see what is exposed on the home network.
 
@@ -90,6 +90,9 @@ Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co 
 - [x] Skan kontrolny: wszystkie 1000 portów `filtered` / Verification scan: all 1000 ports filtered (2026-10-09)
 - [ ] Pulpit zdalny (RDP) wyłączony / Remote Desktop off
 - [ ] Pełny skan TCP (`-p-`) i UDP (`-sU`) / Full TCP and UDP scan
+- [ ] `Get-SmbShare`: tylko `ADMIN$`, `C$`, `IPC$` / only the default admin shares
+- [ ] Router: brak przekierowań portów, UPnP wyłączone, Wi-Fi WPA2/WPA3 z hasłem 12+ / Router: no port forwards, UPnP off, WPA2/WPA3 with a 12+ char password
+- [ ] Nieznane urządzenie 192.168.1.16 (MAC Samsunga) zidentyfikowane / Unknown device (Samsung MAC) identified
 - [ ] Decyzja o Windows 10 przed końcem ESU (13.10.2026) / Windows 10 decision before ESU ends
 
 ## Ćwiczenie dodatkowe: forensics kart microSD / Side exercise: microSD forensics ✅ — [docs/06](docs/06-forensics-karty-sd.md)
