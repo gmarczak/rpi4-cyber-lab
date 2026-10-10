@@ -2,7 +2,7 @@
 
 Czas: ~2 godziny (większość to czekanie na kopiowanie i kasowanie). Wszystko na **MacBooku**, Raspberry nie jest potrzebne.
 
-> 🚧 **Status: w trakcie.** Części 1 (obraz karty), 2 (odzyskiwanie) i 3 (kontrolowany eksperyment) są wykonane, ich wyniki są niżej. Części 4–5 mają komendy gotowe, a „Wyniki” wypełniam po przejściu ćwiczenia na prawdziwej karcie. Nic tu nie jest wymyślone na zapas.
+> ✅ **Status: ukończone.** Wszystkie 5 części wykonane na prawdziwych kartach 9–10.10.2026, wyniki i zrzuty są niżej. Nic tu nie jest wymyślone na zapas.
 
 Mam dwie stare karty microSD po 16 GB: **SanDisk (klasa 10)** i kartę **bez marki (klasa 4)**. Nie nadają się na system dla obrońcy (do tego jest SanDisk Extreme 64 GB), ale świetnie nadają się do nauki **informatyki śledczej** (*forensics*): jak wygląda dysk „od środka”, co naprawdę znaczy „usunąłem plik” i czy da się go odzyskać.
 
@@ -689,7 +689,17 @@ cd $HOME/forensics/odzysk && sudo photorec /log /d $HOME/forensics/odzysk/po-zer
 
 > ⚠️ **To jedyna komenda w tym rozdziale, która zapisuje na dysk bez pytania.** Błędny numer `diskN` skasuje inny dysk. Przed Enterem sprawdź ostatni raz: `diskutil info /dev/diskN` (karta, 16 GB, `Secure Digital`).
 
-Czas: karta klasy 10 ok. 15–30 minut, karta klasy 4 nawet godzinę lub dłużej. Ctrl+T pokazuje postęp. Na końcu `dd` może zgłosić `end of device` albo `No space left on device`: to **normalne**, bo kończy się miejsce na karcie, czyli cała została nadpisana.
+Czas: zapis na kartę jest wolniejszy niż odczyt. U mnie karta bez marki zapisywała 8,4 MB/s, czyli 31 minut na 15,5 GB (odczyt szedł 21 MB/s).
+
+**Podgląd postępu.** `caffeinate` przed `sudo` sprawia, że Ctrl+T pokazuje tylko `caffeinate`. Pomaga druga karta Terminala (⌘T) i:
+
+```bash
+sudo pkill -INFO -x dd
+```
+
+`pkill` wysyła sygnał do procesu o podanej nazwie (`-x dd`: dokładnie `dd`), a `-INFO` to ten sam sygnał, który wysyła Ctrl+T. `dd` wypisuje wtedy stan **w pierwszej karcie**.
+
+**Koniec.** `/dev/zero` nigdy się nie kończy, więc `dd` pisze, aż zabraknie karty. Na macOS kończy się to komunikatem `dd: /dev/rdiskN: Input/output error` (w Linuksie `No space left on device`), `3691+0 records in`, ale `3690+0 records out`: ostatniego, nadmiarowego bloku nie było już gdzie zapisać. To **normalne** i znaczy, że cała karta została nadpisana. Liczba bajtów musi być równa `Disk Size`.
 
 Alternatywa: `diskutil secureErase 0 /dev/diskN` (poziom 0 = jedno przejście zerami). Na nośnikach flash bywa niedostępna, dlatego tu używamy `dd`.
 
@@ -705,11 +715,25 @@ W pierwszej wersji planu był krok 20: kolejny obraz karty po wyzerowaniu. Trzec
 
 ### 22 · `dd ... | cmp - /dev/zero`: dowód matematyczny
 
-`dd` czyta całą kartę, a `cmp` porównuje ten strumień (`-` oznacza „czytaj ze standardowego wejścia”) bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu danych** (`EOF on -`) znaczy, że cała karta do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero, i podaje gdzie.
+`dd` czyta całą kartę, a `cmp` porównuje ten strumień (`-` oznacza „czytaj ze standardowego wejścia”) bajt po bajcie z nieskończonym strumieniem zer. Komunikat o **końcu danych** (`cmp: EOF on stdin`; w innych systemach `EOF on -`) znaczy, że cała karta do ostatniego bajta jest zerami. Komunikat `differ` znaczy, że gdzieś jest coś innego niż zero, i podaje gdzie.
+
+Ctrl+T w czasie `cmp` wysyła sygnał do wszystkich programów w potoku. `cmp` w macOS odpowiada wtedy linią w rodzaju `stdin /dev/zero char 7227930062 line 1`, czyli „porównałem już tyle bajtów i wszystkie się zgadzały”. To **nie** jest różnica, bo różnica zawiera słowo `differ`. `line 1` bierze się stąd, że `cmp` liczy linie po bajtach nowej linii (`0A`), a w samych zerach takiego bajtu nie ma.
 
 ### 23 · PhotoRec na wyzerowanej karcie
 
 Ten sam test co w części 2, tylko na karcie zamiast na obrazie (dlatego `sudo`). Bez tablicy partycji PhotoRec pokaże tylko `No partition` (cała karta), a typ systemu plików wybierz `Other` i tryb `Whole`, bo „wolnego miejsca” bez systemu plików nie da się wskazać. Oczekiwany wynik: **0 odzyskanych plików**. To jest „po” do zestawienia z „przed”.
+
+![Zerowanie karty](../screenshots/2026-10-09-forensics/33-zera-dd.png)
+
+**1** karta to nadal `disk4`, 15,5 GB, z systemem plików `TEST` z części 3. **18** odmontowanie i **19** zerowanie (wynik `unmountDisk` pojawia się po wklejeniu obu komend). Żółta ramka: stan `dd` po `sudo pkill -INFO -x dd` z drugiej karty: 3314 z 3690 bloków po 27,5 minutach. **!** (żółte) `Input/output error`, czyli koniec karty. **✓** `3690+0 records out`, 15476981760 B, cała karta w 1842 s.
+
+![Dowód: hexdump i cmp](../screenshots/2026-10-09-forensics/34-zera-hexdump-cmp.png)
+
+**21** pierwszy 1 MiB karty (dawniej MBR i początek FAT): same zera, `*` i adres końca `00100000`. **22** porównanie całej karty z zerami. Żółta ramka: kolejne Ctrl+T, przy których `cmp` raportuje, ile już porównał (7,2 → 15,0 GB), cały czas bez różnic. **✓** `3690+0 records`, 15476981760 B i `cmp: EOF on stdin`: koniec karty bez ani jednej różnicy. Czas `5382 secs` jest zawyżony, bo `dd` czekał też na hasło do `sudo`.
+
+![PhotoRec na wyzerowanej karcie](../screenshots/2026-10-09-forensics/35-zera-photorec.png)
+
+Żółta ramka: PhotoRec nie widzi żadnej partycji, tylko `Unknown` przez całe 30228480 sektorów. **23** `0 files saved`, `Recovery completed`.
 
 ## ⚠️ Uczciwe zastrzeżenie: pamięć flash to nie dysk
 
@@ -717,7 +741,14 @@ Karta microSD ma kontroler, który rozkłada zapisy po komórkach (*wear levelin
 
 ## Wyniki
 
-*(do uzupełnienia: czas kasowania, wynik `hexdump` i `cmp`, wynik PhotoRec po zerach)*
+| Test | Przed (część 3) | Po zerowaniu |
+|---|---|---|
+| Początek karty (`hexdump`, 1 MiB) | MBR, FAT, katalogi | same `00` |
+| Cała karta (`cmp` z `/dev/zero`) | | **0 różnych bajtów** na 15476981760 (`EOF on stdin`) |
+| PhotoRec | 111 plików (106 `mp3` z telefonu + nasze pliki testowe) | **0 plików** |
+| Czas | | zapis 31 min (8,4 MB/s), sprawdzenie `cmp` ok. 20 min |
+
+**Wniosek:** jedno pełne nadpisanie zerami usuwa wszystko, co widzi system: nie wraca ani plik testowy, ani nic sprzed formatowania. Formatowanie (część 3) zostawiło 106 starych plików, zerowanie 0. Granicę tej metody opisuje zastrzeżenie wyżej: kontroler karty może mieć ukryte bloki rezerwowe, do których `dd` nie sięga. Z tego powodu przed oddaniem karty z naprawdę wrażliwymi danymi lepsze jest szyfrowanie od początku albo zniszczenie karty.
 
 ---
 
@@ -725,25 +756,27 @@ Karta microSD ma kontroler, który rozkłada zapisy po komórkach (*wear levelin
 
 Tanie, nieoznaczone karty często mają napisane 16 GB, a naprawdę mają np. 2 GB. Kontroler „przyjmuje” zapisy ponad prawdziwą pojemność i je gubi. Test **F3** zapisuje na kartę znane dane aż do końca, a potem odczytuje i sprawdza, czy wszystko wróciło.
 
+Dlaczego nie wystarczy zerowanie z części 4? Fałszywa karta zwykle „zawija” adresy: zapis pod adresem 14 GB trafia fizycznie pod 2 GB. Gdy wszędzie zapisujemy zera, nadpisanie jednych zer innymi niczego nie zmienia, więc `cmp` i tak pokaże same zera. F3 zapisuje w każdym kawałku **inne** dane (zależne od jego położenia), więc każda pomyłka adresu wyjdzie przy odczycie.
+
 Na macOS działają tylko `f3write` i `f3read`. Szybszy `f3probe` jest wyłącznie na Linuksa, więc robimy dłuższą, ale równie wiarygodną metodę.
 
 ## Komendy w skrócie
 
 ```bash
 diskutil eraseDisk FAT32 TEST MBRFormat /dev/diskN   # 24
-f3write /Volumes/TEST                                # 25
-f3read /Volumes/TEST                                 # 26
+caffeinate -i f3write /Volumes/TEST                  # 25
+caffeinate -i f3read /Volumes/TEST                   # 26
 ```
 
 ## Co robi każda komenda
 
 ### 24 · format
 
-Jak w kroku 10. Kasuje kartę, więc rób to po wykonaniu części 1–2 i na karcie **bez marki** (wymień `diskN`).
+Jak w kroku 10. Po części 4 karta nie ma ani tablicy partycji, ani systemu plików, a F3 zapisuje zwykłe pliki, więc potrzebuje świeżego FAT32 zamontowanego w `/Volumes/TEST`.
 
 ### 25 · `f3write /Volumes/TEST`: zapisz dane testowe
 
-Wypełnia wolne miejsce plikami po 1 GB o znanej zawartości. Dla 16 GB to kilkanaście plików, a zapis na karcie klasy 4 trwa długo.
+Wypełnia wolne miejsce plikami `1.h2w`, `2.h2w`, … po 1 GB o znanej zawartości i na bieżąco pokazuje postęp oraz prędkość. Dla 15,5 GB to 15 plików, a przy 8,4 MB/s zapis trwa ok. 30 minut. `caffeinate -i` pilnuje, żeby Mac nie zasnął.
 
 ### 26 · `f3read /Volumes/TEST`: sprawdź
 
@@ -759,9 +792,28 @@ Dużo `Data LOST` oznacza, że karta kłamie. Wtedy jej realna pojemność to wa
 
 Po teście karta jest pełna plików F3. Możesz je skasować komendą z kroku 10.
 
+## ❗ Wpadka: `zsh: command not found: 2caffeinate`
+
+Przy uruchamianiu `f3read` w linii poleceń stała jeszcze cyfra `2`, wpisana przypadkiem wcześniej, a wklejona komenda dopisała się do niej. Powłoka szukała programu `2caffeinate`. Lekcja: przed wklejeniem komendy sprawdź, czy linia jest pusta (Ctrl+U czyści całą linię).
+
 ## Wyniki
 
-*(do uzupełnienia: wynik f3read dla karty bez marki; opcjonalnie też dla SanDisk jako punkt odniesienia)*
+![f3write: zapis plików testowych](../screenshots/2026-10-09-forensics/36-f3write.png)
+
+**24** formatowanie (jak w kroku 10). **25** `f3write`. Żółta ramka: wolne miejsce 14,40 GB. **!** (żółte) pierwsze dwa pliki szły bardzo wolno, średnio 1,6–1,9 MB/s, a chwilami tylko 13,71 KB/s. `8OK!` przy pliku 2 to nie błąd, tylko resztka napisu postępu (`89.03%`), na który nałożyło się `OK!`. **✓** plik 15 i podsumowanie: wolne miejsce spadło do 184 KB, czyli zapisane wszystko, średnio 3,62 MB/s w 1:07:55.
+
+![f3read: weryfikacja](../screenshots/2026-10-09-forensics/37-f3read.png)
+
+**!** `2caffeinate` (wpadka wyżej). **26** `f3read`: kolumny `ok/corrupted/changed/overwritten` dla każdego pliku. Każdy pełny plik ma 2097152 sektory ok (1 GiB) i zera w pozostałych kolumnach. Żółta ramka: ostatni plik jest krótszy (827472 sektory), bo skończyło się miejsce. **✓** `Data OK: 14.39 GB`, `Data LOST: 0.00 Bytes`.
+
+| | Wynik |
+|---|---|
+| `Data OK` | **14,39 GB** (30187600 sektorów, wszystko, co zapisał `f3write`) |
+| `Data LOST` | **0** (w tym `Corrupted`, `Slightly changed`, `Overwritten`: 0) |
+| Zapis (`f3write`, przez FAT32) | śr. 3,62 MB/s, 1 h 8 min, chwilami poniżej 0,5 MB/s |
+| Odczyt (`f3read`) | śr. 22,37 MB/s, 11 min, równo przez całą kartę |
+
+**Wniosek:** karta bez marki jest **uczciwa**: ma tyle pamięci, ile deklaruje (15,5 GB, z czego 14,4 GB to miejsce na pliki po formatowaniu FAT32). Słabym punktem jest **zapis**: średnio 3,6 MB/s przez system plików i spadki do kilkuset KB/s. To mniej niż klasa 4 obiecuje (minimum 4 MB/s), więc do nagrywania wideo w aparacie czy telefonie się nie nadaje. Do przechowywania plików i ćwiczeń jest w porządku. Odczyt (22 MB/s) jest stabilny i taki sam jak przy robieniu obrazu w części 1.
 
 ---
 
@@ -772,6 +824,15 @@ Po teście karta jest pełna plików F3. Możesz je skasować komendą z kroku 1
 - Doświadczenie z nośnikiem, który **kłamie bez komunikatu o błędzie** (SanDisk): wiem, jak to wykryć i dlaczego zgodne sumy z dwóch odczytów są ważniejsze niż „skończyło się bez błędu”.
 - Różnicę między odzyskiwaniem **ze spisu plików** (TestDisk) i **po sygnaturach** (PhotoRec).
 - Praktyczną wiedzę do labu: gdy wycofujesz kartę z Raspberry albo sprzedajesz stary telefon, wiesz, jak ją **naprawdę** wyczyścić.
+- Sposób sprawdzenia, czy karta nie kłamie co do pojemności (F3), i świadomość, że samo zerowanie tego nie wykryje.
+
+| Część | Wynik w liczbach |
+|---|---|
+| 1 · obraz | karta bez marki: 3 zgodne sumy SHA-256; SanDisk: 3 odczyty, 3 różne sumy |
+| 2 · odzysk z cudzej karty | 314 plików (PhotoRec), głównie `mp3` z telefonu |
+| 3 · kontrolowany eksperyment | TestDisk 4/4, PhotoRec 3/4 identyczne; po formatowaniu wciąż 111 plików |
+| 4 · zerowanie | 0 różnych bajtów, PhotoRec 0 plików |
+| 5 · F3 | 14,39 GB OK, 0 utraconych, karta uczciwa |
 
 ## Słowniczek
 
