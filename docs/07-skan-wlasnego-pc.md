@@ -200,7 +200,9 @@ Atakujący musiałby najpierw być w mojej sieci (zarażone urządzenie IoT lub 
 
 Ryzyko byłoby realne, gdyby dodatkowo: konto Windows nie miało hasła albo miało słabe, jakiś folder był udostępniony dla „Wszyscy”, hasło wyciekło z innego serwisu albo Wi-Fi miało słabe hasło.
 
-**Większe zagrożenie jest gdzie indziej:** program rozszerzonych aktualizacji Windows 10 dla użytkowników domowych (ESU) kończy się 13 października 2026 ([źródło](https://learn.microsoft.com/en-ca/answers/questions/5805066/windows-esu-does-enrollment-end-on-13-oct-2026-or)). Po tej dacie nowe luki nie będą łatane, a najczęstsza droga infekcji to przeglądarka i pobrane pliki, nie otwarte porty.
+**Większe zagrożenie jest gdzie indziej:** Windows 10 nie dostaje już zwykłych łatek bezpieczeństwa, a najczęstsza droga infekcji to przeglądarka i pobrane pliki, nie otwarte porty.
+
+> ℹ️ **Poprawka (2026-10-10):** pierwotnie stało tu, że program ESU dla domu kończy się 13.10.2026 (źródło: wątek na forum Microsoft Q&A). Oficjalna strona Microsoftu dla Europy podaje **12.10.2027** ([Microsoft: ESU](https://www.microsoft.com/en-ie/windows/extended-security-updates)). PC został zapisany do ESU 10.10.2026, opis w [części 2](#część-2-dokończenie-misji-10102026).
 
 ---
 
@@ -236,15 +238,103 @@ Po restarcie `SearchIndexer.exe` brał 30% procesora i 140 MB/s dysku. To normal
 
 ---
 
-## Do zrobienia
+# Część 2: dokończenie misji (10.10.2026)
 
-- [ ] Wyłączyć Pulpit zdalny (RDP), jeśli nie jest używany. Firewall go blokuje, ale usługa dalej nasłuchuje
-- [ ] `Get-SmbShare`: udostępnione powinny być tylko `ADMIN$`, `C$` i `IPC$`
-- [ ] Router: brak przekierowań portów do PC, UPnP wyłączone
-- [ ] Decyzja przed 13.10.2026: Windows 11 albo PC tylko do labu
-- [ ] Logi OpenCanary: znaleźć połączenie z PC na port 22
-- [ ] Pełny skan: `sudo nmap -Pn -p- ADRES_PC` (wszystkie 65 535 portów TCP, SYN scan) i `sudo nmap -Pn -sU --top-ports 100 ADRES_PC` (UDP)
+Pierwszego dnia zamknąłem 4 otwarte porty. Drugiego dnia dokończyłem listę „Do zrobienia”: wszystko, co nie było widać w zwykłym skanie, ale też należy do „co mój PC wystawia i komu”.
+
+## Komendy w skrócie (część 2)
+
+```powershell
+# --- na PC, PowerShell jako administrator ---
+# 8. czy pulpit zdalny (RDP) jest wyłączony: 1 = wyłączony
+(Get-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server').fDenyTSConnections
+# 9. czy coś nasłuchuje na porcie RDP (oczekiwane: nic)
+Get-NetTCPConnection -LocalPort 3389 -State Listen -ErrorAction SilentlyContinue
+
+# 10. udostępnione foldery i kto ma do nich dostęp
+Get-SmbShare
+Get-SmbShareAccess -Name Users
+# 11. usunięcie udziału Users (pliki zostają na dysku)
+Remove-SmbShare -Name Users
+
+# 12. ostatnie łatki po zapisie do ESU
+Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 3
+
+# 13. czy coś nasłuchuje na porcie z przekierowania w routerze i czy są reguły dla Javy
+Get-NetTCPConnection -LocalPort 25565 -State Listen -ErrorAction SilentlyContinue
+Get-NetFirewallRule -Direction Inbound -Enabled True | Where-Object DisplayName -match 'java|minecraft' | Select-Object DisplayName, Profile, Action
+
+# 14. wyłączenie reguł firewalla dla Node.js i kontrola
+Get-NetFirewallRule -DisplayName "Node.js JavaScript Runtime" | Disable-NetFirewallRule
+Get-NetFirewallRule -DisplayName "Node.js JavaScript Runtime" | Select-Object DisplayName, Enabled
+```
+
+```bash
+# --- na Raspberry ---
+# 15. pełny skan: wszystkie porty TCP (SYN) i 100 najpopularniejszych UDP
+sudo nmap -Pn -p- -T4 --max-retries 1 ADRES_PC
+sudo nmap -Pn -sU --top-ports 100 -T4 ADRES_PC
+# 16. co z tego zobaczył obrońca
+bash ~/check-logs.sh
+```
+
+Kroki w Windows Update i w panelu routera to klikanie, opisane niżej.
+
+## Wyniki
+
+| Co | Znalezione | Zrobione |
+|---|---|---|
+| **RDP** | `fDenyTSConnections = 1`, port 3389 nie nasłuchuje | ✅ wyłączony (bez zmian) |
+| **Udostępnione foldery** | oprócz systemowych `ADMIN$`, `C$`, `D$`, `IPC$` był udział **`Users` → `C:\Users`** z prawem **Wszyscy: Full** | ✅ udział usunięty; pliki zostały |
+| **Windows Update** | „koniec wsparcia”, „brakuje ważnych poprawek”: PC nie był zapisany do ESU | ✅ zapis do ESU (bezpłatnie, konto Microsoft), ważne do **12.10.2027**; łatki zainstalowane 10.10.2026 |
+| **Windows 11** | i5-7600K nie spełnia wymagań | decyzja: Windows 10 z ESU do 10.2027, potem nowy sprzęt |
+| **Router: NAT/PAT** | przekierowanie **`minecraft`** TCP/UDP 25565 → PC; na PC nic na tym porcie nie nasłuchuje | ✅ martwa reguła usunięta |
+| **Router: UPnP** | włączone; jeden wpis po urządzeniu `.27`, którego już nie ma w sieci (UDP 9308) | ✅ martwy wpis usunięty; **UPnP zostaje** dla PS5 (świadoma decyzja) |
+| **Router: DMZ** | brak | ✅ |
+| **Router: Wi-Fi** | WPA2 Personal; **WPS włączony** w sieciach domowych | ✅ WPS wyłączony (2.4 i 5 GHz); w sieci IoT nie da się go wyłączyć, sieć IoT jest wyłączona. Hasło i szyfrowanie zostają (decyzja domowa) |
+| **Firewall Windows** | dwie reguły **Node.js JavaScript Runtime**: Allow w profilach Private i **Public** | ✅ wyłączone |
+| **Nieznane urządzenie** `.16` (`localhost`, MAC Samsunga) | **telewizor Samsung** | ✅ zidentyfikowane; pomysł: później sieć IoT dla TV i pralki |
+| **Pełny skan TCP** | `All 65535 scanned ports … are in ignored states`, `65535 filtered`, 1314 s | ✅ |
+| **Skan UDP (100 portów)** | `100 open\|filtered`, żadnego czystego `open`, 3,5 s | ✅ |
+
+### Co zobaczył obrońca
+
+Skan szedł **z** Raspberry, a Suricata na Raspberry obserwuje cały jego ruch. W `fast.log` pojawiło się kilkanaście alertów, każdy z adresem Raspberry jako źródłem:
+
+| Rodzaj | Przykłady (port) |
+|---|---|
+| TCP, `ET SCAN Suspicious inbound to …` | Oracle (1521), PostgreSQL (5432), MSSQL (1433), VNC (5800–5820) |
+| UDP, `GPL …` / `ET …` | SNMP (161), XDMCP (177), TFTP (69, priorytet 1), DNS version (53), PCAnywhere (5632), Vuze BT, `ET DOS Possible SSDP Amplification Scan` (1900) |
+
+**Wniosek na Etap 4:** Suricata nie ma reguły „ktoś skanuje porty”. Alarmuje tylko wtedy, gdy skan trafi w port, dla którego ma konkretną regułę (bazy danych, VNC, SNMP…). Z 65 535 sprawdzonych portów zauważyła kilkanaście. Własna reguła wykrywająca skan po liczbie prób to dobry kandydat na zadanie „własna reguła Suricaty” w Etapie 4.
+
+Przy okazji w logu honeypota widać połączenie **z PC na port 22** (9.10, test z [Etapu 2](03-defender-raspberry.md)), co zamyka ostatni punkt starej listy.
+
+## ❗ Wpadki i ciekawostki (część 2)
+
+| Problem | Co było widać | Przyczyna | Rozwiązanie | Lekcja |
+|---|---|---|---|---|
+| Udział `Users` z prawem Wszyscy: Full | `Get-SmbShareAccess` → `Wszyscy  Allow  Full` | kiedyś utworzony udział (przeze mnie albo program) | `Remove-SmbShare -Name Users` | „port zamknięty w firewallu” to nie powód, żeby zostawić otwarte to, co jest za nim; każdą warstwę sprawdzam osobno |
+| Martwe przekierowanie `minecraft` | reguła NAT/PAT 25565 → PC, a na PC nic nie słucha | stary serwer Minecrafta | reguła usunięta | przekierowania w routerze żyją dłużej niż programy, dla których powstały |
+| Komenda „java” znalazła Node.js | `Node.js JavaScript Runtime` w wynikach filtra `java` | „JavaScript” zawiera „java” | przypadkowe, ale cenne znalezisko | każde „Zezwól” kliknięte kiedyś na szybko zostaje w firewallu na lata |
+| Kliknięcie WPS w panelu uruchomiło parowanie | przycisk WPS zaczął migać | to przycisk akcji (parowanie przez ~2 min), nie przełącznik | wyłączenie w ustawieniach sieci: pole „WPS: Aktywny” | zanim kliknę w panelu routera, sprawdzam, czy to przełącznik, czy akcja |
+| Zrzut ustawień Wi-Fi pokazał hasło | pole „Hasło Wi-Fi” i kod QR otwartym tekstem | panel Orange pokazuje hasło bez maskowania | zrzut nie trafia do repo | kod QR to zapisane hasło; zrzuty z panelu routera przycinam przed wysłaniem |
+| Prawdziwe hasło w logu honeypota | wpis `logtype 4002` z MacBooka (9.10): login `gmarczak` i hasło, które wyglądało na prawdziwe | `ssh` z MacBooka trafiło na port 22, czyli w honeypota, a nie w prawdziwe SSH na 2222 | hasło do zmiany tam, gdzie jest używane; log na Raspberry zostaje (to dowód działania pułapki) | honeypot zapisuje **wszystko**, także pomyłki właściciela. Z innych urządzeń łączę się `ssh -p 2222` albo przez skrót z `~/.ssh/config` |
+| Skan UDP trwał 3,5 s, a TCP 22 min | dwa bardzo różne czasy | UDP: tylko 100 portów; TCP: 65 535 portów i czekanie na każdą odpowiedź, która nie przychodzi | nic | przy firewallu, który milczy, czas skanu rośnie z liczbą portów |
 
 ---
+
+## Do zrobienia
+
+- [x] Wyłączyć Pulpit zdalny (RDP) — był już wyłączony, potwierdzone 10.10
+- [x] `Get-SmbShare`: zostały tylko udziały systemowe (usunięty `Users`)
+- [x] Router: brak przekierowań do PC, martwy wpis UPnP usunięty, DMZ wyłączone, WPS wyłączony; UPnP zostaje dla PS5
+- [x] Decyzja o Windows 10: ESU do 12.10.2027, potem nowy sprzęt
+- [x] Logi OpenCanary: połączenie z PC na port 22 jest w logu
+- [x] Pełny skan TCP i UDP: nic otwartego
+- [ ] Zrzuty z części 2 obrobione i dodane (bez hasła Wi-Fi, kodu QR, e-maila, adresów MAC i nazw sieci)
+- [ ] Pomysł na później: sieć IoT dla telewizora i pralki
+
+📋 Krótka wersja całej misji: [podsumowanie](07-skan-pc-podsumowanie.md). Podmisja dla MacBooka: [07b](07b-skan-macbooka.md).
 
 ➡️ **Następnie:** [Etap 3: Atakujący — Kali i cele na PC](04-attacker-kali.md)

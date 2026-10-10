@@ -80,7 +80,7 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Hack The Box: pierwsza maszyna / first machine
 - [ ] Podsumowanie etapu w `docs/etap-5-podsumowanie.md` / Stage summary
 
-## Misja dodatkowa: skan własnego PC / Side mission: scanning my own PC 🟡 w toku / in progress — [docs/07](docs/07-skan-wlasnego-pc.md)
+## Misja dodatkowa: skan własnego PC / Side mission: scanning my own PC ✅ — [docs/07](docs/07-skan-wlasnego-pc.md) — 📋 [podsumowanie / summary](docs/07-skan-pc-podsumowanie.md)
 
 Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co widać z sieci domowej. / The Pi plays attacker and scans my Windows PC to see what is exposed on the home network.
 
@@ -89,10 +89,13 @@ Raspberry w roli atakującego skanuje mój PC z Windowsem, żeby sprawdzić, co 
 - [x] Reguły firewalla znalezione i zamknięte: udostępnianie w profilu Public, NetBIOS, Hyper-V / Firewall rules found and closed
 - [x] Skan kontrolny: wszystkie 1000 portów `filtered` / Verification scan: all 1000 ports filtered (2026-10-09)
 - [x] Pulpit zdalny (RDP) wyłączony: `fDenyTSConnections = 1`, port 3389 nie nasłuchuje / Remote Desktop off, port 3389 not listening (2026-10-10)
-- [ ] Pełny skan TCP (`-p-`) i UDP (`-sU`) / Full TCP and UDP scan
+- [x] Pełny skan: 65 535 portów TCP `filtered`, 100 UDP `open|filtered`, nic otwartego / Full scan: all TCP filtered, no open UDP (2026-10-10) — [docs/07, część 2](docs/07-skan-wlasnego-pc.md#część-2-dokończenie-misji-10102026)
 - [x] `Get-SmbShare`: usunięty udział `Users` (`C:\Users`, Wszyscy: Full); zostały tylko udziały systemowe / removed the `Users` share (Everyone: Full); only default admin shares left (2026-10-10)
-- [ ] Router: brak przekierowań portów, UPnP wyłączone, Wi-Fi WPA2/WPA3 z hasłem 12+ / Router: no port forwards, UPnP off, WPA2/WPA3 with a 12+ char password
-- [ ] Nieznane urządzenie 192.168.1.16 (MAC Samsunga) zidentyfikowane / Unknown device (Samsung MAC) identified
+- [x] Router: martwe przekierowanie `minecraft` i wpis UPnP usunięte, DMZ wyłączone, WPS wyłączony; UPnP (PS5) i hasło Wi-Fi zostają świadomie / Router: stale forward and UPnP entry removed, no DMZ, WPS off; UPnP and Wi-Fi password kept on purpose (2026-10-10)
+- [x] Firewall Windows: reguły Node.js (Public) wyłączone / Node.js firewall rules disabled (2026-10-10)
+- [x] Nieznane urządzenie 192.168.1.16: telewizor Samsung / Unknown device identified: Samsung TV (2026-10-10)
+- [x] Podsumowanie misji / Mission summary — [docs/07-skan-pc-podsumowanie.md](docs/07-skan-pc-podsumowanie.md)
+- [ ] Zrzuty z części 2 obrobione i dodane / Part 2 screenshots added
 - [x] Decyzja o Windows 10: zapis do ESU (bezpłatnie z kontem Microsoft, do 12.10.2027), łatki z 10.10.2026 zainstalowane; Windows 11 nie wspiera i5-7600K, więc później nowy sprzęt / Windows 10 decision: enrolled in ESU until 12 Oct 2027, patches installed; Windows 11 does not support the i5-7600K (2026-10-10)
 
 ## Podmisja: skan MacBooka / Sub-mission: scanning my MacBook ⬜ — [docs/07b](docs/07b-skan-macbooka.md)

@@ -7,6 +7,17 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Misja „skan własnego PC” zamknięta / PC scan mission closed
+
+🇵🇱 Dokończona lista z 9.10. Znalezione i zamknięte: udział `Users` (`C:\Users`, Wszyscy: Full), reguły firewalla dla Node.js w profilu Public, martwe przekierowanie `minecraft` i martwy wpis UPnP w routerze, WPS. PC zapisany do ESU (łatki do 12.10.2027). Nieznany „localhost” to telewizor Samsung. Pełny skan z Raspberry: 65 535 portów TCP `filtered`, żaden UDP otwarty. Suricata na Raspberry zapisała kilkanaście alertów z własnego skanu, ale tylko dla portów z konkretnymi regułami. W logu honeypota znalazło się moje prawdziwe hasło: SSH z MacBooka trafiło przez pomyłkę na port 22.
+
+🇬🇧 Finished the 9 Oct checklist. Found and closed: an Everyone-Full `Users` share, Node.js firewall rules on the Public profile, a stale `minecraft` port forward and a stale UPnP entry, WPS. The PC is enrolled in ESU (patches until 12 Oct 2027). The unknown "localhost" is a Samsung TV. Full scan from the Pi: all 65,535 TCP ports filtered, no open UDP. Suricata logged a dozen alerts from my own scan, only for ports with specific rules. The honeypot log holds my real password: an SSH from the MacBook hit port 22 by mistake.
+
+**Lekcja / Lesson:** każdą warstwę sprawdzam osobno: firewall, udziały, router. / Check every layer separately: firewall, shares, router.
+📋 [docs/07-skan-pc-podsumowanie.md](../docs/07-skan-pc-podsumowanie.md) · Opis / Walkthrough: [docs/07, część 2](../docs/07-skan-wlasnego-pc.md#część-2-dokończenie-misji-10102026)
+
+---
+
 ## 2026-10-10 — Podsumowanie forensics / Forensics summary
 
 🇵🇱 Ćwiczenie z kartami microSD w jednym krótkim pliku: 5 części z jednym zrzutem każda, wyniki w tabeli, najważniejsze wpadki i lekcje.
