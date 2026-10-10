@@ -62,6 +62,9 @@ Drop build screenshots and photos here, e.g.:
   - `07`–`08`: grupa `docker`, ponowne logowanie, `hello-world` (IPv6 zamazany) / `docker` group, re-login, `hello-world` (IPv6 blurred)
   - `09`: DVWA: `git clone`, `sed`, `docker compose pull`; timeout przy Juice Shop / DVWA clone, edit, pull; Juice Shop timeout
   - `10`: DVWA i Juice Shop działają: `docker ps`, `curl` / both targets running
+  - `11`: netplan i cloud-init; wpadka z wklejonym blokiem i pytaniem `sudo` / netplan and cloud-init; the pasted block eaten by the `sudo` prompt
+  - `12`–`14`: snapshot, karta 1 w `labnet` (MAC zamazany), SSH z PC już nie działa / snapshot, adapter 1 on `labnet` (MAC blurred), SSH from the PC no longer works
+  - `15`: `10.10.10.10/24` i `Network is unreachable` (IPv6 zamazane) / static address and no internet (IPv6 blurred)
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

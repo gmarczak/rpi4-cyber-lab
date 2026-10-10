@@ -20,7 +20,8 @@ Kolejność jest ważna: wszystko, co trzeba pobrać, pobieram **przed** przeł�
 | DVWA + baza MariaDB 10 (`docker compose`), port 4280 | ✅ `HTTP/1.1 302 Found` |
 | OWASP Juice Shop (`docker run`), port 3000 | ✅ `HTTP/1.1 200 OK` |
 | Kontenery wstają same po restarcie (`restart: unless-stopped`) | ✅ |
-| `cele` w `labnet` pod stałym adresem 10.10.10.10, bez internetu | ⏳ w toku, kroki 19–21 |
+| `cele` w `labnet` pod stałym adresem 10.10.10.10, bez internetu | ✅ `ping 8.8.8.8` → `Network is unreachable` |
+| Snapshot „cele z Dockerem, przed labnet” | ✅ |
 
 ---
 
@@ -98,7 +99,8 @@ curl -sI http://localhost:3000 | head -1
 ```
 
 ```bash
-# --- przełączenie do labnet (w toku) ---
+# --- przełączenie do labnet ---
+# UWAGA: wklejaj po jednym poleceniu. Wklejony cały blok trafi w pytanie sudo o hasło (wpadka 19!)
 # 19. cloud-init przestaje zarządzać siecią; stały adres 10.10.10.10 bez bramy
 sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg <<'EOF'
 network: {config: disabled}
@@ -271,7 +273,7 @@ Autor DVWA ([github.com/digininja/DVWA](https://github.com/digininja/DVWA)) dost
 
 ---
 
-## Część 5: przełączenie do `labnet` (w toku)
+## Część 5: przełączenie do `labnet`
 
 ### 19. Stały adres bez bramy
 
@@ -281,18 +283,44 @@ Do tej pory adres dawał DHCP od NAT (`10.0.2.15`). W `labnet` nie ma żadnego s
 
 W konfiguracji celowo **nie ma bramy** (`routes`/`gateway`): `cele` zna tylko sieć 10.10.10.0/24 i nie ma którędy wyjść do internetu. To druga warstwa zabezpieczenia, obok samej sieci wewnętrznej.
 
-`netplan generate` sprawdza plik bez stosowania zmian. `netplan apply` od razu zerwałby połączenie SSH, więc nowy adres zadziała po restarcie.
+`netplan generate` sprawdza plik bez stosowania zmian i odpowiada `KONFIG_OK` (zielona ramka). `netplan apply` od razu zerwałby połączenie SSH, więc nowy adres zadziała po restarcie.
+
+Pierwsza próba się nie udała: wkleiłem cały blok naraz, a `sudo` zapytało o hasło w połowie wklejania. Opis w [❗ Wpadkach](#-wpadki) (czerwone ramki 19!). Druga próba, polecenie po poleceniu, przeszła czysto.
+
+![Wklejanie bloku i pytanie sudo, potem poprawnie](../screenshots/2026-10-10-cele-docker/11-netplan-wklejanie-sudo.png)
 
 ### 20. Snapshot i zmiana karty
 
 Przy wyłączonej `cele`:
 
-1. **Migawki** → snapshot „cele z Dockerem, przed labnet” (punkt powrotu),
-2. **Ustawienia** → **Sieć** → **Karta 1** → *Podłączona do:* **Sieć wewnętrzna**, nazwa **`labnet`** wybrana z listy, nie wpisana ręcznie.
+1. **Migawki** → **Zrób** → snapshot „cele z Dockerem, przed labnet” (punkt powrotu),
+2. **Ustawienia** → **Sieć** → **Karta 1** → *Podłączona do:* **Sieć wewnętrzna**, nazwa **`labnet`** wybrana z listy, nie wpisana ręcznie. Ta sama nazwa co karta 1 w Kali, więc obie maszyny są „w jednym kablu”. Adres MAC na zrzucie zamazany.
+
+![Snapshot przed przełączeniem](../screenshots/2026-10-10-cele-docker/12-snapshot-przed-labnet.png)
+![Karta 1 w sieci wewnętrznej labnet](../screenshots/2026-10-10-cele-docker/13-karta-labnet.png)
+
+Po przełączeniu `ssh -p 2201` z PowerShella kończy się `Connection refused`. To dobry znak: przekierowanie portu należało do karty NAT i zniknęło razem z nią. Z PC nie da się już dostać do `cele`.
+
+![SSH z PC już nie działa](../screenshots/2026-10-10-cele-docker/14-ssh-po-przelaczeniu.png)
 
 ### 21. Sprawdzenie
 
-W konsoli VirtualBoxa (SSH przez port 2201 już nie działa): `ip -br a` powinno pokazać `enp0s3 UP 10.10.10.10/24`, a `ping 8.8.8.8` skończyć się `Network is unreachable`.
+W konsoli VirtualBoxa:
+
+- `ip -br a`: `enp0s3 UP 10.10.10.10/24` (zielona ramka). Adres z pliku netplan zadziałał i cloud-init go nie nadpisał,
+- `ping -c 2 8.8.8.8`: `Network is unreachable`. System nie zna żadnej drogi poza 10.10.10.0/24, więc nawet nie próbuje wysłać pakietu. **Cele są odcięte od internetu.**
+
+Obok `enp0s3` widać karty, które stworzył Docker. Wszystkie żyją tylko wewnątrz `cele`:
+
+| Karta | Adres | Co to |
+|---|---|---|
+| `docker0` | 172.17.0.1/16 | domyślna sieć Dockera, tu nieużywana (Juice Shop z `docker run` też tu jest podpięty) |
+| `br-57035d39ba6d` | 172.18.0.1/16 | sieć `dvwa_dvwa` z `compose.yml`, w której DVWA rozmawia z bazą |
+| `veth…@if2` (3 sztuki) | brak | „wirtualne kable”, po jednym na kontener |
+
+Adresy IPv6 (`fe80::…`) na zrzucie zamazane. Literówkę `ipa` opisuję w wpadkach (żółta ramka 21!).
+
+![labnet bez internetu](../screenshots/2026-10-10-cele-docker/15-labnet-bez-internetu.png)
 
 ---
 
@@ -327,6 +355,7 @@ W konsoli VirtualBoxa (SSH przez port 2201 już nie działa): `ip -br a` powinno
 | `chmod 600 PLIK` | czytać i pisać może tylko właściciel (root); `netplan` ostrzega przy luźniejszych prawach |
 | `netplan generate` | sprawdza konfigurację sieci i przygotowuje ją na następny start, ale nie zmienia działającej sieci |
 | `sudo poweroff` | wyłącza maszynę |
+| `sudo true` | nic nie robi, ale zmusza `sudo` do zapytania o hasło. Przez kilka minut kolejne `sudo` już nie pytają |
 | `ip -br a` | krótka (`-br` = *brief*) lista kart: nazwa, stan, adresy |
 | `ping -c 2 8.8.8.8` | 2 pakiety do publicznego serwera DNS Google; tu ma się **nie** udać |
 
@@ -346,13 +375,16 @@ W konsoli VirtualBoxa (SSH przez port 2201 już nie działa): `ip -br a` powinno
 | Odcisk klucza zaakceptowany bez porównania (krok 7) | `yes` od razu po pytaniu o odcisk | pośpiech | porównać odcisk ze zrzutem 43 z [04c](04c-instalacja-kali-i-celow.md#22-pierwszy-start-klucze-ssh-serwera) | to jedyny moment, w którym SSH chroni przed podszyciem; przy kolejnym razie najpierw porównuję |
 | Pomieszany ekran przy instalacji Dockera (krok 8) | białe paski i `^[[B` w wyniku | pasek postępu `apt` źle rysuje się w PowerShellu przez SSH | nic; instalacja przeszła | wygląd terminala to nie stan systemu; liczy się wynik końcowy |
 | DVWA pobrany, ale nie uruchomiony (krok 14) | po `docker compose pull` od razu `docker run` dla Juice Shop | wklejona paczka komend „zgubiła” linijkę `docker compose up -d` | `docker compose up -d` osobno | po wklejeniu kilku linijek sprawdzam, czy każda się wykonała |
+| Wklejony blok „zjedzony” przez `sudo` (krok 19) | `[sudo: authenticate] Password:` w środku wklejanego tekstu, 3 × `Authentication failed`, potem `network:: command not found` i podobne (zrzut 11, czerwone ramki 19!) | `sudo` zapytało o hasło (minął czas zapamiętania hasła). Wklejane linijki trafiły do pola hasła, a reszta wykonała się jako zwykłe komendy | wpisać hasło przy pierwszym `sudo`, potem wklejać po jednym poleceniu | przed wklejeniem bloku z `sudo` najpierw jedno krótkie `sudo true`, żeby hasło było już podane. Nic się nie zepsuło: bez hasła żadne `sudo` się nie wykonało |
+| Złe hasło przy ponownym `sudo` (krok 19) | jedno `Authentication failed`, za drugim razem przeszło (zrzut 11) | literówka w haśle | ponowne wpisanie | hasła przy `sudo` nie widać, więc łatwo o literówkę |
+| `Command 'ipa' not found` (krok 21) | Ubuntu proponuje instalację `freeipa-client` (zrzut 15, żółta ramka 21!) | literówka: `ipa` zamiast `ip` | `ip -br a` | podpowiedź „can be installed with” to nie znaczy, że trzeba coś instalować; najpierw sprawdzam pisownię |
 | Timeout przy pobieraniu Juice Shop (krok 16) | `failed to copy: httpReadSeeker … timeout awaiting response headers` (zrzut 09, ramki 16!) | Docker Hub nie odpowiedział na czas przy jednej z warstw dużego obrazu (ponad 20 warstw pobieranych naraz) | `docker pull bkimminich/juice-shop`, potem `docker run` | timeout to zwykle chwilowy problem z siecią; pobieranie wznawia się od miejsca przerwania |
 
 ---
 
 ## Co dalej w tym etapie
 
-- [ ] Kroki 19–21: `cele` w `labnet` pod adresem 10.10.10.10, bez internetu
+- [x] Kroki 19–21: `cele` w `labnet` pod adresem 10.10.10.10, bez internetu
 - [ ] Kali: stały adres 10.10.10.5 na `eth0` (karta w `labnet`)
 - [ ] Testy z Kali: ping, `nmap`, DVWA (`http://10.10.10.10:4280`, pierwsza konfiguracja bazy przyciskiem **Create / Reset Database**) i Juice Shop (`http://10.10.10.10:3000`) w przeglądarce, `ssh` z porównaniem odcisku klucza
 - [ ] Snapshot „cele czyste”
