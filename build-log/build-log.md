@@ -7,6 +7,20 @@ Najnowsze na górze / Newest first.
 
 ---
 
+## 2026-10-10 — Pierwszy kontakt Kali → cele / First contact Kali → target VM
+
+🇵🇱 Kali ze stałym `10.10.10.5` na `eth0` (nmcli, bez bramy, internet zostaje na `eth1` mostkowanej). Ping do `cele` 3/3. `nmap -sV` pokazał tylko 22 i 3000 — DVWA na 4280 zniknęło, bo domyślnie skanuje 1000 portów; dopiero `nmap -p-` pokazał wszystkie trzy usługi, baza 3306 dalej niewidoczna. SSH na `cele` z porównaniem odcisku klucza (zgodny z rannym z PowerShella). DVWA i Juice Shop otwarte w Firefoksie na Kali. To domyka testy z Etapu 3.
+
+🇬🇧 Kali static `10.10.10.5` on `eth0` (nmcli, no gateway, internet stays on the bridged `eth1`). Ping to `cele` 3/3. `nmap -sV` showed only 22 and 3000 — DVWA on 4280 was missing because the default scan covers 1000 ports; `nmap -p-` revealed all three services, the 3306 database still hidden. SSH to `cele` with a fingerprint check (matches the morning's from PowerShell). DVWA and Juice Shop opened in Firefox on Kali. This closes the stage-3 tests.
+
+**Wpadki / Gotchas:** literówka `sSnmap` zamiast `nmap -sV`; domyślny `nmap` nie widzi portu 4280 (lekcja o zakresie skanu). / `sSnmap` typo instead of `nmap -sV`; the default `nmap` misses port 4280 (a lesson about scan scope).
+
+**Lekcja / Lesson:** domyślny skan nmapa to 1000 portów, nie wszystkie — atakujący i obrońca, którzy o tym zapomną, przeoczą usługę na nietypowym porcie. / nmap's default is 1000 ports, not all — anyone who forgets that misses a service on an unusual port.
+
+Opis / Walkthrough: [docs/04d, część 6](../docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali) · Zrzuty / Screenshots: [`../screenshots/2026-10-10-cele-docker/`](../screenshots/2026-10-10-cele-docker/)
+
+---
+
 ## 2026-10-10 — Docker, DVWA i Juice Shop na `cele` / Docker, DVWA and Juice Shop on the target VM
 
 🇵🇱 Na `cele` Docker 29.9.0 z oficjalnego repozytorium; Ubuntu 26.04 (`resolute`) jest już w nim obsługiwane. W konsoli VirtualBoxa nie da się wklejać, więc przekierowałem port 2201 → 22 w NAT (tylko z `127.0.0.1`) i dalej pracowałem przez SSH z PowerShella. DVWA z `compose.yml` autora z dwiema zmianami: port na wszystkich kartach zamiast tylko `127.0.0.1` (inaczej Kali by go nie zobaczył) i `pull_policy: missing` (inaczej start bez internetu by się wywalił). Juice Shop przez `docker run`. Trzy kontenery `Up`, DVWA odpowiada `302`, Juice Shop `200`. Potem stały adres 10.10.10.10 (netplan, cloud-init wyłączony z sieci), snapshot i karta przełączona na `labnet`: `ping 8.8.8.8` → `Network is unreachable`.

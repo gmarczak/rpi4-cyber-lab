@@ -65,6 +65,10 @@ Drop build screenshots and photos here, e.g.:
   - `11`: netplan i cloud-init; wpadka z wklejonym blokiem i pytaniem `sudo` / netplan and cloud-init; the pasted block eaten by the `sudo` prompt
   - `12`–`14`: snapshot, karta 1 w `labnet` (MAC zamazany), SSH z PC już nie działa / snapshot, adapter 1 on `labnet` (MAC blurred), SSH from the PC no longer works
   - `15`: `10.10.10.10/24` i `Network is unreachable` (IPv6 zamazane) / static address and no internet (IPv6 blurred)
+  - `16`: Kali ze stałym `10.10.10.5` na `eth0` i ping do `cele` (adres domowy `eth1` i IPv6 zamazane) / Kali static on `eth0`, ping to the target (home address and IPv6 blurred)
+  - `17`–`18`: `nmap -sV` (brak DVWA w domyślnym skanie) i `nmap -p-` (wszystkie trzy usługi) / default scan misses DVWA, full scan finds all three
+  - `19`: SSH z Kali z odciskiem klucza zgodnym z rannym logowaniem / SSH from Kali, fingerprint matches
+  - `20`–`21`: DVWA i Juice Shop otwarte w Firefoksie na Kali / DVWA and Juice Shop in Firefox on Kali
 
 ## ⚠️ Zanim wrzucisz / Before committing
 

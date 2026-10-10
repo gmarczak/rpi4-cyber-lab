@@ -49,8 +49,9 @@ Task checklist. When a task is done, change `[ ]` to `[x]` and add an entry to t
 - [ ] Kali zabezpieczony: SSH wyłączone, `ufw`, skan z Raspberry bez otwartych portów / Kali hardened: SSH off, `ufw`, no open ports from the Pi — [docs/04b, obrona](docs/04b-sieci-virtualbox.md#jak-się-bronić)
 - [x] Maszyna `cele` (Ubuntu Server 26.04.1) zainstalowana / Target VM installed (2026-10-10) — [docs/04c, część 2](docs/04c-instalacja-kali-i-celow.md#część-2-maszyna-cele)
 - [x] Docker 29.9 na `cele`; DVWA i Juice Shop działają w kontenerach / Docker on the target VM; DVWA and Juice Shop running in containers (2026-10-10) — [docs/04d](docs/04d-docker-dvwa-juice-shop.md)
-- [ ] DVWA tylko w sieci wewnętrznej / DVWA on the internal network only
-- [ ] Juice Shop tylko w sieci wewnętrznej / Juice Shop on the internal network only
+- [x] `cele` i Kali ze stałymi adresami w `labnet` (10.10.10.10 i 10.10.10.5), `cele` bez internetu / `cele` and Kali with static addresses on `labnet`, `cele` with no internet (2026-10-10) — [docs/04d, części 5–6](docs/04d-docker-dvwa-juice-shop.md#część-5-przełączenie-do-labnet)
+- [x] DVWA i Juice Shop widoczne z Kali tylko w sieci wewnętrznej (`nmap`, przeglądarka) / DVWA and Juice Shop reachable from Kali on the internal network only (2026-10-10) — [docs/04d, część 6](docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
+- [x] Test z Kali: `ssh` na `cele` z porównaniem odcisku klucza / Test from Kali: `ssh` to `cele` with a fingerprint check (2026-10-10) — [docs/04d, krok 28](docs/04d-docker-dvwa-juice-shop.md#część-6-pierwszy-kontakt-z-kali)
 - [ ] Podsumowanie etapu w `docs/etap-3-podsumowanie.md` / Stage summary
 
 ## Etap 4: Pętla atak–wykrycie / Attack–detect loop — [docs/05](docs/05-first-exercise.md)

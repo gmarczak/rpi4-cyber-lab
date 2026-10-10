@@ -324,6 +324,74 @@ Adresy IPv6 (`fe80::…`) na zrzucie zamazane. Literówkę `ipa` opisuję w wpad
 
 ---
 
+## Część 6: pierwszy kontakt z Kali
+
+Teraz z Kali sprawdzam, że cele faktycznie widać w `labnet` i że obie dziurawe aplikacje odpowiadają. To domyka testy z Etapu 3; samymi dziurami zajmę się w kolejnych ćwiczeniach.
+
+### 22–25. Stały adres Kali w `labnet`
+
+Kali ma dwie karty: `eth0` w `labnet` (do celów) i `eth1` mostkowana (do internetu i aktualizacji). `eth0` dostaje stały adres **10.10.10.5**, w tej samej sieci co `cele` (10.10.10.10).
+
+```bash
+sudo nmcli connection add type ethernet ifname eth0 con-name labnet ipv4.method manual ipv4.addresses 10.10.10.5/24 ipv6.method disabled connection.autoconnect-priority 10
+```
+
+Tu **celowo nie podaję bramy** (`ipv4.gateway`). Gdyby `eth0` miała bramę, Kali mógłby próbować wychodzić do internetu przez `labnet`, gdzie nic nie ma. Internet zostaje na `eth1`. `nmcli` sam zapisuje połączenie na stałe, więc nie ma tu pułapki cloud-init jak na `cele`.
+
+`ip -br a` potwierdza: `eth0 UP 10.10.10.5/24`, `eth1` dalej z adresem domowym (na zrzucie zamazany, tak jak IPv6). `ping -c 3 10.10.10.10` dostaje 3 odpowiedzi w około 1 ms (zielona ramka): Kali i `cele` są w jednym, zamkniętym kablu.
+
+![Kali w labnet i ping do cele](../screenshots/2026-10-10-cele-docker/16-kali-labnet-ping.png)
+
+### 26–27. Skan portów i lekcja o domyślnym zakresie
+
+Pierwsze podejście to literówka `sSnmap` zamiast `nmap -sV` (żółta ramka 26!), opis w [❗ Wpadkach](#-wpadki). Poprawny `nmap -sV 10.10.10.10` daje wynik, który na początku wygląda na błąd:
+
+```bash
+nmap -sV 10.10.10.10
+```
+
+- `Not shown: 998 closed tcp ports`: nmap domyślnie sprawdza **1000 najpopularniejszych** portów, nie wszystkie 65 535,
+- widać tylko `22/tcp ssh` i `3000/tcp` — **DVWA na porcie 4280 się nie pojawia**, bo 4280 nie jest w tej domyślnej tysiątce.
+
+To ważna lekcja: domyślny skan nie widzi wszystkiego. Pełny skan `-p-` sprawdza każdy port:
+
+```bash
+nmap -sV -p- 10.10.10.10
+```
+
+Teraz `Not shown: 65532 closed` i komplet trzech usług, w tym `4280/tcp http Apache httpd 2.4.68` (DVWA). Portu bazy `3306` dalej nie widać z Kali — baza nie ma przekierowanego portu i siedzi w sieci Dockera. To potwierdza założenie z kroku 17: na zewnątrz wystawione są tylko aplikacje, nie baza.
+
+Mała ciekawostka: `3000/tcp` nmap opisuje jako `ppp?`, bo nie rozpoznał usługi z nazwy. Ale w surowej odpowiedzi (linie `SF:` poniżej) widać `<title>OWASP Juice Shop` — aplikacja odpowiada, tylko nmap jej nie zna.
+
+![nmap -sV: brak DVWA w domyślnym skanie](../screenshots/2026-10-10-cele-docker/17-nmap-sv-brak-dvwa.png)
+![nmap -p-: pełny skan pokazuje wszystkie trzy usługi](../screenshots/2026-10-10-cele-docker/18-nmap-pelny-skan.png)
+
+### 28. SSH z porównaniem odcisku
+
+Tym razem robię to, czego nie zrobiłem rano: porównuję odcisk klucza przed wpisaniem `yes`.
+
+```bash
+ssh grzesiek@10.10.10.10
+```
+
+Odcisk z Kali (zielona ramka): `SHA256:ByR4pOhu4JKVvVvtorD/LbEYG57pxayXKdVcSmp3SbQ`. To ten sam odcisk, który zaakceptowałem rano z PowerShella ([część 2, krok 7](#7-pierwsze-logowanie-i-odcisk-klucza)). Zgodność dowodzi, że łączę się z prawdziwą `cele`, a nie z kimś, kto ją podstawił. Odcisk klucza serwera jest jawny z założenia (służy właśnie do porównywania), więc tu go nie zamazuję.
+
+![SSH z Kali, odcisk zgodny](../screenshots/2026-10-10-cele-docker/19-ssh-odcisk-cele.png)
+
+### 29. Obie aplikacje w przeglądarce Kali
+
+W Firefoksie na Kali:
+
+- **`http://10.10.10.10:4280`** — strona logowania DVWA. Przy pierwszym wejściu trzeba zejść na stronę **Setup** i kliknąć **Create / Reset Database**, potem logowanie `admin` / `password`.
+- **`http://10.10.10.10:3000`** — OWASP Juice Shop, sklep z sokami. Okno powitalne zamykam przyciskiem **Dismiss**.
+
+Obie strony ładują się z `cele` przez `labnet`. Pasek przeglądarki pokazuje `Not Secure` i `http://`, bo to lab bez certyfikatu — w zamkniętej sieci to w porządku.
+
+![DVWA w przeglądarce Kali](../screenshots/2026-10-10-cele-docker/20-dvwa-przegladarka.png)
+![Juice Shop w przeglądarce Kali](../screenshots/2026-10-10-cele-docker/21-juice-shop-przegladarka.png)
+
+---
+
 ## Co robi każda komenda
 
 | Komenda | Co robi |
@@ -358,6 +426,11 @@ Adresy IPv6 (`fe80::…`) na zrzucie zamazane. Literówkę `ipa` opisuję w wpad
 | `sudo true` | nic nie robi, ale zmusza `sudo` do zapytania o hasło. Przez kilka minut kolejne `sudo` już nie pytają |
 | `ip -br a` | krótka (`-br` = *brief*) lista kart: nazwa, stan, adresy |
 | `ping -c 2 8.8.8.8` | 2 pakiety do publicznego serwera DNS Google; tu ma się **nie** udać |
+| `nmcli connection add type ethernet ifname eth0 con-name labnet ipv4.method manual ipv4.addresses 10.10.10.5/24 …` | tworzy stałe połączenie sieciowe: `ifname` = której karty dotyczy, `con-name` = nazwa, `ipv4.method manual` = adres z ręki (nie DHCP), `autoconnect-priority 10` = włączaj je w pierwszej kolejności |
+| `nmcli connection up NAZWA` | włącza (aktywuje) zapisane połączenie |
+| `nmap -sV ADRES` | skanuje 1000 najpopularniejszych portów i próbuje rozpoznać wersję usługi (`-sV` = *service/version*) |
+| `nmap -sV -p- ADRES` | `-p-` = skanuj **wszystkie** 65535 portów, nie tylko domyślną tysiąc |
+| `ssh UŻYTKOWNIK@ADRES` | logowanie SSH; przy pierwszym razie pokazuje odcisk klucza serwera do porównania |
 
 ---
 
@@ -378,6 +451,7 @@ Adresy IPv6 (`fe80::…`) na zrzucie zamazane. Literówkę `ipa` opisuję w wpad
 | Wklejony blok „zjedzony” przez `sudo` (krok 19) | `[sudo: authenticate] Password:` w środku wklejanego tekstu, 3 × `Authentication failed`, potem `network:: command not found` i podobne (zrzut 11, czerwone ramki 19!) | `sudo` zapytało o hasło (minął czas zapamiętania hasła). Wklejane linijki trafiły do pola hasła, a reszta wykonała się jako zwykłe komendy | wpisać hasło przy pierwszym `sudo`, potem wklejać po jednym poleceniu | przed wklejeniem bloku z `sudo` najpierw jedno krótkie `sudo true`, żeby hasło było już podane. Nic się nie zepsuło: bez hasła żadne `sudo` się nie wykonało |
 | Złe hasło przy ponownym `sudo` (krok 19) | jedno `Authentication failed`, za drugim razem przeszło (zrzut 11) | literówka w haśle | ponowne wpisanie | hasła przy `sudo` nie widać, więc łatwo o literówkę |
 | `Command 'ipa' not found` (krok 21) | Ubuntu proponuje instalację `freeipa-client` (zrzut 15, żółta ramka 21!) | literówka: `ipa` zamiast `ip` | `ip -br a` | podpowiedź „can be installed with” to nie znaczy, że trzeba coś instalować; najpierw sprawdzam pisownię |
+| `Command 'sSnmap' not found` (krok 26) | Ubuntu proponuje `stnmap` z `deb grads` (zrzut 16, żółta ramka 26!) | literówka: `sSnmap` zamiast `nmap -sV` (zlały się dwa kawałki komendy) | `nmap -sV 10.10.10.10` | to samo co wyżej: podpowiedź instalacji nie znaczy, że brakuje narzędzia |
 | Timeout przy pobieraniu Juice Shop (krok 16) | `failed to copy: httpReadSeeker … timeout awaiting response headers` (zrzut 09, ramki 16!) | Docker Hub nie odpowiedział na czas przy jednej z warstw dużego obrazu (ponad 20 warstw pobieranych naraz) | `docker pull bkimminich/juice-shop`, potem `docker run` | timeout to zwykle chwilowy problem z siecią; pobieranie wznawia się od miejsca przerwania |
 
 ---
@@ -385,9 +459,10 @@ Adresy IPv6 (`fe80::…`) na zrzucie zamazane. Literówkę `ipa` opisuję w wpad
 ## Co dalej w tym etapie
 
 - [x] Kroki 19–21: `cele` w `labnet` pod adresem 10.10.10.10, bez internetu
-- [ ] Kali: stały adres 10.10.10.5 na `eth0` (karta w `labnet`)
-- [ ] Testy z Kali: ping, `nmap`, DVWA (`http://10.10.10.10:4280`, pierwsza konfiguracja bazy przyciskiem **Create / Reset Database**) i Juice Shop (`http://10.10.10.10:3000`) w przeglądarce, `ssh` z porównaniem odcisku klucza
-- [ ] Snapshot „cele czyste”
+- [x] Kali: stały adres 10.10.10.5 na `eth0` (karta w `labnet`) — część 6
+- [x] Testy z Kali: ping, `nmap` (z lekcją o `-p-`), DVWA i Juice Shop w przeglądarce, `ssh` z porównaniem odcisku klucza — część 6
+- [ ] Na `cele`: strona Setup DVWA → **Create / Reset Database** i logowanie `admin`/`password` (do zrobienia przy pierwszym ćwiczeniu)
+- [ ] Snapshot „cele czyste” (po konfiguracji bazy DVWA)
 - [ ] Zabezpieczenie Kali według [04b, obrona](04b-sieci-virtualbox.md#jak-się-bronić)
 
 ➡️ Następnie: [05 — Pierwsze ćwiczenie](05-first-exercise.md)
